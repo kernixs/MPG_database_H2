@@ -1,0 +1,4 @@
+VALIDATION_ISSUE_ID	SEGMENT_ID	SOURCE_FILE_ID	SOURCE_FILE	SOURCE_FILE_PATH	ROW_NUMBER	SAMPLE_ACCESSION_ID	ISSUE_TYPE	SEVERITY	ISSUE_MESSAGE	VALIDATION_BEHAVIOR
+1		2	test.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/test.cnv	2	SIM001	Missing Genome Build	ERROR	Genome build is required before inserting genomic coordinates for line 2	REJECTED ROW
+2		2	test.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/test.cnv	3	SIM003	Missing Genome Build	ERROR	Genome build is required before inserting genomic coordinates for line 3	REJECTED ROW
+3		2	test.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/test.cnv	4	SIM004	Unparseable Row	ERROR	Unparseable row at line 4: one or more numeric fields could not be parsed	REJECTED ROW

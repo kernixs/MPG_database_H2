@@ -1,0 +1,306 @@
+
+Segments for sample SIM001
+segment_id	sample_test_result_id	karyotype_id	chromosome	start_pos	stop_pos	event_type	copy_number
+553	553	1	chr5	75000000	120000000	DEL	1
+554	554		chr7	55000000	61000000	DUP	3
+1308	1333	102	chr5	75000000	120000000	DEL	1
+1309	1334		chr7	55000000	61000000	DUP	3
+
+Segments overlapping chr5:70000000-150000000
+segment_id	sample_test_result_id	karyotype_id	chromosome	start_pos	stop_pos	event_type	copy_number
+79	79		chr5	141011866	141579477	DEL	1
+80	80		chr5	141011634	141579328	DUP	3
+100	100		chr5	140554179	140559292	DUP	3
+419	419		chr5	138787101	138837100	DEL	1
+473	473		chr5	102161158	111121407	DUP	3
+514	514		chr5	84008224	98486545	LOSS	1
+525	525		chr5	139332964	142836580	LOSS	1
+553	553	1	chr5	75000000	120000000	DEL	1
+630	630	76	chr5	71405173	85298742	DUP	3
+834	859		chr5	141011866	141579477	DEL	1
+835	860		chr5	141011634	141579328	DUP	3
+855	880		chr5	140554179	140559292	DUP	3
+1174	1199		chr5	138787101	138837100	DEL	1
+1228	1253		chr5	102161158	111121407	DUP	3
+1269	1294		chr5	84008224	98486545	LOSS	1
+1280	1305		chr5	139332964	142836580	LOSS	1
+1308	1333	102	chr5	75000000	120000000	DEL	1
+1385	1410	177	chr5	71405173	85298742	DUP	3
+
+Validation Issues
+VALIDATION_ISSUE_ID	ISSUE_TYPE	ISSUE_MESSAGE	SEVERITY
+1	Mosaic Karyotype	Mosaic Karyotype detected in raw ISCN at line 18	WARNING
+2	Uncertain Breakpoint	Uncertain Breakpoint detected in raw ISCN at line 24	WARNING
+3	Mosaic Karyotype	Mosaic Karyotype detected in raw ISCN at line 35	WARNING
+4	Uncertain Breakpoint	Uncertain Breakpoint detected in raw ISCN at line 47	WARNING
+5	Mosaic Karyotype	Mosaic Karyotype detected in raw ISCN at line 52	WARNING
+6	Mosaic Karyotype	Mosaic Karyotype detected in raw ISCN at line 69	WARNING
+7	Uncertain Breakpoint	Uncertain Breakpoint detected in raw ISCN at line 70	WARNING
+8	Mosaic Karyotype	Mosaic Karyotype detected in raw ISCN at line 86	WARNING
+9	Uncertain Breakpoint	Uncertain Breakpoint detected in raw ISCN at line 93	WARNING
+10	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 2	ERROR
+11	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 3	ERROR
+12	Unparseable Row	Unparseable row at line 4: one or more numeric fields could not be parsed	ERROR
+13	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 2	ERROR
+14	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 3	ERROR
+15	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 4	ERROR
+16	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 5	ERROR
+17	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 6	ERROR
+18	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 7	ERROR
+19	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 8	ERROR
+20	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 9	ERROR
+21	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 10	ERROR
+22	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 11	ERROR
+23	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 12	ERROR
+24	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 13	ERROR
+25	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 14	ERROR
+26	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 15	ERROR
+27	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 16	ERROR
+28	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 17	ERROR
+29	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 18	ERROR
+30	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 19	ERROR
+31	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 20	ERROR
+32	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 21	ERROR
+33	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 22	ERROR
+34	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 23	ERROR
+35	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 24	ERROR
+36	Mosaic Karyotype	Mosaic Karyotype detected in raw ISCN at line 18	WARNING
+37	Uncertain Breakpoint	Uncertain Breakpoint detected in raw ISCN at line 24	WARNING
+38	Mosaic Karyotype	Mosaic Karyotype detected in raw ISCN at line 35	WARNING
+39	Uncertain Breakpoint	Uncertain Breakpoint detected in raw ISCN at line 47	WARNING
+40	Mosaic Karyotype	Mosaic Karyotype detected in raw ISCN at line 52	WARNING
+41	Mosaic Karyotype	Mosaic Karyotype detected in raw ISCN at line 69	WARNING
+42	Uncertain Breakpoint	Uncertain Breakpoint detected in raw ISCN at line 70	WARNING
+43	Mosaic Karyotype	Mosaic Karyotype detected in raw ISCN at line 86	WARNING
+44	Uncertain Breakpoint	Uncertain Breakpoint detected in raw ISCN at line 93	WARNING
+45	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 2	ERROR
+46	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 3	ERROR
+47	Unparseable Row	Unparseable row at line 4: one or more numeric fields could not be parsed	ERROR
+48	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 2	ERROR
+49	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 3	ERROR
+50	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 4	ERROR
+51	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 5	ERROR
+52	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 6	ERROR
+53	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 7	ERROR
+54	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 8	ERROR
+55	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 9	ERROR
+56	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 10	ERROR
+57	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 11	ERROR
+58	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 12	ERROR
+59	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 13	ERROR
+60	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 14	ERROR
+61	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 15	ERROR
+62	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 16	ERROR
+63	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 17	ERROR
+64	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 18	ERROR
+65	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 19	ERROR
+66	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 20	ERROR
+67	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 21	ERROR
+68	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 22	ERROR
+69	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 23	ERROR
+70	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 24	ERROR
+
+ISCN-derived segments
+segment_id	sample_test_result_id	karyotype_id	chromosome	start_pos	stop_pos	event_type	copy_number
+553	553	1	chr5	75000000	120000000	DEL	1
+556	556	2	chr21	29985207	30429817	DER	2
+557	557	3	chr1	25251125	28944261	DUP	3
+558	558	4	chr9	217379832	231989271	DEL	1
+559	559	5	chr11	27536862	29117879	GAIN	3
+560	560	6	chr3	148287279	153230994	DER	2
+561	561	7	chr3	62589327	77151510	DEL	1
+562	562	8	chr22	71766312	83565902	DER	2
+563	563	9	chr21	184827068	194196134	DUP	3
+564	564	10	chr7	152351235	167079243	DER	2
+565	565	11	chrY	150791111	159858649	LOSS	1
+566	566	12	chr16	24503309	37208229	DEL	1
+567	567	13	chr13	160057580	167935154	ADD	2
+568	568	14	chr14	42555148	50192368	DEL	1
+569	569	15	chr12	204784934	207520277	ADD	2
+570	570	16	chr10	64377491	65374314	DUP	3
+571	571	17	chr22	127682641	136931814	DUP	3
+572	572	18	chr21	100339303	107714402	ADD	2
+573	573	19	chr8	2030277	3246343	DER	2
+574	574	20	chr22	130402462	134021759	ADD	2
+575	575	21	chr4	176994335	184251173	LOSS	1
+576	576	22	chr11	215007415	229488881	DEL	1
+577	577	23	chr15	67156907	81853346	DEL	1
+578	578	24	chr14	130463297	138564151	DUP	3
+579	579	25	chr10	113650206	125362072	DER	2
+580	580	26	chr19	197597944	206719470	DEL	1
+581	581	27	chr3	159828520	160993714	DER	2
+582	582	28	chr22	156778336	166286270	ADD	2
+583	583	29	chr22	173375298	178433413	GAIN	3
+584	584	30	chr9	35656038	41536434	DEL	1
+585	585	31	chr21	142086436	142242685	DER	2
+586	586	32	chrY	148604841	151237824	LOSS	1
+587	587	33	chr2	24876180	35542707	GAIN	3
+588	588	34	chr15	148190585	160054720	GAIN	3
+589	589	35	chr5	11328349	16525065	LOSS	1
+590	590	36	chr14	166707554	179306701	DUP	3
+591	591	37	chr11	210120274	217052674	DER	2
+592	592	38	chr8	53672423	67397472	GAIN	3
+593	593	39	chr3	207688289	212396229	LOSS	1
+594	594	40	chr19	71360584	72027433	DEL	1
+595	595	41	chr19	51123882	55422416	DEL	1
+596	596	42	chr11	167377006	172668636	DER	2
+597	597	43	chr10	148923967	151084501	DUP	3
+598	598	44	chr10	56520484	63757810	ADD	2
+599	599	45	chr6	176958901	178406534	LOSS	1
+600	600	46	chr5	6656640	7456977	DUP	3
+601	601	47	chrX	103173435	111492707	GAIN	3
+602	602	48	chr18	66993652	81251374	DEL	1
+603	603	49	chr15	42823624	55325091	GAIN	3
+604	604	50	chr3	191640741	196459463	DUP	3
+605	605	51	chrX	41118350	52995096	DUP	3
+606	606	52	chr13	206740479	216564705	DER	2
+607	607	53	chr14	144577482	157143713	DER	2
+608	608	54	chr1	104483060	110147377	DER	2
+609	609	55	chr19	151602819	162751109	DEL	1
+610	610	56	chr11	56917125	64570713	LOSS	1
+611	611	57	chrY	144899199	145798050	LOSS	1
+612	612	58	chr20	41004824	45031944	DUP	3
+613	613	59	chr20	163106756	175679866	DER	2
+614	614	60	chrX	53338744	54638753	ADD	2
+615	615	61	chr18	115091846	126215332	LOSS	1
+616	616	62	chr21	123510341	135402010	DUP	3
+617	617	63	chr8	23363394	28068033	GAIN	3
+618	618	64	chr6	130975689	134559469	LOSS	1
+619	619	65	chr8	193393571	200237303	GAIN	3
+620	620	66	chr10	59584331	66394056	DER	2
+621	621	67	chrX	121901317	126471540	LOSS	1
+622	622	68	chr7	198367676	206516180	LOSS	1
+623	623	69	chr6	81239339	81501709	DER	2
+624	624	70	chr1	154199191	158994613	GAIN	3
+625	625	71	chr13	132102213	133370105	ADD	2
+626	626	72	chr18	205303725	212310966	ADD	2
+627	627	73	chr14	82074884	91639903	ADD	2
+628	628	74	chr6	148274290	149558669	DUP	3
+629	629	75	chrX	75991635	87810809	GAIN	3
+630	630	76	chr5	71405173	85298742	DUP	3
+631	631	77	chr10	187933330	194711302	LOSS	1
+632	632	78	chr9	7043055	8600265	DUP	3
+633	633	79	chr21	118810050	123501742	DUP	3
+634	634	80	chr11	86283419	97551393	DEL	1
+635	635	81	chr3	84527556	88787106	LOSS	1
+636	636	82	chr17	97214407	107685469	GAIN	3
+637	637	83	chr16	32695067	33204415	DER	2
+638	638	84	chr14	25120655	28915506	DEL	1
+639	639	85	chr16	126860532	130974658	GAIN	3
+640	640	86	chr17	71818614	85610149	DEL	1
+641	641	87	chr11	148254203	161078082	ADD	2
+642	642	88	chr11	200005267	207965491	DER	2
+643	643	89	chr19	89219149	103835299	DEL	1
+644	644	90	chr5	20186555	28088300	LOSS	1
+645	645	91	chr21	193029239	207942989	GAIN	3
+646	646	92	chr3	116593328	118269929	DER	2
+647	647	93	chr2	78850313	84889329	LOSS	1
+648	648	94	chr20	102788453	113210467	DER	2
+649	649	95	chr22	2622603	16147105	GAIN	3
+650	650	96	chr14	185404622	189625573	GAIN	3
+651	651	97	chr12	154399903	159388817	DER	2
+652	652	98	chr8	163057768	176536953	LOSS	1
+653	653	99	chr15	9056222	18804856	LOSS	1
+654	654	100	chr18	98309133	107240357	ADD	2
+655	655	101	chr3	37884173	50561735	DUP	3
+1308	1333	102	chr5	75000000	120000000	DEL	1
+1311	1336	103	chr21	29985207	30429817	DER	2
+1312	1337	104	chr1	25251125	28944261	DUP	3
+1313	1338	105	chr9	217379832	231989271	DEL	1
+1314	1339	106	chr11	27536862	29117879	GAIN	3
+1315	1340	107	chr3	148287279	153230994	DER	2
+1316	1341	108	chr3	62589327	77151510	DEL	1
+1317	1342	109	chr22	71766312	83565902	DER	2
+1318	1343	110	chr21	184827068	194196134	DUP	3
+1319	1344	111	chr7	152351235	167079243	DER	2
+1320	1345	112	chrY	150791111	159858649	LOSS	1
+1321	1346	113	chr16	24503309	37208229	DEL	1
+1322	1347	114	chr13	160057580	167935154	ADD	2
+1323	1348	115	chr14	42555148	50192368	DEL	1
+1324	1349	116	chr12	204784934	207520277	ADD	2
+1325	1350	117	chr10	64377491	65374314	DUP	3
+1326	1351	118	chr22	127682641	136931814	DUP	3
+1327	1352	119	chr21	100339303	107714402	ADD	2
+1328	1353	120	chr8	2030277	3246343	DER	2
+1329	1354	121	chr22	130402462	134021759	ADD	2
+1330	1355	122	chr4	176994335	184251173	LOSS	1
+1331	1356	123	chr11	215007415	229488881	DEL	1
+1332	1357	124	chr15	67156907	81853346	DEL	1
+1333	1358	125	chr14	130463297	138564151	DUP	3
+1334	1359	126	chr10	113650206	125362072	DER	2
+1335	1360	127	chr19	197597944	206719470	DEL	1
+1336	1361	128	chr3	159828520	160993714	DER	2
+1337	1362	129	chr22	156778336	166286270	ADD	2
+1338	1363	130	chr22	173375298	178433413	GAIN	3
+1339	1364	131	chr9	35656038	41536434	DEL	1
+1340	1365	132	chr21	142086436	142242685	DER	2
+1341	1366	133	chrY	148604841	151237824	LOSS	1
+1342	1367	134	chr2	24876180	35542707	GAIN	3
+1343	1368	135	chr15	148190585	160054720	GAIN	3
+1344	1369	136	chr5	11328349	16525065	LOSS	1
+1345	1370	137	chr14	166707554	179306701	DUP	3
+1346	1371	138	chr11	210120274	217052674	DER	2
+1347	1372	139	chr8	53672423	67397472	GAIN	3
+1348	1373	140	chr3	207688289	212396229	LOSS	1
+1349	1374	141	chr19	71360584	72027433	DEL	1
+1350	1375	142	chr19	51123882	55422416	DEL	1
+1351	1376	143	chr11	167377006	172668636	DER	2
+1352	1377	144	chr10	148923967	151084501	DUP	3
+1353	1378	145	chr10	56520484	63757810	ADD	2
+1354	1379	146	chr6	176958901	178406534	LOSS	1
+1355	1380	147	chr5	6656640	7456977	DUP	3
+1356	1381	148	chrX	103173435	111492707	GAIN	3
+1357	1382	149	chr18	66993652	81251374	DEL	1
+1358	1383	150	chr15	42823624	55325091	GAIN	3
+1359	1384	151	chr3	191640741	196459463	DUP	3
+1360	1385	152	chrX	41118350	52995096	DUP	3
+1361	1386	153	chr13	206740479	216564705	DER	2
+1362	1387	154	chr14	144577482	157143713	DER	2
+1363	1388	155	chr1	104483060	110147377	DER	2
+1364	1389	156	chr19	151602819	162751109	DEL	1
+1365	1390	157	chr11	56917125	64570713	LOSS	1
+1366	1391	158	chrY	144899199	145798050	LOSS	1
+1367	1392	159	chr20	41004824	45031944	DUP	3
+1368	1393	160	chr20	163106756	175679866	DER	2
+1369	1394	161	chrX	53338744	54638753	ADD	2
+1370	1395	162	chr18	115091846	126215332	LOSS	1
+1371	1396	163	chr21	123510341	135402010	DUP	3
+1372	1397	164	chr8	23363394	28068033	GAIN	3
+1373	1398	165	chr6	130975689	134559469	LOSS	1
+1374	1399	166	chr8	193393571	200237303	GAIN	3
+1375	1400	167	chr10	59584331	66394056	DER	2
+1376	1401	168	chrX	121901317	126471540	LOSS	1
+1377	1402	169	chr7	198367676	206516180	LOSS	1
+1378	1403	170	chr6	81239339	81501709	DER	2
+1379	1404	171	chr1	154199191	158994613	GAIN	3
+1380	1405	172	chr13	132102213	133370105	ADD	2
+1381	1406	173	chr18	205303725	212310966	ADD	2
+1382	1407	174	chr14	82074884	91639903	ADD	2
+1383	1408	175	chr6	148274290	149558669	DUP	3
+1384	1409	176	chrX	75991635	87810809	GAIN	3
+1385	1410	177	chr5	71405173	85298742	DUP	3
+1386	1411	178	chr10	187933330	194711302	LOSS	1
+1387	1412	179	chr9	7043055	8600265	DUP	3
+1388	1413	180	chr21	118810050	123501742	DUP	3
+1389	1414	181	chr11	86283419	97551393	DEL	1
+1390	1415	182	chr3	84527556	88787106	LOSS	1
+1391	1416	183	chr17	97214407	107685469	GAIN	3
+1392	1417	184	chr16	32695067	33204415	DER	2
+1393	1418	185	chr14	25120655	28915506	DEL	1
+1394	1419	186	chr16	126860532	130974658	GAIN	3
+1395	1420	187	chr17	71818614	85610149	DEL	1
+1396	1421	188	chr11	148254203	161078082	ADD	2
+1397	1422	189	chr11	200005267	207965491	DER	2
+1398	1423	190	chr19	89219149	103835299	DEL	1
+1399	1424	191	chr5	20186555	28088300	LOSS	1
+1400	1425	192	chr21	193029239	207942989	GAIN	3
+1401	1426	193	chr3	116593328	118269929	DER	2
+1402	1427	194	chr2	78850313	84889329	LOSS	1
+1403	1428	195	chr20	102788453	113210467	DER	2
+1404	1429	196	chr22	2622603	16147105	GAIN	3
+1405	1430	197	chr14	185404622	189625573	GAIN	3
+1406	1431	198	chr12	154399903	159388817	DER	2
+1407	1432	199	chr8	163057768	176536953	LOSS	1
+1408	1433	200	chr15	9056222	18804856	LOSS	1
+1409	1434	201	chr18	98309133	107240357	ADD	2
+1410	1435	202	chr3	37884173	50561735	DUP	3

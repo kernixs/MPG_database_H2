@@ -1,0 +1,19 @@
+
+Segments for sample SIM001
+segment_id	sample_test_result_id	karyotype_id	chromosome	start_pos	stop_pos	event_type	copy_number
+1	1	1	chr5	75000000	120000000	DEL	1
+2	2		chr7	55000000	61000000	DUP	3
+
+Segments overlapping chr5:70000000-150000000
+segment_id	sample_test_result_id	karyotype_id	chromosome	start_pos	stop_pos	event_type	copy_number
+1	1	1	chr5	75000000	120000000	DEL	1
+
+Validation Issues
+VALIDATION_ISSUE_ID	ISSUE_TYPE	ISSUE_MESSAGE	SEVERITY
+1	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 2	ERROR
+2	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 3	ERROR
+3	Unparseable Row	Unparseable row at line 4: one or more numeric fields could not be parsed	ERROR
+
+ISCN-derived segments
+segment_id	sample_test_result_id	karyotype_id	chromosome	start_pos	stop_pos	event_type	copy_number
+1	1	1	chr5	75000000	120000000	DEL	1

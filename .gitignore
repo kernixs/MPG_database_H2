@@ -1,6 +1,4 @@
 target/
-output/*
-!output/.gitkeep
 
 apache-maven-*/
 apache-maven-*.tar.gz
