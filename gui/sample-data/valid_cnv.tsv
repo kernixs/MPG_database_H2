@@ -1,0 +1,4 @@
+sample_accession_id	chromosome	start_pos	stop_pos	event_type	copy_number	genome_build	confidence	annotation_names	annotations
+GUI001	chr1	161498451	161580088	DEL	1	hg38	0.95	Gene;Class	FCGR3A;LikelyPathogenic
+GUI002	chr5	70500000	74000000	DUP	3	hg38	0.91	Gene;Class	MEF2C;VUS
+GUI003	chr7	55123987	58765432	GAIN	3	hg19	0.89	Gene;Class	SHH;Review

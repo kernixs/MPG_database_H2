@@ -1,0 +1,5 @@
+sample_accession_id	chromosome	start_pos	stop_pos	event_type	copy_number	genome_build	confidence	annotation_names	annotations
+CHR5A	chr5	65000000	71000000	DEL	1	hg38	0.94	Gene;Class	MEF2C;Pathogenic
+CHR5B	chr5	90000000	130000000	DUP	3	hg38	0.9	Gene;Class	NRXN1;VUS
+CHR5C	chr5	150400000	160500000	LOSS	1	hg19	0.88	Gene;Class	NSD1;Review
+CHR12A	chr12	31945349	34964639	GAIN	3	hg38	0.92	Gene;Class	CFTR;Benign

@@ -1,0 +1,3 @@
+# Example GUI config.
+# The real db_gui.properties is created next to the running JAR after a successful connection.
+database.path=../output/mpg_database_h2

@@ -1,0 +1,5 @@
+sample_accession_id	chromosome	start_pos	stop_pos	event_type	copy_number	genome_build	confidence	annotation_names	annotations
+MIX001	chr2	130954939	130957387	DEL	1	hg38	0.96	Gene;Class	ALK;Review
+MIX002	chr3	50000000	57000000	ADD	3	hg38	0.8	Gene;Class	FOXP1;Cytogenetic
+MIX003	chr6	32526232	32552713	DUP	3	hg19	0.93	Gene;Class	HLA;Complex
+MIX004	chr9	140772669	140773504	DER	2	hg38	0.76	Gene;Class	ABL1;Cytogenetic

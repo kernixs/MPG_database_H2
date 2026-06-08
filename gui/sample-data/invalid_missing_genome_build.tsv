@@ -1,0 +1,3 @@
+sample_accession_id	chromosome	start_pos	stop_pos	event_type	copy_number	genome_build	confidence	annotation_names	annotations
+BAD001	chr5	70000000	72000000	DEL	1		0.93	Gene;Class	MEF2C;MissingBuild
+BAD002	chr7	12000000	12500000	DUP	3	hg38	0.87	Gene;Class	SHH;ValidButBlocked
