@@ -1,0 +1,5 @@
+# genome_build=hg38
+sample_accession_id	chromosome	start_pos	stop_pos	event_type	copy_number	array_score	number_of_sites	genome_build	raw_iscn
+SIM001	chr5	75000000	120000000	DEL	1	0.91	421	hg38	46,XX,del(5)(q13q33)
+SIM001	chr7	55000000	61000000	DUP	3	0.76	98	hg38	
+SIM002	chr8	10000000	20000000	GAIN	3	0.84	153	hg38	

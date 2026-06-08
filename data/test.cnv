@@ -1,0 +1,4 @@
+sample_accession_id	chromosome	start_pos	stop_pos	event_type	copy_number	array_score	number_of_sites	raw_iscn
+SIM001	chr5	90000000	160000000	LOSS	1	0.88	300	46,XX,del(5)(q13q33)
+SIM003	chr12	30000000	45000000	DUP	3	0.67	80	
+SIM004	chr2	bad_start	9000000	DEL	1	0.52	32	

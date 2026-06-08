@@ -1,0 +1,8 @@
+target/
+output/
+
+apache-maven-*/
+apache-maven-*.tar.gz
+
+.DS_Store
+*.log
