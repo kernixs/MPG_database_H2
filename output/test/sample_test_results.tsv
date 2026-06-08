@@ -1,6 +1,0 @@
-SAMPLE_TEST_RESULT_ID	SAMPLE_TEST_ID	PIPELINE_ID	SOURCE_FILE_ID	SOURCE_FILE	GENOME_BUILD	CALLING_METHOD	RAW_ISCN	ANNOTATION_NAMES	LINE_NUMBER
-1	1	1	1	example.cnv	hg38	ISCN-derived	46,XX,del(5)(q13q33)		3
-2	2	2	1	example.cnv	hg38	Array-derived			4
-3	3	2	1	example.cnv	hg38	Array-derived			5
-4	4	1	2	test.cnv	unknown	ISCN-derived	46,XX,del(5)(q13q33)		2
-5	5	2	2	test.cnv	unknown	Array-derived			3

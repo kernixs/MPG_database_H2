@@ -1,6 +1,8 @@
 package org.mpgdatabase;
 
 import org.mpgdatabase.db.Database;
+import org.mpgdatabase.importer.ClinicalDecisionImportResult;
+import org.mpgdatabase.importer.ClinicalDecisionImportService;
 import org.mpgdatabase.importer.CnvImportService;
 import org.mpgdatabase.importer.CnvParserFactory;
 import org.mpgdatabase.importer.ImportResult;
@@ -46,6 +48,10 @@ public class App {
             runConsole(args);
             return;
         }
+        if (args.length > 0 && "clinical-import".equalsIgnoreCase(args[0])) {
+            runClinicalImport(args);
+            return;
+        }
         Path dataDir = Path.of(args.length > 0 ? args[0] : "data");
         Path outputDir = Path.of(args.length > 1 ? args[1] : "output");
         String jdbcUrl = args.length > 2 ? args[2] : "jdbc:h2:file:./output/mpg_database_h2";
@@ -53,6 +59,7 @@ public class App {
 
         boolean initialized = false;
         List<ImportResult> importResults = new ArrayList<>();
+        List<ClinicalDecisionImportResult> clinicalImportResults = new ArrayList<>();
 
         try (Connection connection = Database.connect(jdbcUrl)) {
             try {
@@ -66,10 +73,15 @@ public class App {
             for (Path path : cnvFiles(dataDir)) {
                 importResults.add(importer.importFile(path, null));
             }
+            ClinicalDecisionImportService clinicalImporter = new ClinicalDecisionImportService(connection);
+            for (Path path : clinicalDecisionFiles(dataDir)) {
+                clinicalImportResults.add(clinicalImporter.importFile(path));
+            }
 
             VerificationService verification = new VerificationService(connection, outputDir);
-            VerificationReport report = verification.verify(initialized, importResults);
+            VerificationReport report = verification.verify(initialized, importResults, clinicalImportResults);
             System.out.print(verification.terminalSummary(report));
+            printClinicalImportResults(clinicalImportResults);
         }
     }
 
@@ -115,6 +127,36 @@ public class App {
         }
     }
 
+    private static void runClinicalImport(String[] args) throws Exception {
+        if (args.length < 2) {
+            System.out.println("Usage: clinical-import <clinical_decisions.tsv> [--jdbc-url jdbc:h2:file:./output/mpg_database_h2]");
+            return;
+        }
+        String jdbcUrl = optionValue(args, "--jdbc-url");
+        if (jdbcUrl == null || jdbcUrl.isBlank()) {
+            jdbcUrl = "jdbc:h2:file:./output/mpg_database_h2";
+        }
+        String outputDir = optionValue(args, "--output-dir");
+        if (outputDir == null || outputDir.isBlank()) {
+            outputDir = "output";
+        }
+        Path input = Path.of(args[1]);
+        try (Connection connection = Database.connect(jdbcUrl)) {
+            Database.initialize(connection);
+            var result = new ClinicalDecisionImportService(connection).importFile(input);
+            System.out.println("Clinical decision file imported: " + (result.success() ? "PASS" : "FAIL"));
+            System.out.println("file=" + result.fileName());
+            System.out.println("records=" + result.recordsSeen());
+            System.out.println("classifications=" + result.classificationsInserted());
+            System.out.println("signed_out_calls=" + result.signedOutCallsInserted());
+            System.out.println("notes=" + result.notesInserted());
+
+            VerificationService verification = new VerificationService(connection, Path.of(outputDir));
+            VerificationReport report = verification.verify(true, List.of(), List.of(result));
+            System.out.print(verification.terminalSummary(report));
+        }
+    }
+
     private static Map<String, String> searchFilters(String[] args) {
         Map<String, String> filters = new HashMap<>();
         for (int i = 1; i < args.length; i++) {
@@ -151,6 +193,9 @@ public class App {
     }
 
     private static List<Path> cnvFiles(Path dataDir) throws Exception {
+        if (Files.isRegularFile(dataDir)) {
+            return List.of(dataDir);
+        }
         if (!Files.isDirectory(dataDir)) {
             return List.of(
                     dataDir.resolve("example.cnv"),
@@ -165,8 +210,43 @@ public class App {
         }
     }
 
+    private static List<Path> clinicalDecisionFiles(Path dataDir) throws Exception {
+        if (!Files.isDirectory(dataDir)) {
+            return List.of();
+        }
+        Path clinicalDir = dataDir.resolve("clinical");
+        if (!Files.isDirectory(clinicalDir)) {
+            return List.of();
+        }
+        try (Stream<Path> paths = Files.list(clinicalDir)) {
+            return paths
+                    .filter(App::isClinicalDecisionFile)
+                    .sorted(Comparator.comparing(path -> path.getFileName().toString()))
+                    .toList();
+        }
+    }
+
     private static boolean isImportableFile(Path path) {
         String fileName = path.getFileName().toString().toLowerCase();
         return fileName.endsWith(".cnv") || fileName.endsWith(".tsv") || fileName.endsWith(".txt");
+    }
+
+    private static boolean isClinicalDecisionFile(Path path) {
+        String fileName = path.getFileName().toString().toLowerCase();
+        return fileName.endsWith(".tsv") || fileName.endsWith(".txt");
+    }
+
+    private static void printClinicalImportResults(List<ClinicalDecisionImportResult> clinicalImportResults) {
+        if (clinicalImportResults.isEmpty()) {
+            return;
+        }
+        System.out.println("\nClinical Decision Import Status\n-------------------------------");
+        for (ClinicalDecisionImportResult result : clinicalImportResults) {
+            System.out.println(result.fileName() + " imported: " + (result.success() ? "PASS" : "FAIL"));
+            System.out.println("records=" + result.recordsSeen()
+                    + " classifications=" + result.classificationsInserted()
+                    + " signed_out_calls=" + result.signedOutCallsInserted()
+                    + " notes=" + result.notesInserted());
+        }
     }
 }

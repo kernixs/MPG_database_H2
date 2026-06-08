@@ -1,6 +1,7 @@
 package org.mpgdatabase.report;
 
 import org.mpgdatabase.dao.GenomicSegmentDao;
+import org.mpgdatabase.importer.ClinicalDecisionImportResult;
 import org.mpgdatabase.importer.ImportResult;
 import org.mpgdatabase.model.Models.GenomicSegment;
 
@@ -26,7 +27,10 @@ public class VerificationService {
             "sample_test_results",
             "karyotypes",
             "genomic_segments",
-            "validation_issues"
+            "validation_issues",
+            "variant_classifications",
+            "signed_out_calls",
+            "notes"
     );
 
     private final Connection connection;
@@ -38,6 +42,14 @@ public class VerificationService {
     }
 
     public VerificationReport verify(boolean databaseInitializationPassed, List<ImportResult> importResults)
+            throws IOException, SQLException {
+        return verify(databaseInitializationPassed, importResults, List.of());
+    }
+
+    public VerificationReport verify(
+            boolean databaseInitializationPassed,
+            List<ImportResult> importResults,
+            List<ClinicalDecisionImportResult> clinicalImportResults)
             throws IOException, SQLException {
         Files.createDirectories(outputDir);
         VerificationResult schema = verifySchema();
@@ -63,7 +75,7 @@ public class VerificationService {
         VerificationResult integrity = verifyDataIntegrity();
         Map<String, Long> tableCounts = tableCounts();
 
-        writeReports(tableCounts, importResults, query);
+        writeReports(tableCounts, importResults, clinicalImportResults, query);
         return new VerificationReport(
                 databaseInitializationPassed,
                 tableCounts,
@@ -88,6 +100,9 @@ public class VerificationService {
         appendCount(sb, report.tableCounts(), "Karyotypes", "karyotypes");
         appendCount(sb, report.tableCounts(), "Genomic Segments", "genomic_segments");
         appendCount(sb, report.tableCounts(), "Validation Issues", "validation_issues");
+        appendCount(sb, report.tableCounts(), "Variant Classifications", "variant_classifications");
+        appendCount(sb, report.tableCounts(), "Signed Out Calls", "signed_out_calls");
+        appendCount(sb, report.tableCounts(), "Notes", "notes");
         sb.append("\nImport Status\n-------------\n");
         for (ImportResult result : report.importResults()) {
             sb.append(result.fileName()).append(" imported: ").append(passFail(result.success())).append("\n");
@@ -192,6 +207,31 @@ public class VerificationService {
                     GROUP BY accession_identifier HAVING COUNT(*) > 1
                 )
                 """);
+        checkZero(result, "Orphan variant_classifications", """
+                SELECT COUNT(*) FROM variant_classifications vc
+                LEFT JOIN genomic_segments gs ON gs.segment_id = vc.segment_id
+                WHERE gs.segment_id IS NULL
+                """);
+        checkZero(result, "Orphan signed_out_calls segments", """
+                SELECT COUNT(*) FROM signed_out_calls soc
+                LEFT JOIN genomic_segments gs ON gs.segment_id = soc.segment_id
+                WHERE gs.segment_id IS NULL
+                """);
+        checkZero(result, "Orphan signed_out_calls classifications", """
+                SELECT COUNT(*) FROM signed_out_calls soc
+                LEFT JOIN variant_classifications vc ON vc.classification_id = soc.classification_id
+                WHERE vc.classification_id IS NULL
+                """);
+        checkZero(result, "Orphan signed_out_calls individuals", """
+                SELECT COUNT(*) FROM signed_out_calls soc
+                LEFT JOIN individuals i ON i.individual_id = soc.individual_id
+                WHERE i.individual_id IS NULL
+                """);
+        checkZero(result, "Orphan signed_out_calls results", """
+                SELECT COUNT(*) FROM signed_out_calls soc
+                LEFT JOIN sample_test_results str ON str.sample_test_result_id = soc.sample_test_result_id
+                WHERE str.sample_test_result_id IS NULL
+                """);
         if (result.passed()) {
             result.pass("No orphan rows or duplicate accessions detected");
         }
@@ -217,7 +257,11 @@ public class VerificationService {
         return counts;
     }
 
-    private void writeReports(Map<String, Long> tableCounts, List<ImportResult> importResults, VerificationResult query)
+    private void writeReports(
+            Map<String, Long> tableCounts,
+            List<ImportResult> importResults,
+            List<ClinicalDecisionImportResult> clinicalImportResults,
+            VerificationResult query)
             throws IOException, SQLException {
         StringBuilder importSummary = new StringBuilder();
         importSummary.append("Validation Meaning\n");
@@ -232,6 +276,17 @@ public class VerificationService {
                     .append("records=").append(result.recordsSeen()).append('\t')
                     .append("segments=").append(result.segmentsInserted()).append('\t')
                     .append("issues=").append(result.issuesInserted()).append('\n');
+        }
+        if (!clinicalImportResults.isEmpty()) {
+            importSummary.append("\nClinical Decision Import Results\n");
+            for (ClinicalDecisionImportResult result : clinicalImportResults) {
+                importSummary.append(result.fileName()).append('\t')
+                        .append(result.success() ? "PASS" : "FAIL").append('\t')
+                        .append("records=").append(result.recordsSeen()).append('\t')
+                        .append("classifications=").append(result.classificationsInserted()).append('\t')
+                        .append("signed_out_calls=").append(result.signedOutCallsInserted()).append('\t')
+                        .append("notes=").append(result.notesInserted()).append('\n');
+            }
         }
         Files.writeString(outputDir.resolve("import_summary.txt"), importSummary.toString());
         Files.writeString(outputDir.resolve("segments.tsv"), queryText("""
@@ -302,6 +357,54 @@ public class VerificationService {
                 FROM validation_issues vi
                 LEFT JOIN source_files sf ON sf.source_file_id = vi.source_file_id
                 ORDER BY vi.validation_issue_id
+                """));
+        Files.writeString(outputDir.resolve("variant_classifications.tsv"), queryText("""
+                SELECT
+                    classification_id,
+                    segment_id,
+                    classification_label,
+                    guideline_system,
+                    guideline_version,
+                    evidence_score,
+                    evidence_summary,
+                    classified_by,
+                    classified_at,
+                    review_status,
+                    is_current,
+                    supersedes_classification_id
+                FROM variant_classifications
+                ORDER BY classification_id
+                """));
+        Files.writeString(outputDir.resolve("signed_out_calls.tsv"), queryText("""
+                SELECT
+                    signed_out_call_id,
+                    segment_id,
+                    classification_id,
+                    individual_id,
+                    sample_test_result_id,
+                    clinical_significance,
+                    relevance_to_indication,
+                    interpretation_text,
+                    signed_out_status,
+                    signed_out_by,
+                    signed_out_at,
+                    report_text,
+                    report_version,
+                    amended_from_signed_out_call_id
+                FROM signed_out_calls
+                ORDER BY signed_out_call_id
+                """));
+        Files.writeString(outputDir.resolve("notes.tsv"), queryText("""
+                SELECT
+                    note_id,
+                    target_table,
+                    target_id,
+                    note_type,
+                    note_text,
+                    author,
+                    created_at
+                FROM notes
+                ORDER BY note_id
                 """));
         Files.writeString(outputDir.resolve("result_trace.tsv"), queryText("""
                 SELECT

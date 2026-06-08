@@ -1,8 +1,8 @@
-# MPG Database H2 Phase 2 Prototype
+# MPG Database H2 Phase 2.6 Prototype
 
-This repository contains the Phase 2 prototype for a lightweight genomic database backbone. It is a CLI-only Java application that initializes an H2 database, imports simple CNV files, stores normalized genomic events, and verifies that the expected schema and data relationships work.
+This repository contains the Phase 2.6 prototype for a lightweight genomic database backbone. It is a CLI-only Java application that initializes an H2 database, imports simple CNV files, stores normalized genomic events, stores early clinical decision records, and verifies that the expected schema and data relationships work.
 
-The larger product vision is a clinician-centered interpretation and visualization platform for cytogenetic, molecular, and genomic findings. This Phase 2 project is intentionally narrower: it builds the relational data layer that later UI, API, visualization, and clinical interpretation tools can use.
+The larger product vision is a clinician-centered interpretation and visualization platform for cytogenetic, molecular, and genomic findings. This Phase 2.6 project is intentionally narrower: it builds the relational data layer that later UI, API, visualization, and richer clinical interpretation tools can use.
 
 ## Why This Prototype Exists
 
@@ -15,8 +15,9 @@ Clinical genomic interpretation needs traceability. A genomic segment should not
 - What was the original ISCN string, if one existed?
 - Can the normalized genomic interval be queried by sample or genomic region?
 - Were malformed records or missing metadata captured instead of silently ignored?
+- Was a finding classified, clinically interpreted, reviewed, or signed out?
 
-This prototype focuses on those questions. It does not try to solve the later clinical workflow yet.
+This prototype focuses on those questions. It stores the clinical decision layer, but it does not yet try to solve the full clinical UI, phenotype, reporting, or integration workflow.
 
 ## Current Scope
 
@@ -35,18 +36,22 @@ Implemented:
 - Generic annotation storage through `annotation_names` and `annotations`.
 - Flexible CLI search filters.
 - Validation issue capture for malformed records and unresolved genome builds.
+- Variant classification storage with evidence summaries.
+- Patient/case-specific clinical interpretation storage.
+- Reviewer note storage.
+- Sign-out status and report-text storage.
 - Required verification checks after import.
 - Generated report files under `output/`.
 - In-memory H2 tests and file-backed H2 manual runs.
 
-Intentionally not implemented in Phase 2:
+Intentionally not implemented in Phase 2.6:
 
 - UI.
 - REST API.
 - HPO integration.
 - ACMG scoring.
 - Phenotype tracking.
-- Clinical interpretation/sign-out workflows.
+- Report templates or amended-report workflow automation.
 - Genome browser visualization.
 - EMR/Epic/FileMaker integration.
 
@@ -121,7 +126,7 @@ This keeps joins stable and efficient while preserving meaningful identifiers fo
 
 ## Current Table Inventory
 
-The current schema has 10 tables.
+The current schema has 13 tables.
 
 | # | Table | What it represents | Main fields |
 |---|---|---|---|
@@ -135,6 +140,9 @@ The current schema has 10 tables.
 | 8 | `karyotypes` | ISCN/karyotype-level records derived from or preserving ISCN text. | `karyotype_id`, `sample_test_result_id`, `karyotype_text`, `clone_number`, `cell_count`, `abnormalities` |
 | 9 | `genomic_segments` | Normalized queryable genomic intervals/events. | `segment_id`, `sample_test_result_id`, `karyotype_id`, `chromosome`, `start_pos`, `stop_pos`, `cytoband_start`, `cytoband_end`, `event_type`, `copy_number`, `array_score`, `confidence`, `number_of_sites`, `annotations` |
 | 10 | `validation_issues` | Import, parsing, or data-quality issues captured during processing. | `validation_issue_id`, `segment_id`, `issue_type`, `issue_message`, `severity` |
+| 11 | `variant_classifications` | Classification assertions for observed genomic segments. | `classification_id`, `segment_id`, `classification_label`, `guideline_system`, `guideline_version`, `evidence_score`, `evidence_summary`, `review_status`, `is_current` |
+| 12 | `signed_out_calls` | Case-level clinical conclusion and report/sign-out decision for a classified segment. | `signed_out_call_id`, `segment_id`, `classification_id`, `individual_id`, `sample_test_result_id`, `clinical_significance`, `interpretation_text`, `signed_out_status`, `report_text` |
+| 13 | `notes` | Typed human notes attached to segments, classifications, or signed-out calls. | `note_id`, `target_table`, `target_id`, `note_type`, `note_text`, `author`, `created_at` |
 
 There is also one index:
 
@@ -188,6 +196,23 @@ sample_test_results
 ```
 
 For array-derived records, `genomic_segments.karyotype_id` is allowed to be `NULL`.
+
+Phase 2.6 clinical decision records attach after a segment exists:
+
+```text
+genomic_segments
+  -> variant_classifications
+  -> signed_out_calls
+```
+
+Typed notes can attach to several review targets:
+
+```text
+notes.target_table + notes.target_id
+  -> genomic_segments
+  -> variant_classifications
+  -> signed_out_calls
+```
 
 ## Table Responsibilities
 
@@ -353,6 +378,165 @@ Import Failure
 ```
 
 The goal is to preserve problems visibly instead of dropping bad records silently. `ERROR` means the row was rejected and no `genomic_segments` row was inserted. `WARNING` means the row was imported but flagged for review.
+
+### `variant_classifications`
+
+Stores the classification assertion for an observed segment. This is where Phase 2.6 stores the controlled label and evidence summary without putting human review state directly into `genomic_segments`.
+
+Fields:
+
+```text
+classification_id
+segment_id
+classification_label
+guideline_system
+guideline_version
+evidence_score
+evidence_summary
+classified_by
+classified_at
+review_status
+is_current
+supersedes_classification_id
+```
+
+`classification_id` is the unique row ID for the classification assertion. `segment_id` points back to the genomic finding being classified.
+
+Allowed `classification_label` values:
+
+```text
+Pathogenic
+Likely Pathogenic
+VUS
+Likely Benign
+Benign
+```
+
+Allowed `review_status` values for classifications:
+
+```text
+Draft
+In review
+Needs more evidence
+Ready for sign-out
+Signed out
+Superseded
+```
+
+### `signed_out_calls`
+
+Stores the case-level clinical conclusion and sign-out/reporting decision for a classified segment. Phase 2.6 keeps this table direct and practical; a richer `clinical_interpretations` table can be added later if Phase 3 needs multi-variant, phenotype-linked, or case-level interpretation records.
+
+Fields:
+
+```text
+signed_out_call_id
+segment_id
+classification_id
+individual_id
+sample_test_result_id
+clinical_significance
+relevance_to_indication
+interpretation_text
+signed_out_status
+signed_out_by
+signed_out_at
+report_text
+report_version
+amended_from_signed_out_call_id
+```
+
+`signed_out_call_id` is the unique row ID for the sign-out record. The foreign keys keep the clinical conclusion tied to the observed segment, classification assertion, individual, and source test result.
+
+Allowed `clinical_significance` values:
+
+```text
+Diagnostic
+Carrier
+Incidental
+Unclear relevance
+Not clinically relevant
+```
+
+Allowed `signed_out_status` values:
+
+```text
+Not started
+In review
+Signed out
+Amended
+Retracted
+```
+
+### `notes`
+
+Stores typed human-authored notes. This table is intentionally not named `annotations`, because imported pipeline/source-file annotations are already represented by `sample_test_results.annotation_names` and `genomic_segments.annotations`.
+
+Fields:
+
+```text
+note_id
+target_table
+target_id
+note_type
+note_text
+author
+created_at
+```
+
+`note_id` is the unique row ID for the note itself. `target_table` and `target_id` identify what the note is attached to. In the demo data, `note_id` and `target_id` often match because one note is created for each sign-out call in the same order, but they are different concepts. Multiple notes can point to the same target, and notes can also attach to different target tables.
+
+Example:
+
+```text
+note_id  target_table             target_id  note_type
+101      signed_out_calls         1          Follow-up note
+102      signed_out_calls         1          Evidence note
+103      variant_classifications  1          Reviewer note
+```
+
+This means notes 101 and 102 both belong to `signed_out_calls.signed_out_call_id = 1`, while note 103 belongs to `variant_classifications.classification_id = 1`.
+
+Allowed `note_type` values:
+
+```text
+Reviewer note
+Evidence note
+Sign-out note
+Import note
+Follow-up note
+```
+
+## Phase 2.6 Clinical Decision Input
+
+A sample clinical decision file is included at:
+
+```text
+data/clinical/phase26_clinical_decisions.tsv
+```
+
+This file is imported after the genomic segments already exist. For example, on a fresh scratch database:
+
+```text
+./apache-maven-3.9.15/bin/mvn exec:java -Dexec.args="data/example.cnv output/phase26-demo jdbc:h2:file:./output/phase26_demo"
+./apache-maven-3.9.15/bin/mvn exec:java -Dexec.args="clinical-import data/clinical/phase26_clinical_decisions.tsv --jdbc-url jdbc:h2:file:./output/phase26_demo --output-dir output/phase26-demo"
+```
+
+When importing the whole `data` directory, files under `data/clinical/` are imported after genomic segments are loaded, so the Phase 2.6 table counts are included in the generated `import_summary.txt`.
+
+The clinical TSV references existing `segment_id` values and stores:
+
+```text
+classification_label
+evidence_summary
+review_status
+clinical_significance
+interpretation_text
+signed_out_status
+report_text
+note_type
+note_text
+```
 
 ## Import Design
 
@@ -1012,11 +1196,12 @@ Only ISCN-derived segments need karyotype provenance. Array-derived segments can
 - No grouping of multiple records into one shared test result yet.
 - No update/merge behavior for repeated imports.
 - No PostgreSQL migration scripts yet.
-- No clinical phenotype or interpretation tables yet.
+- No clinical phenotype tables yet.
+- No separate multi-variant clinical interpretation table yet.
 - No UI/API layer in this repository.
 - Generic annotations are stored as ordered strings rather than a normalized annotation table.
 
-These are expected gaps for Phase 2, not accidental omissions.
+These are expected gaps for Phase 2.6, not accidental omissions.
 
 ## Next Good Additions
 
@@ -1025,6 +1210,7 @@ Useful next implementation steps:
 - Add importer grouping so one file/sample can create one `sample_test_result` with many segments.
 - Add more DAO query methods for provenance inspection.
 - Add stricter annotation-specific search instead of broad string search.
+- Add CLI commands for creating and querying Phase 2.6 clinical decision records.
 - Add a schema diagram to documentation.
 - Add PostgreSQL-compatible migration notes.
 - Replace sample fixture files with real `example.cnv` and `test.cnv` once available.

@@ -61,4 +61,46 @@ public final class Models {
 
     public record ValidationIssue(long id, Long segmentId, String issueType, String issueMessage, String severity) {
     }
+
+    public record VariantClassification(
+            long id,
+            long segmentId,
+            String classificationLabel,
+            String guidelineSystem,
+            String guidelineVersion,
+            Double evidenceScore,
+            String evidenceSummary,
+            String classifiedBy,
+            String reviewStatus,
+            boolean current,
+            Long supersedesClassificationId
+    ) {
+    }
+
+    public record SignedOutCall(
+            long id,
+            long segmentId,
+            long classificationId,
+            long individualId,
+            long sampleTestResultId,
+            String clinicalSignificance,
+            String relevanceToIndication,
+            String interpretationText,
+            String signedOutStatus,
+            String signedOutBy,
+            String reportText,
+            String reportVersion,
+            Long amendedFromSignedOutCallId
+    ) {
+    }
+
+    public record Note(
+            long id,
+            String targetTable,
+            long targetId,
+            String noteType,
+            String noteText,
+            String author
+    ) {
+    }
 }

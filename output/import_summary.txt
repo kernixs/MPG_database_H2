@@ -6,13 +6,16 @@ Table Counts
 individuals	318
 sample_accessions	318
 lab_protocols	3
-sample_tests	1560
+sample_tests	780
 pipelines	3
-source_files	14
-sample_test_results	1560
-karyotypes	202
-genomic_segments	1510
-validation_issues	70
+source_files	7
+sample_test_results	780
+karyotypes	101
+genomic_segments	755
+validation_issues	35
+variant_classifications	100
+signed_out_calls	100
+notes	100
 
 Import Results
 25-54321WGS_05Nov2025_SWGS111_SV_DEL_DUP_Classify_Result.txt	PASS	records=452	segments=452	issues=0
@@ -22,3 +25,6 @@ iscn_derived_100.cnv	PASS	records=100	segments=100	issues=9
 ngs_derived_100.txt	PASS	records=100	segments=100	issues=0
 test.cnv	PASS	records=3	segments=0	issues=3
 test_v2.cnv	PASS	records=23	segments=0	issues=23
+
+Clinical Decision Import Results
+phase26_clinical_decisions.tsv	PASS	records=100	classifications=100	signed_out_calls=100	notes=100
