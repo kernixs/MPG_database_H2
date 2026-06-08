@@ -1,4 +1,5 @@
 target/
+gui/dist/db_gui.properties
 
 apache-maven-*/
 apache-maven-*.tar.gz

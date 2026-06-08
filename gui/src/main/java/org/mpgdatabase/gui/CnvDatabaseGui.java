@@ -56,6 +56,21 @@ public class CnvDatabaseGui extends JFrame {
             "DEL", "DUP", "GAIN", "AMP", "LOSS", "CNV", "INV", "INS", "TRANS", "T",
             "ADD", "DER", "IDIC", "DIC", "I", "R", "NEUTRAL", "UNKNOWN"
     );
+    private static final Set<String> CORE_COLUMNS = Set.of(
+            "sample_accession_id",
+            "chromosome",
+            "start_pos",
+            "stop_pos",
+            "event_type",
+            "copy_number",
+            "genome_build",
+            "confidence",
+            "array_score",
+            "number_of_sites",
+            "raw_iscn",
+            "annotation_names",
+            "annotations"
+    );
 
     private final Path configPath;
     private Connection connection;
@@ -215,7 +230,10 @@ public class CnvDatabaseGui extends JFrame {
                 sample_accession_id, chromosome, start_pos, stop_pos, event_type, copy_number, genome_build
 
                 Optional columns:
-                confidence, array_score, number_of_sites, raw_iscn, annotation_names, annotations
+                copy_number, confidence, array_score, number_of_sites, raw_iscn,
+                annotation_names, annotations, and format-specific extra annotation columns.
+
+                If copy_number is missing, DEL/LOSS infer 1 and DUP/GAIN/AMP infer 3.
                 """));
         JMenuItem changeLog = new JMenuItem("Change Log");
         changeLog.addActionListener(e -> showInfo("Change Log", """
@@ -476,7 +494,7 @@ public class CnvDatabaseGui extends JFrame {
             List<String> header = normalizeHeader(headerLine);
             Map<String, Integer> indexes = indexes(header);
             for (String required : List.of("sample_accession_id", "chromosome", "start_pos", "stop_pos",
-                    "event_type", "copy_number", "genome_build")) {
+                    "event_type", "genome_build")) {
                 if (!indexes.containsKey(required)) {
                     errors.add("Missing required column: " + required);
                 }
@@ -513,13 +531,13 @@ public class CnvDatabaseGui extends JFrame {
         String genomeBuild = value(values, "genome_build");
         Long start = parseLong(value(values, "start_pos"));
         Long stop = parseLong(value(values, "stop_pos"));
-        Integer copyNumber = parseInt(value(values, "copy_number"));
+        Integer copyNumber = resolveCopyNumber(value(values, "copy_number"), eventType);
         Double arrayScore = parseDouble(value(values, "array_score"));
         Integer sites = parseInt(value(values, "number_of_sites"));
         String confidence = value(values, "confidence");
         String rawIscn = value(values, "raw_iscn");
-        String annotationNames = value(values, "annotation_names");
-        String annotations = value(values, "annotations");
+        String annotationNames = resolveAnnotationNames(values);
+        String annotations = resolveAnnotations(values);
 
         List<String> rowErrors = new ArrayList<>();
         if (sample == null) {
@@ -541,7 +559,7 @@ public class CnvDatabaseGui extends JFrame {
             rowErrors.add("missing or unsupported event_type");
         }
         if (copyNumber == null) {
-            rowErrors.add("missing or invalid copy_number");
+            rowErrors.add("missing copy_number and unable to infer copy_number from event_type");
         }
         if (genomeBuild == null || "unknown".equalsIgnoreCase(genomeBuild)) {
             rowErrors.add("missing genome_build");
@@ -1009,6 +1027,9 @@ public class CnvDatabaseGui extends JFrame {
             case "end", "end_pos", "stop", "stop_position" -> "stop_pos";
             case "sv_type", "cnv_type" -> "event_type";
             case "cn" -> "copy_number";
+            case "arrayscore" -> "array_score";
+            case "probe_count", "probecount" -> "number_of_sites";
+            case "iscn" -> "raw_iscn";
             case "hg_version" -> "genome_build";
             default -> value;
         };
@@ -1075,6 +1096,47 @@ public class CnvDatabaseGui extends JFrame {
         } catch (NumberFormatException e) {
             return null;
         }
+    }
+
+    private Integer resolveCopyNumber(String explicitCopyNumber, String eventType) {
+        Integer parsed = parseInt(explicitCopyNumber);
+        if (parsed != null) {
+            return parsed;
+        }
+        return switch (eventType == null ? "" : eventType) {
+            case "DEL", "LOSS" -> 1;
+            case "DUP", "GAIN", "AMP" -> 3;
+            case "NEUTRAL", "INV", "INS", "TRANS", "T", "DER" -> 2;
+            default -> null;
+        };
+    }
+
+    private String resolveAnnotationNames(Map<String, String> values) {
+        String explicit = value(values, "annotation_names");
+        if (explicit != null) {
+            return explicit;
+        }
+        List<String> names = new ArrayList<>();
+        for (String key : values.keySet()) {
+            if (!CORE_COLUMNS.contains(key)) {
+                names.add(key);
+            }
+        }
+        return names.isEmpty() ? null : String.join(";", names);
+    }
+
+    private String resolveAnnotations(Map<String, String> values) {
+        String explicit = value(values, "annotations");
+        if (explicit != null) {
+            return explicit;
+        }
+        List<String> annotationValues = new ArrayList<>();
+        for (Map.Entry<String, String> entry : values.entrySet()) {
+            if (!CORE_COLUMNS.contains(entry.getKey())) {
+                annotationValues.add(entry.getValue() == null ? "" : entry.getValue());
+            }
+        }
+        return annotationValues.isEmpty() ? null : String.join(";", annotationValues);
     }
 
     private int countParts(String value) {

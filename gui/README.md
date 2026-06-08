@@ -96,13 +96,25 @@ genome_build
 Optional supported fields include:
 
 ```text
+copy_number
 confidence
 array_score
 number_of_sites
 raw_iscn
 annotation_names
 annotations
+format-specific extra columns
 ```
+
+If `copy_number` is missing, the GUI can infer it from the event type:
+
+```text
+DEL / LOSS -> 1
+DUP / GAIN / AMP -> 3
+NEUTRAL / INV / INS / TRANS / T / DER -> 2
+```
+
+This allows simple NGS/WGS-derived files with `SV_Type` but no explicit `copy_number` to import.
 
 ## Sample Data
 
@@ -119,6 +131,7 @@ valid_cnv.tsv
 invalid_missing_genome_build.tsv
 interesting_chr5_overlap.tsv
 mixed_event_types.tsv
+ngs_derived_small.tsv
 ```
 
 ## Suggested Manual Test
