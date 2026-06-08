@@ -188,6 +188,75 @@ public class CoreDao {
         }
     }
 
+    public long createGenomicEvent(
+            long sampleTestResultId,
+            Long sourceFileId,
+            String eventGroupId,
+            String eventType,
+            String genomeBuild,
+            String callingMethod,
+            String rawEventText,
+            Integer lineNumber,
+            String eventStatus,
+            String confidence,
+            String annotations
+    ) throws SQLException {
+        try (PreparedStatement ps = connection.prepareStatement("""
+                INSERT INTO genomic_events
+                    (sample_test_result_id, source_file_id, event_group_id, event_type, genome_build, calling_method,
+                     raw_event_text, line_number, event_status, confidence, annotations)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """, DaoSupport.returnGeneratedKeys())) {
+            ps.setLong(1, sampleTestResultId);
+            if (sourceFileId == null) {
+                ps.setNull(2, java.sql.Types.BIGINT);
+            } else {
+                ps.setLong(2, sourceFileId);
+            }
+            ps.setString(3, eventGroupId);
+            ps.setString(4, eventType);
+            ps.setString(5, genomeBuild);
+            ps.setString(6, callingMethod);
+            ps.setString(7, rawEventText);
+            if (lineNumber == null) {
+                ps.setNull(8, java.sql.Types.INTEGER);
+            } else {
+                ps.setInt(8, lineNumber);
+            }
+            ps.setString(9, eventStatus);
+            ps.setString(10, confidence);
+            ps.setString(11, annotations);
+            ps.executeUpdate();
+            return DaoSupport.generatedId(ps);
+        }
+    }
+
+    public long createGenomicLink(
+            long eventId,
+            long sourceSegmentId,
+            long targetSegmentId,
+            String linkType,
+            String orientation,
+            String evidence,
+            String confidence
+    ) throws SQLException {
+        try (PreparedStatement ps = connection.prepareStatement("""
+                INSERT INTO genomic_links
+                    (event_id, source_segment_id, target_segment_id, link_type, orientation, evidence, confidence)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+                """, DaoSupport.returnGeneratedKeys())) {
+            ps.setLong(1, eventId);
+            ps.setLong(2, sourceSegmentId);
+            ps.setLong(3, targetSegmentId);
+            ps.setString(4, linkType);
+            ps.setString(5, orientation);
+            ps.setString(6, evidence);
+            ps.setString(7, confidence);
+            ps.executeUpdate();
+            return DaoSupport.generatedId(ps);
+        }
+    }
+
     public long createValidationIssue(Long segmentId, String issueType, String issueMessage, String severity)
             throws SQLException {
         return createValidationIssue(segmentId, null, null, null, issueType, issueMessage, severity);

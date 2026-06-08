@@ -1,0 +1,294 @@
+2026-06-08 13:17:03.070289-05:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "INDIVIDUAL" not found; SQL statement:
+SELECT *
+FROM individual
+LIMIT 1000 [42102-224]
+2026-06-08 13:29:45.762142-05:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "SELECT *\000aFROM (\000a    SELECT\000a    sa.accession_identifier AS sample_id,\000a    gs.chromosome,\000a    gs.start_pos,\000a    gs.stop_pos,\000a    gs.event_type,\000a    gs.copy_number,\000a    (gs.stop_pos - gs.start_pos + 1) AS length_bp,\000a    str.genome_build,\000a    str.calling_method,\000a    gs.confidence,\000a    sf.file_name AS source_file\000aFROM genomic_segments gs\000aJOIN sample_test_results str ON str.sample_test_result_id = gs.sample_test_result_id\000aJOIN sample_tests st ON st.sample_test_id = str.sample_test_id\000aJOIN sample_accessions sa ON sa.sample_accession_id = st.sample_accession_id\000aLEFT JOIN source_files sf ON sf.source_file_id = str.source_file_id\000aORDER BY gs.segment_id DESC\000a) q\000aWHERE chromosome = 'chr5'\000a  AND start_pos <= 15000000\000a  AND stop_pos >= 7000000\000a[*]LIM"; SQL statement:
+SELECT *
+FROM (
+    SELECT
+    sa.accession_identifier AS sample_id,
+    gs.chromosome,
+    gs.start_pos,
+    gs.stop_pos,
+    gs.event_type,
+    gs.copy_number,
+    (gs.stop_pos - gs.start_pos + 1) AS length_bp,
+    str.genome_build,
+    str.calling_method,
+    gs.confidence,
+    sf.file_name AS source_file
+FROM genomic_segments gs
+JOIN sample_test_results str ON str.sample_test_result_id = gs.sample_test_result_id
+JOIN sample_tests st ON st.sample_test_id = str.sample_test_id
+JOIN sample_accessions sa ON sa.sample_accession_id = st.sample_accession_id
+LEFT JOIN source_files sf ON sf.source_file_id = str.source_file_id
+ORDER BY gs.segment_id DESC
+) q
+WHERE chromosome = 'chr5'
+  AND start_pos <= 15000000
+  AND stop_pos >= 7000000
+LIM [42000-224]
+2026-06-08 13:31:21.991750-05:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "SELECT *\000aFROM (\000a    SELECT\000a    sa.accession_identifier AS sample_id,\000a    gs.chromosome,\000a    gs.start_pos,\000a    gs.stop_pos,\000a    gs.event_type,\000a    gs.copy_number,\000a    (gs.stop_pos - gs.start_pos + 1) AS length_bp,\000a    str.genome_build,\000a    str.calling_method,\000a    gs.confidence,\000a    sf.file_name AS source_file\000aFROM genomic_segments gs\000aJOIN sample_test_results str ON str.sample_test_result_id = gs.sample_test_result_id\000aJOIN sample_tests st ON st.sample_test_id = str.sample_test_id\000aJOIN sample_accessions sa ON sa.sample_accession_id = st.sample_accession_id\000aLEFT JOIN source_files sf ON sf.source_file_id = str.source_file_id\000aORDER BY gs.segment_id DESC\000a) q\000aWHERE chromosome = 'chr5'\000a  AND event_type = 'DUP'[*], 'DEL';\000a"; SQL statement:
+SELECT *
+FROM (
+    SELECT
+    sa.accession_identifier AS sample_id,
+    gs.chromosome,
+    gs.start_pos,
+    gs.stop_pos,
+    gs.event_type,
+    gs.copy_number,
+    (gs.stop_pos - gs.start_pos + 1) AS length_bp,
+    str.genome_build,
+    str.calling_method,
+    gs.confidence,
+    sf.file_name AS source_file
+FROM genomic_segments gs
+JOIN sample_test_results str ON str.sample_test_result_id = gs.sample_test_result_id
+JOIN sample_tests st ON st.sample_test_id = str.sample_test_id
+JOIN sample_accessions sa ON sa.sample_accession_id = st.sample_accession_id
+LEFT JOIN source_files sf ON sf.source_file_id = str.source_file_id
+ORDER BY gs.segment_id DESC
+) q
+WHERE chromosome = 'chr5'
+  AND event_type = 'DUP', 'DEL';
+ [42000-224]
+2026-06-08 13:31:49.075834-05:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "SELECT *\000aFROM (\000a    SELECT\000a    sa.accession_identifier AS sample_id,\000a    gs.chromosome,\000a    gs.start_pos,\000a    gs.stop_pos,\000a    gs.event_type,\000a    gs.copy_number,\000a    (gs.stop_pos - gs.start_pos + 1) AS length_bp,\000a    str.genome_build,\000a    str.calling_method,\000a    gs.confidence,\000a    sf.file_name AS source_file\000aFROM genomic_segments gs\000aJOIN sample_test_results str ON str.sample_test_result_id = gs.sample_test_result_id\000aJOIN sample_tests st ON st.sample_test_id = str.sample_test_id\000aJOIN sample_accessions sa ON sa.sample_accession_id = st.sample_accession_id\000aLEFT JOIN source_files sf ON sf.source_file_id = str.source_file_id\000aORDER BY gs.segment_id DESC\000a) q\000a[*]event_type = 'DEL';\000a"; SQL statement:
+SELECT *
+FROM (
+    SELECT
+    sa.accession_identifier AS sample_id,
+    gs.chromosome,
+    gs.start_pos,
+    gs.stop_pos,
+    gs.event_type,
+    gs.copy_number,
+    (gs.stop_pos - gs.start_pos + 1) AS length_bp,
+    str.genome_build,
+    str.calling_method,
+    gs.confidence,
+    sf.file_name AS source_file
+FROM genomic_segments gs
+JOIN sample_test_results str ON str.sample_test_result_id = gs.sample_test_result_id
+JOIN sample_tests st ON st.sample_test_id = str.sample_test_id
+JOIN sample_accessions sa ON sa.sample_accession_id = st.sample_accession_id
+LEFT JOIN source_files sf ON sf.source_file_id = str.source_file_id
+ORDER BY gs.segment_id DESC
+) q
+event_type = 'DEL';
+ [42000-224]
+2026-06-08 15:19:17.619409-05:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "SELECT *\000aFROM (\000a    SELECT\000a    sa.accession_identifier AS sample_id,\000a    gs.chromosome,\000a    gs.start_pos,\000a    gs.stop_pos,\000a    gs.event_type,\000a    gs.copy_number,\000a    (gs.stop_pos - gs.start_pos + 1) AS length_bp,\000a    str.genome_build,\000a    str.calling_method,\000a    gs.confidence,\000a    sf.file_name AS source_file\000aFROM genomic_segments gs\000aJOIN sample_test_results str ON str.sample_test_result_id = gs.sample_test_result_id\000aJOIN sample_tests st ON st.sample_test_id = str.sample_test_id\000aJOIN sample_accessions sa ON sa.sample_accession_id = st.sample_accession_id\000aLEFT JOIN source_files sf ON sf.source_file_id = str.source_file_id\000aORDER BY gs.segment_id DESC\000a) q\000aWHERE chromosome = 'chr5'\000a  AND start_pos <= 150000000\000a  AND stop_pos >= 70000000\000a [*]event type = 'DUP';\000aLIMIT 100"; SQL statement:
+SELECT *
+FROM (
+    SELECT
+    sa.accession_identifier AS sample_id,
+    gs.chromosome,
+    gs.start_pos,
+    gs.stop_pos,
+    gs.event_type,
+    gs.copy_number,
+    (gs.stop_pos - gs.start_pos + 1) AS length_bp,
+    str.genome_build,
+    str.calling_method,
+    gs.confidence,
+    sf.file_name AS source_file
+FROM genomic_segments gs
+JOIN sample_test_results str ON str.sample_test_result_id = gs.sample_test_result_id
+JOIN sample_tests st ON st.sample_test_id = str.sample_test_id
+JOIN sample_accessions sa ON sa.sample_accession_id = st.sample_accession_id
+LEFT JOIN source_files sf ON sf.source_file_id = str.source_file_id
+ORDER BY gs.segment_id DESC
+) q
+WHERE chromosome = 'chr5'
+  AND start_pos <= 150000000
+  AND stop_pos >= 70000000
+ event type = 'DUP';
+LIMIT 100 [42000-224]
+2026-06-08 15:19:30.569419-05:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "[*]LIMIT 100"; SQL statement:
+LIMIT 100 [42000-224]
+2026-06-08 16:19:23.204172-05:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Column "EVENT_ID" not found; SQL statement:
+CREATE INDEX IF NOT EXISTS idx_segments_event
+    ON genomic_segments(event_id) [42122-224]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:514)
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:489)
+	at org.h2.message.DbException.get(DbException.java:223)
+	at org.h2.message.DbException.get(DbException.java:199)
+	at org.h2.table.Table.getColumn(Table.java:759)
+	at org.h2.table.IndexColumn.mapColumns(IndexColumn.java:184)
+	at org.h2.command.ddl.CreateIndex.update(CreateIndex.java:104)
+	at org.h2.command.CommandContainer.update(CommandContainer.java:169)
+	at org.h2.command.Command.executeUpdate(Command.java:256)
+	at org.h2.jdbc.JdbcStatement.executeInternal(JdbcStatement.java:262)
+	at org.h2.jdbc.JdbcStatement.execute(JdbcStatement.java:231)
+	at org.mpgdatabase.gui.CnvDatabaseGui.createSchema(CnvDatabaseGui.java:720)
+	at org.mpgdatabase.gui.CnvDatabaseGui.connect(CnvDatabaseGui.java:426)
+	at org.mpgdatabase.gui.CnvDatabaseGui.connectOnStartup(CnvDatabaseGui.java:392)
+	at org.mpgdatabase.gui.CnvDatabaseGui.<init>(CnvDatabaseGui.java:113)
+	at org.mpgdatabase.gui.CnvDatabaseGui.lambda$main$0(CnvDatabaseGui.java:102)
+	at java.desktop/java.awt.event.InvocationEvent.dispatch(InvocationEvent.java:323)
+	at java.desktop/java.awt.EventQueue.dispatchEventImpl(EventQueue.java:723)
+	at java.desktop/java.awt.EventQueue.dispatchEvent(EventQueue.java:702)
+	at java.desktop/java.awt.EventDispatchThread.pumpOneEventForFilters(EventDispatchThread.java:203)
+	at java.desktop/java.awt.EventDispatchThread.pumpEventsForFilter(EventDispatchThread.java:124)
+	at java.desktop/java.awt.EventDispatchThread.pumpEventsForHierarchy(EventDispatchThread.java:113)
+	at java.desktop/java.awt.EventDispatchThread.pumpEvents(EventDispatchThread.java:109)
+	at java.desktop/java.awt.EventDispatchThread.pumpEvents(EventDispatchThread.java:101)
+	at java.desktop/java.awt.EventDispatchThread.run(EventDispatchThread.java:90)
+2026-06-08 16:19:33.336767-05:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Column "GS.EVENT_ID" not found; SQL statement:
+SELECT
+    gs.event_id,
+    sa.accession_identifier AS sample_id,
+    gs.chromosome,
+    gs.start_pos,
+    gs.stop_pos,
+    gs.event_type,
+    gs.copy_number,
+    (gs.stop_pos - gs.start_pos + 1) AS length_bp,
+    str.genome_build,
+    str.calling_method,
+    gs.confidence,
+    sf.file_name AS source_file
+FROM genomic_segments gs
+JOIN sample_test_results str ON str.sample_test_result_id = gs.sample_test_result_id
+JOIN sample_tests st ON st.sample_test_id = str.sample_test_id
+JOIN sample_accessions sa ON sa.sample_accession_id = st.sample_accession_id
+LEFT JOIN source_files sf ON sf.source_file_id = str.source_file_id
+ORDER BY gs.segment_id DESC
+LIMIT 100 [42122-224]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:514)
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:489)
+	at org.h2.message.DbException.get(DbException.java:223)
+	at org.h2.message.DbException.get(DbException.java:199)
+	at org.h2.expression.ExpressionColumn.getColumnException(ExpressionColumn.java:244)
+	at org.h2.expression.ExpressionColumn.optimizeOther(ExpressionColumn.java:226)
+	at org.h2.expression.ExpressionColumn.optimize(ExpressionColumn.java:213)
+	at org.h2.command.query.Select.prepareExpressions(Select.java:1170)
+	at org.h2.command.query.Query.prepare(Query.java:218)
+	at org.h2.command.Parser.prepareCommand(Parser.java:489)
+	at org.h2.engine.SessionLocal.prepareLocal(SessionLocal.java:639)
+	at org.h2.engine.SessionLocal.prepareCommand(SessionLocal.java:559)
+	at org.h2.jdbc.JdbcConnection.prepareCommand(JdbcConnection.java:1166)
+	at org.h2.jdbc.JdbcStatement.executeQuery(JdbcStatement.java:94)
+	at org.mpgdatabase.gui.CnvDatabaseGui.runQuery(CnvDatabaseGui.java:631)
+	at org.mpgdatabase.gui.CnvDatabaseGui.lambda$queryAndResults$0(CnvDatabaseGui.java:350)
+	at java.desktop/javax.swing.AbstractButton.fireActionPerformed(AbstractButton.java:1972)
+	at java.desktop/javax.swing.AbstractButton$Handler.actionPerformed(AbstractButton.java:2314)
+	at java.desktop/javax.swing.DefaultButtonModel.fireActionPerformed(DefaultButtonModel.java:407)
+	at java.desktop/javax.swing.DefaultButtonModel.setPressed(DefaultButtonModel.java:262)
+	at java.desktop/javax.swing.plaf.basic.BasicButtonListener.mouseReleased(BasicButtonListener.java:279)
+	at java.desktop/java.awt.Component.processMouseEvent(Component.java:6576)
+	at java.desktop/javax.swing.JComponent.processMouseEvent(JComponent.java:3404)
+	at java.desktop/java.awt.Component.processEvent(Component.java:6341)
+	at java.desktop/java.awt.Container.processEvent(Container.java:2260)
+	at java.desktop/java.awt.Component.dispatchEventImpl(Component.java:4958)
+	at java.desktop/java.awt.Container.dispatchEventImpl(Container.java:2318)
+	at java.desktop/java.awt.Component.dispatchEvent(Component.java:4790)
+	at java.desktop/java.awt.LightweightDispatcher.retargetMouseEvent(Container.java:4917)
+	at java.desktop/java.awt.LightweightDispatcher.processMouseEvent(Container.java:4560)
+	at java.desktop/java.awt.LightweightDispatcher.dispatchEvent(Container.java:4501)
+	at java.desktop/java.awt.Container.dispatchEventImpl(Container.java:2304)
+	at java.desktop/java.awt.Window.dispatchEventImpl(Window.java:2671)
+	at java.desktop/java.awt.Component.dispatchEvent(Component.java:4790)
+	at java.desktop/java.awt.EventQueue.dispatchEventImpl(EventQueue.java:725)
+	at java.desktop/java.awt.EventQueue.dispatchEvent(EventQueue.java:702)
+	at java.desktop/java.awt.EventDispatchThread.pumpOneEventForFilters(EventDispatchThread.java:203)
+	at java.desktop/java.awt.EventDispatchThread.pumpEventsForFilter(EventDispatchThread.java:124)
+	at java.desktop/java.awt.EventDispatchThread.pumpEventsForHierarchy(EventDispatchThread.java:113)
+	at java.desktop/java.awt.EventDispatchThread.pumpEvents(EventDispatchThread.java:109)
+	at java.desktop/java.awt.EventDispatchThread.pumpEvents(EventDispatchThread.java:101)
+	at java.desktop/java.awt.EventDispatchThread.run(EventDispatchThread.java:90)
+2026-06-08 16:20:23.743419-05:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Column "EVENT_ID" not found; SQL statement:
+CREATE INDEX IF NOT EXISTS idx_segments_event
+    ON genomic_segments(event_id) [42122-224]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:514)
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:489)
+	at org.h2.message.DbException.get(DbException.java:223)
+	at org.h2.message.DbException.get(DbException.java:199)
+	at org.h2.table.Table.getColumn(Table.java:759)
+	at org.h2.table.IndexColumn.mapColumns(IndexColumn.java:184)
+	at org.h2.command.ddl.CreateIndex.update(CreateIndex.java:104)
+	at org.h2.command.CommandContainer.update(CommandContainer.java:169)
+	at org.h2.command.Command.executeUpdate(Command.java:256)
+	at org.h2.jdbc.JdbcStatement.executeInternal(JdbcStatement.java:262)
+	at org.h2.jdbc.JdbcStatement.execute(JdbcStatement.java:231)
+	at org.mpgdatabase.gui.CnvDatabaseGui.createSchema(CnvDatabaseGui.java:720)
+	at org.mpgdatabase.gui.CnvDatabaseGui.connect(CnvDatabaseGui.java:426)
+	at org.mpgdatabase.gui.CnvDatabaseGui.connectOnStartup(CnvDatabaseGui.java:392)
+	at org.mpgdatabase.gui.CnvDatabaseGui.<init>(CnvDatabaseGui.java:113)
+	at org.mpgdatabase.gui.CnvDatabaseGui.lambda$main$0(CnvDatabaseGui.java:102)
+	at java.desktop/java.awt.event.InvocationEvent.dispatch(InvocationEvent.java:323)
+	at java.desktop/java.awt.EventQueue.dispatchEventImpl(EventQueue.java:723)
+	at java.desktop/java.awt.EventQueue.dispatchEvent(EventQueue.java:702)
+	at java.desktop/java.awt.EventDispatchThread.pumpOneEventForFilters(EventDispatchThread.java:203)
+	at java.desktop/java.awt.EventDispatchThread.pumpEventsForFilter(EventDispatchThread.java:124)
+	at java.desktop/java.awt.EventDispatchThread.pumpEventsForHierarchy(EventDispatchThread.java:113)
+	at java.desktop/java.awt.EventDispatchThread.pumpEvents(EventDispatchThread.java:109)
+	at java.desktop/java.awt.EventDispatchThread.pumpEvents(EventDispatchThread.java:101)
+	at java.desktop/java.awt.EventDispatchThread.run(EventDispatchThread.java:90)
+2026-06-08 16:20:40.809944-05:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Column "EVENT_ID" not found; SQL statement:
+INSERT INTO genomic_segments
+    (event_id, sample_test_result_id, chromosome, start_pos, stop_pos, event_type, copy_number,
+     array_score, confidence, number_of_sites, annotations)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+ [42122-224]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:514)
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:489)
+	at org.h2.message.DbException.get(DbException.java:223)
+	at org.h2.message.DbException.get(DbException.java:199)
+	at org.h2.table.Table.getColumn(Table.java:759)
+	at org.h2.command.Parser.parseColumn(Parser.java:1190)
+	at org.h2.command.Parser.parseColumnList(Parser.java:1175)
+	at org.h2.command.Parser.parseInsert(Parser.java:1549)
+	at org.h2.command.Parser.parsePrepared(Parser.java:719)
+	at org.h2.command.Parser.parse(Parser.java:592)
+	at org.h2.command.Parser.parse(Parser.java:564)
+	at org.h2.command.Parser.prepareCommand(Parser.java:483)
+	at org.h2.engine.SessionLocal.prepareLocal(SessionLocal.java:639)
+	at org.h2.engine.SessionLocal.prepareCommand(SessionLocal.java:559)
+	at org.h2.jdbc.JdbcConnection.prepareCommand(JdbcConnection.java:1166)
+	at org.h2.jdbc.JdbcPreparedStatement.<init>(JdbcPreparedStatement.java:93)
+	at org.h2.jdbc.JdbcConnection.prepareStatement(JdbcConnection.java:1094)
+	at org.mpgdatabase.gui.CnvDatabaseGui.createSegment(CnvDatabaseGui.java:1024)
+	at org.mpgdatabase.gui.CnvDatabaseGui.insertRows(CnvDatabaseGui.java:606)
+	at org.mpgdatabase.gui.CnvDatabaseGui.importFile(CnvDatabaseGui.java:475)
+	at org.mpgdatabase.gui.CnvDatabaseGui.chooseAndImport(CnvDatabaseGui.java:461)
+	at org.mpgdatabase.gui.CnvDatabaseGui.lambda$menuBar$1(CnvDatabaseGui.java:136)
+	at java.desktop/javax.swing.AbstractButton.fireActionPerformed(AbstractButton.java:1972)
+	at java.desktop/javax.swing.AbstractButton$Handler.actionPerformed(AbstractButton.java:2314)
+	at java.desktop/javax.swing.DefaultButtonModel.fireActionPerformed(DefaultButtonModel.java:407)
+	at java.desktop/javax.swing.DefaultButtonModel.setPressed(DefaultButtonModel.java:262)
+	at java.desktop/javax.swing.AbstractButton.doClick(AbstractButton.java:374)
+	at java.desktop/javax.swing.plaf.basic.BasicMenuItemUI.doClick(BasicMenuItemUI.java:987)
+	at java.desktop/com.apple.laf.AquaMenuItemUI.doClick(AquaMenuItemUI.java:157)
+	at java.desktop/javax.swing.plaf.basic.BasicMenuItemUI$Handler.mouseReleased(BasicMenuItemUI.java:1031)
+	at java.desktop/java.awt.Component.processMouseEvent(Component.java:6576)
+	at java.desktop/javax.swing.JComponent.processMouseEvent(JComponent.java:3404)
+	at java.desktop/java.awt.Component.processEvent(Component.java:6341)
+	at java.desktop/java.awt.Container.processEvent(Container.java:2260)
+	at java.desktop/java.awt.Component.dispatchEventImpl(Component.java:4958)
+	at java.desktop/java.awt.Container.dispatchEventImpl(Container.java:2318)
+	at java.desktop/java.awt.Component.dispatchEvent(Component.java:4790)
+	at java.desktop/java.awt.LightweightDispatcher.retargetMouseEvent(Container.java:4917)
+	at java.desktop/java.awt.LightweightDispatcher.processMouseEvent(Container.java:4560)
+	at java.desktop/java.awt.LightweightDispatcher.dispatchEvent(Container.java:4501)
+	at java.desktop/java.awt.Container.dispatchEventImpl(Container.java:2304)
+	at java.desktop/java.awt.Window.dispatchEventImpl(Window.java:2671)
+	at java.desktop/java.awt.Component.dispatchEvent(Component.java:4790)
+	at java.desktop/java.awt.EventQueue.dispatchEventImpl(EventQueue.java:725)
+	at java.desktop/java.awt.EventQueue.dispatchEvent(EventQueue.java:702)
+	at java.desktop/java.awt.EventDispatchThread.pumpOneEventForFilters(EventDispatchThread.java:203)
+	at java.desktop/java.awt.EventDispatchThread.pumpEventsForFilter(EventDispatchThread.java:124)
+	at java.desktop/java.awt.EventDispatchThread.pumpEventsForHierarchy(EventDispatchThread.java:113)
+	at java.desktop/java.awt.EventDispatchThread.pumpEvents(EventDispatchThread.java:109)
+	at java.desktop/java.awt.EventDispatchThread.pumpEvents(EventDispatchThread.java:101)
+	at java.desktop/java.awt.EventDispatchThread.run(EventDispatchThread.java:90)

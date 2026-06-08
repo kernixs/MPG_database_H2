@@ -43,6 +43,8 @@ class Phase2WorkflowTest {
             assertTrue(test.success());
             assertTrue(report.overallPassed(), verification.terminalSummary(report));
             assertEquals(3, report.tableCounts().get("genomic_segments"));
+            assertEquals(3, report.tableCounts().get("genomic_events"));
+            assertEquals(0, report.tableCounts().get("genomic_links"));
             assertEquals(3, report.tableCounts().get("validation_issues"));
             assertEquals(2, report.tableCounts().get("source_files"));
             assertEquals(2, count(connection, """
@@ -73,7 +75,12 @@ class Phase2WorkflowTest {
                     WHERE file_name = 'test.cnv' AND import_status = 'FAILED'
                     """));
             assertTrue(Files.exists(outputDir.resolve("source_files.tsv")));
+            assertTrue(Files.exists(outputDir.resolve("genomic_events.tsv")));
+            assertTrue(Files.exists(outputDir.resolve("genomic_links.tsv")));
+            assertTrue(Files.exists(outputDir.resolve("circos_links.tsv")));
             String resultTrace = Files.readString(outputDir.resolve("result_trace.tsv"));
+            assertTrue(resultTrace.contains("EVENT_ID"), resultTrace);
+            assertTrue(resultTrace.contains("EVENT_STATUS"), resultTrace);
             assertTrue(resultTrace.contains("SOURCE_FILE_ID"), resultTrace);
             assertTrue(resultTrace.contains("SOURCE_FILE"), resultTrace);
             assertTrue(resultTrace.contains("INDIVIDUAL_ID"), resultTrace);
@@ -85,6 +92,10 @@ class Phase2WorkflowTest {
                     SELECT COUNT(*) FROM sample_test_results str
                     JOIN genomic_segments gs ON gs.sample_test_result_id = str.sample_test_result_id
                     WHERE str.line_number IS NULL
+                    """));
+            assertEquals(0, count(connection, """
+                    SELECT COUNT(*) FROM genomic_segments
+                    WHERE event_id IS NULL
                     """));
         }
     }
@@ -100,6 +111,8 @@ class Phase2WorkflowTest {
 
             assertTrue(wgs.success());
             assertEquals(452, wgs.segmentsInserted());
+            assertEquals(452, count(connection, "SELECT COUNT(*) FROM genomic_events"));
+            assertEquals(452, count(connection, "SELECT COUNT(*) FROM genomic_segments WHERE event_id IS NOT NULL"));
             assertEquals(1, count(connection, "SELECT COUNT(*) FROM source_files"));
             assertEquals(1, count(connection, """
                     SELECT COUNT(*) FROM source_files
@@ -206,6 +219,10 @@ class Phase2WorkflowTest {
             assertTrue(singleSearch.contains("SIM001"), singleSearch);
             assertTrue(singleSearch.contains("DEL"), singleSearch);
             assertFalse(singleSearch.contains("SIM002"), singleSearch);
+
+            String eventSearch = new SearchService(connection).search(Map.of("event-id", "1"));
+            assertTrue(eventSearch.contains("EVENT_ID"), eventSearch);
+            assertTrue(eventSearch.contains("Rows: 1"), eventSearch);
         }
     }
 
@@ -364,6 +381,46 @@ class Phase2WorkflowTest {
             assertTrue(importSummary.contains("Clinical Decision Import Results"), importSummary);
             assertTrue(importSummary.contains("phase26_clinical_decisions.tsv"), importSummary);
             assertTrue(importSummary.contains("classifications=100"), importSummary);
+            String runLog = Files.readString(outputDir.resolve("run_log.tsv"));
+            assertTrue(runLog.contains("clinical_decision_import"), runLog);
+            assertTrue(runLog.contains("phase26_clinical_decisions.tsv"), runLog);
+            assertTrue(runLog.contains("classifications_inserted"), runLog);
+        }
+    }
+
+    @Test
+    void importsGenericTranslocationAsLinkedSegmentsForCircos() throws Exception {
+        try (Connection connection = Database.connect("jdbc:h2:mem:translocation_links;DB_CLOSE_DELAY=-1")) {
+            Database.initialize(connection);
+            CnvImportService importer = new CnvImportService(connection, new CnvParserFactory());
+            var result = importer.importFile(Path.of("data/translocation_pair.cnv"), null);
+
+            assertTrue(result.success());
+            assertEquals(100, result.recordsSeen());
+            assertEquals(100, result.segmentsInserted());
+            assertEquals(50, count(connection, "SELECT COUNT(*) FROM genomic_events"));
+            assertEquals(100, count(connection, "SELECT COUNT(*) FROM genomic_segments"));
+            assertEquals(50, count(connection, "SELECT COUNT(*) FROM genomic_links"));
+            assertEquals(1, count(connection, """
+                    SELECT COUNT(*) FROM genomic_links gl
+                    JOIN genomic_segments src ON src.segment_id = gl.source_segment_id
+                    JOIN genomic_segments tgt ON tgt.segment_id = gl.target_segment_id
+                    WHERE gl.link_type = 'TRANSLOCATION'
+                      AND src.chromosome = 'chr9'
+                      AND tgt.chromosome = 'chr22'
+                    """));
+
+            Path outputDir = Files.createTempDirectory("translocation-output");
+            VerificationReport report = new VerificationService(connection, outputDir)
+                    .verify(true, List.of(result));
+            assertTrue(report.schema().passed(), new VerificationService(connection, outputDir)
+                    .terminalSummary(report));
+            assertTrue(report.dataIntegrity().passed(), new VerificationService(connection, outputDir)
+                    .terminalSummary(report));
+            assertTrue(Files.readString(outputDir.resolve("genomic_links.tsv"))
+                    .contains("TRANSLOCATION"));
+            assertTrue(Files.readString(outputDir.resolve("circos_links.tsv"))
+                    .contains("chr22"));
         }
     }
 

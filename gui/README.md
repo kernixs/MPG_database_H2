@@ -97,6 +97,7 @@ Optional supported fields include:
 
 ```text
 copy_number
+event_group_id
 confidence
 array_score
 number_of_sites
@@ -116,6 +117,15 @@ NEUTRAL / INV / INS / TRANS / T / DER -> 2
 
 This allows simple NGS/WGS-derived files with `SV_Type` but no explicit `copy_number` to import.
 
+For generic translocation-style rows, use:
+
+```text
+event_group_id
+event_type = TRANS or T
+```
+
+When multiple rows share the same `sample_accession_id` and `event_group_id`, the GUI attaches them to one `genomic_events` row. If two or more grouped rows are `TRANS`/`T`, the GUI creates `genomic_links` rows with `link_type = TRANSLOCATION`. Common aliases such as `group_id`, `variant_id`, `pair_id`, `link_id`, and `breakend_id` are accepted.
+
 ## Sample Data
 
 Test inputs are provided under:
@@ -132,6 +142,7 @@ invalid_missing_genome_build.tsv
 interesting_chr5_overlap.tsv
 mixed_event_types.tsv
 ngs_derived_small.tsv
+translocation_pair.tsv
 ```
 
 ## Suggested Manual Test
@@ -168,6 +179,27 @@ JOIN sample_test_results str ON str.sample_test_result_id = gs.sample_test_resul
 JOIN sample_tests st ON st.sample_test_id = str.sample_test_id
 JOIN sample_accessions sa ON sa.sample_accession_id = st.sample_accession_id
 WHERE gs.chromosome = 'chr5'
+LIMIT 100
+```
+
+To inspect translocation links after importing `gui/sample-data/translocation_pair.tsv`:
+
+```sql
+SELECT
+    gl.link_id,
+    gl.event_id,
+    src.chromosome AS source_chr,
+    src.start_pos AS source_start,
+    src.stop_pos AS source_stop,
+    tgt.chromosome AS target_chr,
+    tgt.start_pos AS target_start,
+    tgt.stop_pos AS target_stop,
+    gl.link_type,
+    gl.evidence
+FROM genomic_links gl
+JOIN genomic_segments src ON src.segment_id = gl.source_segment_id
+JOIN genomic_segments tgt ON tgt.segment_id = gl.target_segment_id
+ORDER BY gl.link_id DESC
 LIMIT 100
 ```
 

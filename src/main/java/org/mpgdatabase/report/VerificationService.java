@@ -12,6 +12,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.Instant;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,7 +27,9 @@ public class VerificationService {
             "source_files",
             "sample_test_results",
             "karyotypes",
+            "genomic_events",
             "genomic_segments",
+            "genomic_links",
             "validation_issues",
             "variant_classifications",
             "signed_out_calls",
@@ -98,7 +101,9 @@ public class VerificationService {
         appendCount(sb, report.tableCounts(), "Source Files", "source_files");
         appendCount(sb, report.tableCounts(), "Sample Test Results", "sample_test_results");
         appendCount(sb, report.tableCounts(), "Karyotypes", "karyotypes");
+        appendCount(sb, report.tableCounts(), "Genomic Events", "genomic_events");
         appendCount(sb, report.tableCounts(), "Genomic Segments", "genomic_segments");
+        appendCount(sb, report.tableCounts(), "Genomic Links", "genomic_links");
         appendCount(sb, report.tableCounts(), "Validation Issues", "validation_issues");
         appendCount(sb, report.tableCounts(), "Variant Classifications", "variant_classifications");
         appendCount(sb, report.tableCounts(), "Signed Out Calls", "signed_out_calls");
@@ -185,6 +190,31 @@ public class VerificationService {
                 SELECT COUNT(*) FROM genomic_segments gs
                 LEFT JOIN sample_test_results str ON str.sample_test_result_id = gs.sample_test_result_id
                 WHERE str.sample_test_result_id IS NULL
+                """);
+        checkZero(result, "Orphan genomic_segments event links", """
+                SELECT COUNT(*) FROM genomic_segments gs
+                LEFT JOIN genomic_events ge ON ge.event_id = gs.event_id
+                WHERE gs.event_id IS NOT NULL AND ge.event_id IS NULL
+                """);
+        checkZero(result, "Orphan genomic_events", """
+                SELECT COUNT(*) FROM genomic_events ge
+                LEFT JOIN sample_test_results str ON str.sample_test_result_id = ge.sample_test_result_id
+                WHERE str.sample_test_result_id IS NULL
+                """);
+        checkZero(result, "Orphan genomic_links events", """
+                SELECT COUNT(*) FROM genomic_links gl
+                LEFT JOIN genomic_events ge ON ge.event_id = gl.event_id
+                WHERE ge.event_id IS NULL
+                """);
+        checkZero(result, "Orphan genomic_links source segments", """
+                SELECT COUNT(*) FROM genomic_links gl
+                LEFT JOIN genomic_segments gs ON gs.segment_id = gl.source_segment_id
+                WHERE gs.segment_id IS NULL
+                """);
+        checkZero(result, "Orphan genomic_links target segments", """
+                SELECT COUNT(*) FROM genomic_links gl
+                LEFT JOIN genomic_segments gs ON gs.segment_id = gl.target_segment_id
+                WHERE gs.segment_id IS NULL
                 """);
         checkZero(result, "Orphan karyotypes", """
                 SELECT COUNT(*) FROM karyotypes k
@@ -289,10 +319,70 @@ public class VerificationService {
             }
         }
         Files.writeString(outputDir.resolve("import_summary.txt"), importSummary.toString());
+        Files.writeString(outputDir.resolve("run_log.tsv"),
+                runLogText(tableCounts, importResults, clinicalImportResults));
         Files.writeString(outputDir.resolve("segments.tsv"), queryText("""
-                SELECT segment_id, sample_test_result_id, karyotype_id, chromosome, start_pos, stop_pos,
+                SELECT segment_id, event_id, sample_test_result_id, karyotype_id, chromosome, start_pos, stop_pos,
                        event_type, copy_number, array_score, number_of_sites, annotations
                 FROM genomic_segments ORDER BY segment_id
+                """));
+        Files.writeString(outputDir.resolve("genomic_events.tsv"), queryText("""
+                SELECT
+                    event_id,
+                    sample_test_result_id,
+                    source_file_id,
+                    event_group_id,
+                    event_type,
+                    genome_build,
+                    calling_method,
+                    raw_event_text,
+                    line_number,
+                    event_status,
+                    confidence,
+                    annotations
+                FROM genomic_events
+                ORDER BY event_id
+                """));
+        Files.writeString(outputDir.resolve("genomic_links.tsv"), queryText("""
+                SELECT
+                    gl.link_id,
+                    gl.event_id,
+                    ge.event_group_id,
+                    gl.source_segment_id,
+                    src.chromosome AS source_chromosome,
+                    src.start_pos AS source_start_pos,
+                    src.stop_pos AS source_stop_pos,
+                    gl.target_segment_id,
+                    tgt.chromosome AS target_chromosome,
+                    tgt.start_pos AS target_start_pos,
+                    tgt.stop_pos AS target_stop_pos,
+                    gl.link_type,
+                    gl.orientation,
+                    gl.evidence,
+                    gl.confidence
+                FROM genomic_links gl
+                JOIN genomic_events ge ON ge.event_id = gl.event_id
+                JOIN genomic_segments src ON src.segment_id = gl.source_segment_id
+                JOIN genomic_segments tgt ON tgt.segment_id = gl.target_segment_id
+                ORDER BY gl.link_id
+                """));
+        Files.writeString(outputDir.resolve("circos_links.tsv"), queryText("""
+                SELECT
+                    gl.link_id,
+                    gl.event_id,
+                    ge.event_group_id,
+                    src.chromosome AS source_chromosome,
+                    src.start_pos AS source_start,
+                    src.stop_pos AS source_stop,
+                    tgt.chromosome AS target_chromosome,
+                    tgt.start_pos AS target_start,
+                    tgt.stop_pos AS target_stop,
+                    gl.link_type
+                FROM genomic_links gl
+                JOIN genomic_events ge ON ge.event_id = gl.event_id
+                JOIN genomic_segments src ON src.segment_id = gl.source_segment_id
+                JOIN genomic_segments tgt ON tgt.segment_id = gl.target_segment_id
+                ORDER BY gl.link_id
                 """));
         Files.writeString(outputDir.resolve("source_files.tsv"), queryText("""
                 SELECT
@@ -325,7 +415,7 @@ public class VerificationService {
                 ORDER BY str.sample_test_result_id
                 """));
         Files.writeString(outputDir.resolve("segments_by_sample.tsv"), queryText("""
-                SELECT sa.accession_identifier, gs.segment_id, gs.chromosome, gs.start_pos, gs.stop_pos,
+                SELECT sa.accession_identifier, gs.event_id, gs.segment_id, gs.chromosome, gs.start_pos, gs.stop_pos,
                        gs.event_type, gs.copy_number
                 FROM genomic_segments gs
                 JOIN sample_test_results str ON str.sample_test_result_id = gs.sample_test_result_id
@@ -423,6 +513,9 @@ public class VerificationService {
                     str.calling_method,
                     str.raw_iscn,
                     str.annotation_names,
+                    ge.event_id,
+                    ge.event_group_id,
+                    ge.event_status,
                     gs.segment_id,
                     gs.chromosome,
                     gs.start_pos,
@@ -433,6 +526,7 @@ public class VerificationService {
                     COALESCE(vi.validation_issue_count, 0) AS validation_issue_count,
                     COALESCE(vi.validation_summary, '') AS validation_summary
                 FROM genomic_segments gs
+                LEFT JOIN genomic_events ge ON ge.event_id = gs.event_id
                 JOIN sample_test_results str ON str.sample_test_result_id = gs.sample_test_result_id
                 JOIN sample_tests st ON st.sample_test_id = str.sample_test_id
                 JOIN sample_accessions sa ON sa.sample_accession_id = st.sample_accession_id
@@ -451,6 +545,59 @@ public class VerificationService {
                 ) vi ON vi.segment_id = gs.segment_id
                 ORDER BY gs.segment_id
                 """));
+    }
+
+    private String runLogText(
+            Map<String, Long> tableCounts,
+            List<ImportResult> importResults,
+            List<ClinicalDecisionImportResult> clinicalImportResults) {
+        String timestamp = Instant.now().toString();
+        StringBuilder sb = new StringBuilder();
+        sb.append("timestamp\tstep\tfile_name\tstatus\trecords_seen\tsegments_inserted\tclassifications_inserted\t")
+                .append("signed_out_calls_inserted\tnotes_inserted\tissues_inserted\tmessage\n");
+        for (ImportResult result : importResults) {
+            sb.append(timestamp).append('\t')
+                    .append("genomic_import").append('\t')
+                    .append(result.fileName()).append('\t')
+                    .append(result.success() ? "PASS" : "FAIL").append('\t')
+                    .append(result.recordsSeen()).append('\t')
+                    .append(result.segmentsInserted()).append('\t')
+                    .append("").append('\t')
+                    .append("").append('\t')
+                    .append("").append('\t')
+                    .append(result.issuesInserted()).append('\t')
+                    .append(result.segmentsInserted() > 0
+                            ? "Imported genomic segments"
+                            : "No genomic segments inserted")
+                    .append('\n');
+        }
+        for (ClinicalDecisionImportResult result : clinicalImportResults) {
+            sb.append(timestamp).append('\t')
+                    .append("clinical_decision_import").append('\t')
+                    .append(result.fileName()).append('\t')
+                    .append(result.success() ? "PASS" : "FAIL").append('\t')
+                    .append(result.recordsSeen()).append('\t')
+                    .append("").append('\t')
+                    .append(result.classificationsInserted()).append('\t')
+                    .append(result.signedOutCallsInserted()).append('\t')
+                    .append(result.notesInserted()).append('\t')
+                    .append("").append('\t')
+                    .append("Imported classifications, sign-out calls, and notes")
+                    .append('\n');
+        }
+        sb.append(timestamp).append('\t')
+                .append("verification").append('\t')
+                .append("").append('\t')
+                .append("PASS").append('\t')
+                .append("").append('\t')
+                .append(tableCounts.getOrDefault("genomic_segments", 0L)).append('\t')
+                .append(tableCounts.getOrDefault("variant_classifications", 0L)).append('\t')
+                .append(tableCounts.getOrDefault("signed_out_calls", 0L)).append('\t')
+                .append(tableCounts.getOrDefault("notes", 0L)).append('\t')
+                .append(tableCounts.getOrDefault("validation_issues", 0L)).append('\t')
+                .append("Generated verification reports")
+                .append('\n');
+        return sb.toString();
     }
 
     private String queryText(String sql) throws SQLException {
@@ -480,9 +627,10 @@ public class VerificationService {
 
     private void appendSegments(StringBuilder sb, String title, List<GenomicSegment> segments) {
         sb.append('\n').append(title).append('\n');
-        sb.append("segment_id\tsample_test_result_id\tkaryotype_id\tchromosome\tstart_pos\tstop_pos\tevent_type\tcopy_number\n");
+        sb.append("segment_id\tevent_id\tsample_test_result_id\tkaryotype_id\tchromosome\tstart_pos\tstop_pos\tevent_type\tcopy_number\n");
         for (GenomicSegment segment : segments) {
             sb.append(segment.id()).append('\t')
+                    .append(segment.eventId() == null ? "" : segment.eventId()).append('\t')
                     .append(segment.sampleTestResultId()).append('\t')
                     .append(segment.karyotypeId() == null ? "" : segment.karyotypeId()).append('\t')
                     .append(segment.chromosome()).append('\t')

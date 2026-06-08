@@ -58,6 +58,7 @@ public class CnvDatabaseGui extends JFrame {
     );
     private static final Set<String> CORE_COLUMNS = Set.of(
             "sample_accession_id",
+            "event_group_id",
             "chromosome",
             "start_pos",
             "stop_pos",
@@ -230,10 +231,12 @@ public class CnvDatabaseGui extends JFrame {
                 sample_accession_id, chromosome, start_pos, stop_pos, event_type, copy_number, genome_build
 
                 Optional columns:
-                copy_number, confidence, array_score, number_of_sites, raw_iscn,
-                annotation_names, annotations, and format-specific extra annotation columns.
+                event_group_id, copy_number, confidence, array_score, number_of_sites,
+                raw_iscn, annotation_names, annotations, and format-specific extra annotation columns.
 
                 If copy_number is missing, DEL/LOSS infer 1 and DUP/GAIN/AMP infer 3.
+                TRANS/T can infer copy_number 2. If multiple TRANS/T rows share the same
+                sample_accession_id and event_group_id, the GUI creates one genomic_links row.
                 """));
         JMenuItem changeLog = new JMenuItem("Change Log");
         changeLog.addActionListener(e -> showInfo("Change Log", """
@@ -526,6 +529,7 @@ public class CnvDatabaseGui extends JFrame {
 
     private CnvRow parseRow(Map<String, String> values, int lineNumber, List<String> errors) {
         String sample = value(values, "sample_accession_id");
+        String eventGroupId = value(values, "event_group_id");
         String chromosome = normalizeChromosome(value(values, "chromosome"));
         String eventType = upper(value(values, "event_type"));
         String genomeBuild = value(values, "genome_build");
@@ -571,7 +575,7 @@ public class CnvDatabaseGui extends JFrame {
             errors.add("Line " + lineNumber + ": " + String.join("; ", rowErrors));
             return null;
         }
-        return new CnvRow(lineNumber, sample, chromosome, start, stop, eventType, copyNumber,
+        return new CnvRow(lineNumber, sample, eventGroupId, chromosome, start, stop, eventType, copyNumber,
                 genomeBuild, confidence, arrayScore, sites, rawIscn, annotationNames, annotations);
     }
 
@@ -580,15 +584,47 @@ public class CnvDatabaseGui extends JFrame {
         long protocolId = getOrCreateLabProtocol();
         long sourceFileId = createSourceFile(path, pipelineId, rows.size());
         int inserted = 0;
+        Map<String, EventGroupState> eventGroups = new LinkedHashMap<>();
         for (CnvRow row : rows) {
             long individualId = getOrCreateIndividual(row.sample());
             long accessionId = getOrCreateAccession(row.sample(), individualId);
             long sampleTestId = createSampleTest(accessionId, protocolId);
             long resultId = createSampleTestResult(sampleTestId, pipelineId, sourceFileId, row);
-            createSegment(resultId, row);
+            EventGroupState groupState = eventGroupState(eventGroups, resultId, sourceFileId, row);
+            long eventId = groupState.eventId();
+            long sourceSegmentId = createSegment(eventId, resultId, row.chromosome(), row.start(), row.stop(), row);
             inserted++;
+            if (shouldLinkGroupedSegment(row, groupState)) {
+                createGenomicLink(eventId, groupState.firstTransSegmentId(), sourceSegmentId,
+                        "TRANSLOCATION", linkEvidence(row), row.confidence());
+            }
+            groupState.addSegment(sourceSegmentId, row.eventType());
         }
         return inserted;
+    }
+
+    private EventGroupState eventGroupState(Map<String, EventGroupState> eventGroups,
+                                            long resultId,
+                                            long sourceFileId,
+                                            CnvRow row) throws SQLException {
+        String groupKey = eventGroupKey(sourceFileId, row);
+        if (groupKey == null) {
+            return new EventGroupState(createGenomicEvent(resultId, sourceFileId, row), null);
+        }
+        EventGroupState existing = eventGroups.get(groupKey);
+        if (existing != null) {
+            return existing;
+        }
+        EventGroupState created = new EventGroupState(createGenomicEvent(resultId, sourceFileId, row), row.eventGroupId());
+        eventGroups.put(groupKey, created);
+        return created;
+    }
+
+    private String eventGroupKey(long sourceFileId, CnvRow row) {
+        if (row.eventGroupId() == null || row.eventGroupId().isBlank()) {
+            return null;
+        }
+        return sourceFileId + "|" + row.sample() + "|" + row.eventGroupId();
     }
 
     private void runQuery() {
@@ -696,6 +732,27 @@ public class CnvDatabaseGui extends JFrame {
                 }
             }
         }
+        addColumnIfMissing(conn, "GENOMIC_SEGMENTS", "EVENT_ID", "BIGINT");
+        addColumnIfMissing(conn, "GENOMIC_EVENTS", "EVENT_GROUP_ID", "VARCHAR(128)");
+    }
+
+    private void addColumnIfMissing(Connection conn, String table, String column, String type)
+            throws SQLException {
+        try (PreparedStatement ps = conn.prepareStatement("""
+                SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+                WHERE TABLE_SCHEMA = 'PUBLIC' AND TABLE_NAME = ? AND COLUMN_NAME = ?
+                """)) {
+            ps.setString(1, table);
+            ps.setString(2, column);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next() && rs.getLong(1) > 0) {
+                    return;
+                }
+            }
+        }
+        try (Statement stmt = conn.createStatement()) {
+            stmt.execute("ALTER TABLE " + table + " ADD COLUMN " + column + " " + type);
+        }
     }
 
     private String schema() {
@@ -768,8 +825,25 @@ public class CnvDatabaseGui extends JFrame {
                     abnormalities VARCHAR(4096),
                     FOREIGN KEY (sample_test_result_id) REFERENCES sample_test_results(sample_test_result_id)
                 );
+                CREATE TABLE IF NOT EXISTS genomic_events (
+                    event_id BIGINT GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY,
+                    sample_test_result_id BIGINT NOT NULL,
+                    source_file_id BIGINT,
+                    event_group_id VARCHAR(128),
+                    event_type VARCHAR(64) NOT NULL,
+                    genome_build VARCHAR(64) NOT NULL,
+                    calling_method VARCHAR(128),
+                    raw_event_text VARCHAR(4096),
+                    line_number INTEGER,
+                    event_status VARCHAR(64) NOT NULL DEFAULT 'IMPORTED',
+                    confidence VARCHAR(64),
+                    annotations VARCHAR(8192),
+                    FOREIGN KEY (sample_test_result_id) REFERENCES sample_test_results(sample_test_result_id),
+                    FOREIGN KEY (source_file_id) REFERENCES source_files(source_file_id)
+                );
                 CREATE TABLE IF NOT EXISTS genomic_segments (
                     segment_id BIGINT GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY,
+                    event_id BIGINT,
                     sample_test_result_id BIGINT NOT NULL,
                     karyotype_id BIGINT,
                     chromosome VARCHAR(32) NOT NULL,
@@ -783,11 +857,27 @@ public class CnvDatabaseGui extends JFrame {
                     confidence VARCHAR(64),
                     number_of_sites INTEGER,
                     annotations VARCHAR(8192),
+                    FOREIGN KEY (event_id) REFERENCES genomic_events(event_id),
                     FOREIGN KEY (sample_test_result_id) REFERENCES sample_test_results(sample_test_result_id),
                     CHECK (start_pos <= stop_pos)
                 );
                 CREATE INDEX IF NOT EXISTS idx_segments_region
                     ON genomic_segments(chromosome, start_pos, stop_pos);
+                CREATE INDEX IF NOT EXISTS idx_segments_event
+                    ON genomic_segments(event_id);
+                CREATE TABLE IF NOT EXISTS genomic_links (
+                    link_id BIGINT GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY,
+                    event_id BIGINT NOT NULL,
+                    source_segment_id BIGINT NOT NULL,
+                    target_segment_id BIGINT NOT NULL,
+                    link_type VARCHAR(64) NOT NULL,
+                    orientation VARCHAR(64),
+                    evidence VARCHAR(1024),
+                    confidence VARCHAR(64),
+                    FOREIGN KEY (event_id) REFERENCES genomic_events(event_id),
+                    FOREIGN KEY (source_segment_id) REFERENCES genomic_segments(segment_id),
+                    FOREIGN KEY (target_segment_id) REFERENCES genomic_segments(segment_id)
+                );
                 CREATE TABLE IF NOT EXISTS validation_issues (
                     validation_issue_id BIGINT GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY,
                     segment_id BIGINT,
@@ -920,31 +1010,75 @@ public class CnvDatabaseGui extends JFrame {
         }
     }
 
-    private void createSegment(long resultId, CnvRow row) throws SQLException {
+    private long createGenomicEvent(long resultId, long sourceFileId, CnvRow row) throws SQLException {
+        try (PreparedStatement ps = connection.prepareStatement("""
+                INSERT INTO genomic_events
+                    (sample_test_result_id, source_file_id, event_group_id, event_type, genome_build, calling_method,
+                     raw_event_text, line_number, event_status, confidence, annotations)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """, Statement.RETURN_GENERATED_KEYS)) {
+            ps.setLong(1, resultId);
+            ps.setLong(2, sourceFileId);
+            ps.setString(3, row.eventGroupId());
+            ps.setString(4, row.eventType());
+            ps.setString(5, row.genomeBuild());
+            ps.setString(6, "GUI-imported CNV");
+            ps.setString(7, row.rawIscn());
+            ps.setInt(8, row.lineNumber());
+            ps.setString(9, "IMPORTED");
+            ps.setString(10, row.confidence());
+            ps.setString(11, row.annotations());
+            ps.executeUpdate();
+            return generatedId(ps);
+        }
+    }
+
+    private long createSegment(long eventId, long resultId, String chromosome, long start, long stop, CnvRow row)
+            throws SQLException {
         try (PreparedStatement ps = connection.prepareStatement("""
                 INSERT INTO genomic_segments
-                    (sample_test_result_id, chromosome, start_pos, stop_pos, event_type, copy_number,
+                    (event_id, sample_test_result_id, chromosome, start_pos, stop_pos, event_type, copy_number,
                      array_score, confidence, number_of_sites, annotations)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                """)) {
-            ps.setLong(1, resultId);
-            ps.setString(2, row.chromosome());
-            ps.setLong(3, row.start());
-            ps.setLong(4, row.stop());
-            ps.setString(5, row.eventType());
-            ps.setInt(6, row.copyNumber());
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """, Statement.RETURN_GENERATED_KEYS)) {
+            ps.setLong(1, eventId);
+            ps.setLong(2, resultId);
+            ps.setString(3, chromosome);
+            ps.setLong(4, start);
+            ps.setLong(5, stop);
+            ps.setString(6, normalizedEventType(row.eventType()));
+            ps.setInt(7, row.copyNumber());
             if (row.arrayScore() == null) {
-                ps.setObject(7, null);
+                ps.setObject(8, null);
             } else {
-                ps.setDouble(7, row.arrayScore());
+                ps.setDouble(8, row.arrayScore());
             }
-            ps.setString(8, row.confidence());
+            ps.setString(9, row.confidence());
             if (row.numberOfSites() == null) {
-                ps.setObject(9, null);
+                ps.setObject(10, null);
             } else {
-                ps.setInt(9, row.numberOfSites());
+                ps.setInt(10, row.numberOfSites());
             }
-            ps.setString(10, row.annotations());
+            ps.setString(11, row.annotations());
+            ps.executeUpdate();
+            return generatedId(ps);
+        }
+    }
+
+    private void createGenomicLink(long eventId, long sourceSegmentId, long targetSegmentId,
+                                   String linkType, String evidence, String confidence) throws SQLException {
+        try (PreparedStatement ps = connection.prepareStatement("""
+                INSERT INTO genomic_links
+                    (event_id, source_segment_id, target_segment_id, link_type, orientation, evidence, confidence)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+                """)) {
+            ps.setLong(1, eventId);
+            ps.setLong(2, sourceSegmentId);
+            ps.setLong(3, targetSegmentId);
+            ps.setString(4, linkType);
+            ps.setString(5, null);
+            ps.setString(6, evidence);
+            ps.setString(7, confidence);
             ps.executeUpdate();
         }
     }
@@ -1022,6 +1156,7 @@ public class CnvDatabaseGui extends JFrame {
         String value = column.trim().toLowerCase(Locale.ROOT);
         return switch (value) {
             case "sample", "sample_id", "accession", "accession_id" -> "sample_accession_id";
+            case "group_id", "event_id", "variant_id", "pair_id", "link_id", "breakend_id" -> "event_group_id";
             case "chr" -> "chromosome";
             case "start", "start_position" -> "start_pos";
             case "end", "end_pos", "stop", "stop_position" -> "stop_pos";
@@ -1109,6 +1244,27 @@ public class CnvDatabaseGui extends JFrame {
             case "NEUTRAL", "INV", "INS", "TRANS", "T", "DER" -> 2;
             default -> null;
         };
+    }
+
+    private boolean isTranslocation(String eventType) {
+        return "TRANS".equals(eventType) || "T".equals(eventType);
+    }
+
+    private boolean shouldLinkGroupedSegment(CnvRow row, EventGroupState groupState) {
+        return groupState.eventGroupId() != null
+                && isTranslocation(row.eventType())
+                && groupState.firstTransSegmentId() != null;
+    }
+
+    private String normalizedEventType(String eventType) {
+        return "T".equals(eventType) ? "TRANS" : eventType;
+    }
+
+    private String linkEvidence(CnvRow row) {
+        if (row.rawIscn() != null && !row.rawIscn().isBlank()) {
+            return row.rawIscn();
+        }
+        return row.eventGroupId();
     }
 
     private String resolveAnnotationNames(Map<String, String> values) {
@@ -1211,6 +1367,8 @@ public class CnvDatabaseGui extends JFrame {
     private String defaultQueryWithoutLimit() {
         return """
                 SELECT
+                    gs.event_id,
+                    ge.event_group_id,
                     sa.accession_identifier AS sample_id,
                     gs.chromosome,
                     gs.start_pos,
@@ -1223,6 +1381,7 @@ public class CnvDatabaseGui extends JFrame {
                     gs.confidence,
                     sf.file_name AS source_file
                 FROM genomic_segments gs
+                LEFT JOIN genomic_events ge ON ge.event_id = gs.event_id
                 JOIN sample_test_results str ON str.sample_test_result_id = gs.sample_test_result_id
                 JOIN sample_tests st ON st.sample_test_id = str.sample_test_id
                 JOIN sample_accessions sa ON sa.sample_accession_id = st.sample_accession_id
@@ -1253,6 +1412,7 @@ public class CnvDatabaseGui extends JFrame {
     private record CnvRow(
             int lineNumber,
             String sample,
+            String eventGroupId,
             String chromosome,
             long start,
             long stop,
@@ -1266,5 +1426,34 @@ public class CnvDatabaseGui extends JFrame {
             String annotationNames,
             String annotations
     ) {
+    }
+
+    private static final class EventGroupState {
+        private final long eventId;
+        private final String eventGroupId;
+        private Long firstTransSegmentId;
+
+        private EventGroupState(long eventId, String eventGroupId) {
+            this.eventId = eventId;
+            this.eventGroupId = eventGroupId;
+        }
+
+        private long eventId() {
+            return eventId;
+        }
+
+        private String eventGroupId() {
+            return eventGroupId;
+        }
+
+        private Long firstTransSegmentId() {
+            return firstTransSegmentId;
+        }
+
+        private void addSegment(long segmentId, String eventType) {
+            if (firstTransSegmentId == null && ("TRANS".equals(eventType) || "T".equals(eventType))) {
+                firstTransSegmentId = segmentId;
+            }
+        }
     }
 }

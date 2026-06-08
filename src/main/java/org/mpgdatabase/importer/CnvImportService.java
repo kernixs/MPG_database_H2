@@ -7,6 +7,10 @@ import org.mpgdatabase.model.Models.GenomicSegment;
 import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class CnvImportService {
     private final Connection connection;
@@ -37,6 +41,7 @@ public class CnvImportService {
                     "IN_PROGRESS",
                     0,
                     null);
+            Map<String, EventGroupState> eventGroups = new HashMap<>();
 
             for (CnvRecord record : parsed.records()) {
                 recordsSeen++;
@@ -88,8 +93,18 @@ public class CnvImportService {
                 Long karyotypeId = record.hasRawIscn() && CallingMethodDetector.ISCN_DERIVED.equals(callingMethod)
                         ? coreDao.createKaryotype(resultId, record.rawIscn())
                         : null;
+                EventGroupState groupState = eventGroupState(
+                        eventGroups,
+                        coreDao,
+                        record,
+                        resultId,
+                        sourceFileId,
+                        genomeBuild,
+                        callingMethod);
+                long eventId = groupState.eventId();
                 long segmentId = segmentDao.create(new GenomicSegment(
                         0,
+                        eventId,
                         resultId,
                         karyotypeId,
                         record.chromosome(),
@@ -105,6 +120,17 @@ public class CnvImportService {
                         record.annotations()
                 ));
                 segmentsInserted++;
+                if (shouldLinkGroupedSegment(record, groupState)) {
+                    coreDao.createGenomicLink(
+                            eventId,
+                            groupState.firstTransSegmentId(),
+                            segmentId,
+                            "TRANSLOCATION",
+                            null,
+                            linkEvidence(record),
+                            null);
+                }
+                groupState.addSegment(segmentId, record.eventType());
 
                 if (CallingMethodDetector.UNKNOWN.equals(callingMethod)) {
                     coreDao.createValidationIssue(
@@ -143,6 +169,76 @@ public class CnvImportService {
             }
             return new ImportResult(path.getFileName().toString(), false, recordsSeen, segmentsInserted, issuesInserted + 1);
         }
+    }
+
+    private EventGroupState eventGroupState(
+            Map<String, EventGroupState> eventGroups,
+            CoreDao coreDao,
+            CnvRecord record,
+            long resultId,
+            Long sourceFileId,
+            String genomeBuild,
+            String callingMethod
+    ) throws SQLException {
+        String groupKey = eventGroupKey(sourceFileId, record);
+        if (groupKey == null) {
+            long eventId = createEvent(coreDao, record, resultId, sourceFileId, genomeBuild, callingMethod);
+            return new EventGroupState(eventId, null);
+        }
+        EventGroupState existing = eventGroups.get(groupKey);
+        if (existing != null) {
+            return existing;
+        }
+        long eventId = createEvent(coreDao, record, resultId, sourceFileId, genomeBuild, callingMethod);
+        EventGroupState created = new EventGroupState(eventId, record.eventGroupId());
+        eventGroups.put(groupKey, created);
+        return created;
+    }
+
+    private long createEvent(
+            CoreDao coreDao,
+            CnvRecord record,
+            long resultId,
+            Long sourceFileId,
+            String genomeBuild,
+            String callingMethod
+    ) throws SQLException {
+        return coreDao.createGenomicEvent(
+                resultId,
+                sourceFileId,
+                record.eventGroupId(),
+                record.eventType(),
+                genomeBuild,
+                callingMethod,
+                record.rawIscn(),
+                record.lineNumber(),
+                "IMPORTED",
+                null,
+                record.annotations());
+    }
+
+    private String eventGroupKey(Long sourceFileId, CnvRecord record) {
+        if (record.eventGroupId() == null || record.eventGroupId().isBlank()) {
+            return null;
+        }
+        return sourceFileId + "|" + record.sampleAccessionIdentifier() + "|" + record.eventGroupId();
+    }
+
+    private boolean shouldLinkGroupedSegment(CnvRecord record, EventGroupState groupState) {
+        return groupState.eventGroupId() != null
+                && isTranslocation(record.eventType())
+                && groupState.firstTransSegmentId() != null;
+    }
+
+    private boolean isTranslocation(String eventType) {
+        return "TRANS".equals(eventType) || "T".equals(eventType);
+    }
+
+    private String linkEvidence(CnvRecord record) {
+        if (record.rawIscn() != null && !record.rawIscn().isBlank()) {
+            return record.rawIscn();
+        }
+        return record.eventGroupId();
     }
 
     private String resolveGenomeBuild(CnvRecord record, ParsedCnvFile parsed, String defaultGenomeBuild) {
@@ -244,5 +340,36 @@ public class CnvImportService {
             case CallingMethodDetector.GENERIC_CNV -> "Generic CNV Importer";
             default -> "Unknown Importer";
         };
+    }
+
+    private static final class EventGroupState {
+        private final long eventId;
+        private final String eventGroupId;
+        private final List<Long> segmentIds = new ArrayList<>();
+        private Long firstTransSegmentId;
+
+        private EventGroupState(long eventId, String eventGroupId) {
+            this.eventId = eventId;
+            this.eventGroupId = eventGroupId;
+        }
+
+        private long eventId() {
+            return eventId;
+        }
+
+        private String eventGroupId() {
+            return eventGroupId;
+        }
+
+        private Long firstTransSegmentId() {
+            return firstTransSegmentId;
+        }
+
+        private void addSegment(long segmentId, String eventType) {
+            segmentIds.add(segmentId);
+            if (firstTransSegmentId == null && ("TRANS".equals(eventType) || "T".equals(eventType))) {
+                firstTransSegmentId = segmentId;
+            }
+        }
     }
 }

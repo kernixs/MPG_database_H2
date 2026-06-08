@@ -1,0 +1,10 @@
+timestamp	step	file_name	status	records_seen	segments_inserted	classifications_inserted	signed_out_calls_inserted	notes_inserted	issues_inserted	message
+2026-06-08T17:19:45.052907Z	genomic_import	25-54321WGS_05Nov2025_SWGS111_SV_DEL_DUP_Classify_Result.txt	PASS	452	452				0	Imported genomic segments
+2026-06-08T17:19:45.052907Z	genomic_import	array_derived_100.cnv	PASS	100	100				0	Imported genomic segments
+2026-06-08T17:19:45.052907Z	genomic_import	example.cnv	PASS	3	3				0	Imported genomic segments
+2026-06-08T17:19:45.052907Z	genomic_import	iscn_derived_100.cnv	PASS	100	100				9	Imported genomic segments
+2026-06-08T17:19:45.052907Z	genomic_import	ngs_derived_100.txt	PASS	100	100				0	Imported genomic segments
+2026-06-08T17:19:45.052907Z	genomic_import	test.cnv	PASS	3	0				3	No genomic segments inserted
+2026-06-08T17:19:45.052907Z	genomic_import	test_v2.cnv	PASS	23	0				23	No genomic segments inserted
+2026-06-08T17:19:45.052907Z	clinical_decision_import	phase26_clinical_decisions.tsv	PASS	100		100	100	100		Imported classifications, sign-out calls, and notes
+2026-06-08T17:19:45.052907Z	verification		PASS		755	100	100	100	35	Generated verification reports

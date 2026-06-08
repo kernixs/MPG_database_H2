@@ -14,6 +14,7 @@ public class TsvCnvParser implements CnvParser {
 
     private static final List<String> CORE_COLUMNS = List.of(
         "sample_accession_id",
+        "event_group_id",
         "chromosome",
         "start_pos",
         "stop_pos",
@@ -145,6 +146,7 @@ public class TsvCnvParser implements CnvParser {
                 "accession",
                 "accession_id",
                 "fid" -> "sample_accession_id";
+            case "group_id", "event_id", "variant_id", "pair_id", "link_id", "breakend_id" -> "event_group_id";
             case "iscn", "iid" -> "raw_iscn";
             case "chr" -> "chromosome";
             case "bp1", "start", "start_position" -> "start_pos";
@@ -220,6 +222,7 @@ public class TsvCnvParser implements CnvParser {
         }
 
         String sample = fields.get("sample_accession_id");
+        String eventGroupId = fields.get("event_group_id");
         String chromosome = normalizeChromosome(fields.get("chromosome"));
         Long start = parseLong(fields.get("start_pos"));
         Long stop = parseLong(fields.get("stop_pos"));
@@ -310,6 +313,7 @@ public class TsvCnvParser implements CnvParser {
         return new CnvRecord(
             lineNumber,
             sample,
+            eventGroupId,
             chromosome,
             start,
             stop,
@@ -335,6 +339,7 @@ public class TsvCnvParser implements CnvParser {
     ) {
         return new CnvRecord(
             lineNumber,
+            null,
             null,
             null,
             null,
@@ -449,6 +454,9 @@ public class TsvCnvParser implements CnvParser {
         }
         if ("DEL".equals(normalizedEvent) || "LOSS".equals(normalizedEvent)) {
             return 1;
+        }
+        if ("TRANS".equals(normalizedEvent) || "T".equals(normalizedEvent)) {
+            return 2;
         }
         return null;
     }

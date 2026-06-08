@@ -126,7 +126,7 @@ This keeps joins stable and efficient while preserving meaningful identifiers fo
 
 ## Current Table Inventory
 
-The current schema has 13 tables.
+The current schema has 15 tables.
 
 | # | Table | What it represents | Main fields |
 |---|---|---|---|
@@ -138,11 +138,13 @@ The current schema has 13 tables.
 | 6 | `source_files` | One row per imported input file. Tracks file provenance, pipeline, import status, row count, and notes. | `source_file_id`, `file_name`, `file_path`, `pipeline_id`, `imported_at`, `import_status`, `row_count`, `notes` |
 | 7 | `sample_test_results` | Result-level provenance for a sample test. Links the test to a pipeline and source file. | `sample_test_result_id`, `sample_test_id`, `pipeline_id`, `source_file_id`, `genome_build`, `calling_method`, `raw_iscn`, `annotation_names` |
 | 8 | `karyotypes` | ISCN/karyotype-level records derived from or preserving ISCN text. | `karyotype_id`, `sample_test_result_id`, `karyotype_text`, `clone_number`, `cell_count`, `abnormalities` |
-| 9 | `genomic_segments` | Normalized queryable genomic intervals/events. | `segment_id`, `sample_test_result_id`, `karyotype_id`, `chromosome`, `start_pos`, `stop_pos`, `cytoband_start`, `cytoband_end`, `event_type`, `copy_number`, `array_score`, `confidence`, `number_of_sites`, `annotations` |
-| 10 | `validation_issues` | Import, parsing, or data-quality issues captured during processing. | `validation_issue_id`, `segment_id`, `issue_type`, `issue_message`, `severity` |
-| 11 | `variant_classifications` | Classification assertions for observed genomic segments. | `classification_id`, `segment_id`, `classification_label`, `guideline_system`, `guideline_version`, `evidence_score`, `evidence_summary`, `review_status`, `is_current` |
-| 12 | `signed_out_calls` | Case-level clinical conclusion and report/sign-out decision for a classified segment. | `signed_out_call_id`, `segment_id`, `classification_id`, `individual_id`, `sample_test_result_id`, `clinical_significance`, `interpretation_text`, `signed_out_status`, `report_text` |
-| 13 | `notes` | Typed human notes attached to segments, classifications, or signed-out calls. | `note_id`, `target_table`, `target_id`, `note_type`, `note_text`, `author`, `created_at` |
+| 9 | `genomic_events` | Event-level grouping layer for one or more genomic segments. Supports future translocations, inversions, and complex events. | `event_id`, `sample_test_result_id`, `source_file_id`, `event_type`, `genome_build`, `calling_method`, `raw_event_text`, `event_status` |
+| 10 | `genomic_segments` | Normalized queryable genomic intervals. Each segment can belong to a genomic event. | `segment_id`, `event_id`, `sample_test_result_id`, `karyotype_id`, `chromosome`, `start_pos`, `stop_pos`, `event_type`, `copy_number`, `annotations` |
+| 11 | `genomic_links` | Explicit links between two genomic segments for translocations, inversions, insertions, and Circos-style visualizations. | `link_id`, `event_id`, `source_segment_id`, `target_segment_id`, `link_type`, `orientation`, `evidence`, `confidence` |
+| 12 | `validation_issues` | Import, parsing, or data-quality issues captured during processing. | `validation_issue_id`, `segment_id`, `issue_type`, `issue_message`, `severity` |
+| 13 | `variant_classifications` | Classification assertions for observed genomic segments. | `classification_id`, `segment_id`, `classification_label`, `guideline_system`, `guideline_version`, `evidence_score`, `evidence_summary`, `review_status`, `is_current` |
+| 14 | `signed_out_calls` | Case-level clinical conclusion and report/sign-out decision for a classified segment. | `signed_out_call_id`, `segment_id`, `classification_id`, `individual_id`, `sample_test_result_id`, `clinical_significance`, `interpretation_text`, `signed_out_status`, `report_text` |
+| 15 | `notes` | Typed human notes attached to segments, classifications, or signed-out calls. | `note_id`, `target_table`, `target_id`, `note_type`, `note_text`, `author`, `created_at` |
 
 There is also one index:
 
@@ -167,6 +169,7 @@ individuals
   -> sample_accessions
   -> sample_tests
   -> sample_test_results
+  -> genomic_events
   -> genomic_segments
 ```
 
@@ -185,6 +188,7 @@ ISCN-derived records add:
 ```text
 sample_test_results
   -> karyotypes
+  -> genomic_events
   -> genomic_segments
 ```
 
@@ -192,10 +196,22 @@ Array-derived records skip karyotypes:
 
 ```text
 sample_test_results
+  -> genomic_events
   -> genomic_segments
 ```
 
 For array-derived records, `genomic_segments.karyotype_id` is allowed to be `NULL`.
+
+Linked or complex events add:
+
+```text
+genomic_events
+  -> genomic_segments
+  -> genomic_links
+  -> genomic_segments
+```
+
+This is the structure needed for Circos-style plots, where the important visual element is often a link between two genomic locations rather than a single interval.
 
 Phase 2.6 clinical decision records attach after a segment exists:
 
@@ -337,11 +353,12 @@ Represents parsed or preserved karyotype/ISCN-level information. For this phase,
 
 ### `genomic_segments`
 
-Represents normalized queryable genomic events.
+Represents normalized queryable genomic intervals.
 
 Important fields:
 
 ```text
+event_id
 chromosome
 start_pos
 stop_pos
@@ -352,9 +369,55 @@ number_of_sites
 annotations
 ```
 
-The segment always links back to `sample_test_results`. If it came from ISCN/karyotype interpretation, it also links to `karyotypes`.
+The segment always links back to `sample_test_results`. It can also link to a parent `genomic_events` row. If it came from ISCN/karyotype interpretation, it also links to `karyotypes`.
 
 `annotation_names` and `annotations` work together. `annotation_names` stores ordered source-specific column names for a result, and `annotations` stores the matching ordered values for each segment. This lets the prototype keep fields such as `Gene`, `Class`, `Lumpy`, `CNVNATOR`, `Clinical`, `DGV`, and `gnomAD_version` without adding a new schema column for every pipeline-specific annotation.
+
+### `genomic_events`
+
+Represents the parent event for one or more genomic intervals.
+
+For simple CNVs, the current importer creates:
+
+```text
+one genomic_events row
+one genomic_segments row
+no genomic_links row
+```
+
+For linked events, such as generic translocation-style rows, the model is:
+
+```text
+one genomic_events row
+two or more genomic_segments rows
+one or more genomic_links rows
+```
+
+This avoids overloading `genomic_segments` with relationship logic. A segment remains a place on the genome; an event explains that one or more places belong to the same biological observation.
+
+The Phase 2.6 importer supports multi-row grouping for translocations:
+
+```text
+event_group_id
+event_type = TRANS or T
+```
+
+Rows with the same `sample_accession_id` and `event_group_id` are attached to one `genomic_events` row. When two or more grouped rows are `TRANS`/`T`, the importer creates `genomic_links` rows with `link_type = TRANSLOCATION`. Common aliases such as `group_id`, `variant_id`, `pair_id`, `link_id`, and `breakend_id` are accepted for `event_group_id`.
+
+### `genomic_links`
+
+Represents explicit relationships between two genomic segments.
+
+Examples:
+
+```text
+translocation: chr9 breakpoint linked to chr22 breakpoint
+inversion: left breakpoint linked to right breakpoint on the same chromosome
+insertion: source material linked to destination location
+derivative chromosome: multiple segments linked under one complex event
+```
+
+`genomic_links` is also the source for future Circos-style exports. The generated `output/circos_links.tsv` report has source and target chromosome coordinates in a shape that can be converted into a Circos link file.
 
 ### `validation_issues`
 
@@ -812,7 +875,11 @@ Manual runs generate:
 
 ```text
 output/import_summary.txt
+output/run_log.tsv
 output/segments.tsv
+output/genomic_events.tsv
+output/genomic_links.tsv
+output/circos_links.tsv
 output/segments_by_sample.tsv
 output/source_files.tsv
 output/sample_test_results.tsv
@@ -823,6 +890,22 @@ output/result_trace.tsv
 ```
 
 These reports are verification artifacts, not a full user-facing export layer.
+
+`run_log.tsv` is the run-level operational log. It records each genomic import, clinical decision import, and verification step in a structured TSV format.
+
+```text
+timestamp
+step
+file_name
+status
+records_seen
+segments_inserted
+classifications_inserted
+signed_out_calls_inserted
+notes_inserted
+issues_inserted
+message
+```
 
 `result_trace.tsv` is the most useful report for provenance review. It prints `sample_test_results` together with lab protocols, pipelines, genomic segments, and generic annotations.
 
@@ -957,6 +1040,12 @@ Search by interval overlap:
 
 ```bash
 ./apache-maven-3.9.15/bin/mvn exec:java -Dexec.args="search --event-type DUP --chromosome chr1 --start 160000000 --stop 162000000"
+```
+
+Search by event group:
+
+```bash
+./apache-maven-3.9.15/bin/mvn exec:java -Dexec.args="search --event-id 101"
 ```
 
 Search WGS/NGS annotations:

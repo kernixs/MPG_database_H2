@@ -43,6 +43,7 @@ public final class Models {
 
     public record GenomicSegment(
             long id,
+            Long eventId,
             long sampleTestResultId,
             Long karyotypeId,
             String chromosome,

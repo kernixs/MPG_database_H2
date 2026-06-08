@@ -22,6 +22,7 @@ public class SearchService {
     public String search(Map<String, String> filters) throws SQLException {
         StringBuilder sql = new StringBuilder("""
                 SELECT
+                    gs.event_id,
                     gs.segment_id,
                     sa.accession_identifier AS sample_accession_id,
                     gs.chromosome,
@@ -44,6 +45,7 @@ public class SearchService {
                 """);
         List<Object> params = new ArrayList<>();
         addValues(sql, params, filters, "sample", "sa.accession_identifier");
+        addValues(sql, params, filters, "event-id", "gs.event_id");
         addValues(sql, params, filters, "event-type", "gs.event_type");
         addValues(sql, params, filters, "chromosome", "gs.chromosome");
         addValues(sql, params, filters, "calling-method", "str.calling_method");
@@ -208,6 +210,7 @@ public class SearchService {
             while (rs.next()) {
                 rows.add(new SearchRow(
                         rs.getLong("segment_id"),
+                        nullableLong(rs, "event_id"),
                         rs.getString("sample_accession_id"),
                         rs.getString("chromosome"),
                         rs.getLong("start_pos"),
@@ -228,9 +231,10 @@ public class SearchService {
 
     private String table(List<SearchRow> rows) {
         StringBuilder sb = new StringBuilder();
-        sb.append("SEGMENT_ID\tSAMPLE_ACCESSION_ID\tCHROMOSOME\tSTART_POS\tSTOP_POS\tEVENT_TYPE\tCOPY_NUMBER\tCALLING_METHOD\tGENOME_BUILD\tCONFIDENCE\tSOURCE_FILE\tANNOTATION_NAMES\tANNOTATIONS\tMATCHED_ANNOTATIONS\n");
+        sb.append("EVENT_ID\tSEGMENT_ID\tSAMPLE_ACCESSION_ID\tCHROMOSOME\tSTART_POS\tSTOP_POS\tEVENT_TYPE\tCOPY_NUMBER\tCALLING_METHOD\tGENOME_BUILD\tCONFIDENCE\tSOURCE_FILE\tANNOTATION_NAMES\tANNOTATIONS\tMATCHED_ANNOTATIONS\n");
         for (SearchRow row : rows) {
-            sb.append(row.segmentId()).append('\t')
+            sb.append(row.eventId() == null ? "" : row.eventId()).append('\t')
+                    .append(row.segmentId()).append('\t')
                     .append(nullToEmpty(row.sampleAccessionId())).append('\t')
                     .append(nullToEmpty(row.chromosome())).append('\t')
                     .append(row.startPos()).append('\t')
@@ -275,11 +279,17 @@ public class SearchService {
         return value.toLowerCase(Locale.ROOT).startsWith("chr") ? value : "chr" + value;
     }
 
+    private Long nullableLong(ResultSet rs, String column) throws SQLException {
+        long value = rs.getLong(column);
+        return rs.wasNull() ? null : value;
+    }
+
     private record AnnotationFilter(String key, List<String> values) {
     }
 
     private record SearchRow(
             long segmentId,
+            Long eventId,
             String sampleAccessionId,
             String chromosome,
             long startPos,
