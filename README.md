@@ -126,7 +126,7 @@ This keeps joins stable and efficient while preserving meaningful identifiers fo
 
 ## Current Table Inventory
 
-The current schema has 15 tables.
+The current schema has 16 tables.
 
 | # | Table | What it represents | Main fields |
 |---|---|---|---|
@@ -138,21 +138,25 @@ The current schema has 15 tables.
 | 6 | `source_files` | One row per imported input file. Tracks file provenance, pipeline, import status, row count, and notes. | `source_file_id`, `file_name`, `file_path`, `pipeline_id`, `imported_at`, `import_status`, `row_count`, `notes` |
 | 7 | `sample_test_results` | Result-level provenance for a sample test. Links the test to a pipeline and source file. | `sample_test_result_id`, `sample_test_id`, `pipeline_id`, `source_file_id`, `genome_build`, `calling_method`, `raw_iscn`, `annotation_names` |
 | 8 | `karyotypes` | ISCN/karyotype-level records derived from or preserving ISCN text. | `karyotype_id`, `sample_test_result_id`, `karyotype_text`, `clone_number`, `cell_count`, `abnormalities` |
-| 9 | `genomic_events` | Event-level grouping layer for one or more genomic segments. Supports future translocations, inversions, and complex events. | `event_id`, `sample_test_result_id`, `source_file_id`, `event_type`, `genome_build`, `calling_method`, `raw_event_text`, `event_status` |
-| 10 | `genomic_segments` | Normalized queryable genomic intervals. Each segment can belong to a genomic event. | `segment_id`, `event_id`, `sample_test_result_id`, `karyotype_id`, `chromosome`, `start_pos`, `stop_pos`, `event_type`, `copy_number`, `annotations` |
-| 11 | `genomic_links` | Explicit links between two genomic segments for translocations, inversions, insertions, and Circos-style visualizations. | `link_id`, `event_id`, `source_segment_id`, `target_segment_id`, `link_type`, `orientation`, `evidence`, `confidence` |
-| 12 | `validation_issues` | Import, parsing, or data-quality issues captured during processing. | `validation_issue_id`, `segment_id`, `issue_type`, `issue_message`, `severity` |
-| 13 | `variant_classifications` | Classification assertions for observed genomic segments. | `classification_id`, `segment_id`, `classification_label`, `guideline_system`, `guideline_version`, `evidence_score`, `evidence_summary`, `review_status`, `is_current` |
-| 14 | `signed_out_calls` | Case-level clinical conclusion and report/sign-out decision for a classified segment. | `signed_out_call_id`, `segment_id`, `classification_id`, `individual_id`, `sample_test_result_id`, `clinical_significance`, `interpretation_text`, `signed_out_status`, `report_text` |
-| 15 | `notes` | Typed human notes attached to segments, classifications, or signed-out calls. | `note_id`, `target_table`, `target_id`, `note_type`, `note_text`, `author`, `created_at` |
+| 9 | `genomic_events` | Row-level event provenance for one imported segment/breakpoint row. | `event_id`, `sample_test_result_id`, `source_file_id`, `event_group_id`, `event_type`, `genome_build`, `calling_method`, `raw_event_text`, `event_status` |
+| 10 | `genomic_event_groups` | Phase 2.7 grouping layer for one biological event that may contain one or more segments. | `genomic_event_group_id`, `sample_test_result_id`, `event_group_label`, `raw_event_text`, `created_at` |
+| 11 | `genomic_segments` | Normalized queryable genomic intervals. Each segment belongs to a result and an event group. | `segment_id`, `event_id`, `genomic_event_group_id`, `sample_test_result_id`, `karyotype_id`, `chromosome`, `start_pos`, `stop_pos`, `event_type`, `copy_number`, `annotations` |
+| 12 | `genomic_links` | Explicit links between two genomic segments for translocations, inversions, insertions, and Circos-style visualizations. | `link_id`, `event_id`, `source_segment_id`, `target_segment_id`, `link_type`, `orientation`, `evidence`, `confidence` |
+| 13 | `validation_issues` | Import, parsing, or data-quality issues captured during processing. | `validation_issue_id`, `segment_id`, `issue_type`, `issue_message`, `severity` |
+| 14 | `variant_classifications` | Classification assertions for observed genomic segments. | `classification_id`, `segment_id`, `classification_label`, `guideline_system`, `guideline_version`, `evidence_score`, `evidence_summary`, `review_status`, `is_current` |
+| 15 | `signed_out_calls` | Case-level clinical conclusion and report/sign-out decision for a classified segment. | `signed_out_call_id`, `segment_id`, `classification_id`, `individual_id`, `sample_test_result_id`, `clinical_significance`, `interpretation_text`, `signed_out_status`, `report_text` |
+| 16 | `notes` | Typed human notes attached to segments, classifications, or signed-out calls. | `note_id`, `target_table`, `target_id`, `note_type`, `note_text`, `author`, `created_at` |
 
-There is also one index:
+The schema also includes indexes for common lookups:
 
 ```text
 idx_segments_region
+idx_segments_event
+idx_segments_event_group
+idx_links_event
 ```
 
-on:
+The region index is on:
 
 ```text
 genomic_segments(chromosome, start_pos, stop_pos)
@@ -169,6 +173,14 @@ individuals
   -> sample_accessions
   -> sample_tests
   -> sample_test_results
+  -> genomic_event_groups
+  -> genomic_segments
+```
+
+Row-level event provenance also attaches to the same result and segment rows:
+
+```text
+sample_test_results
   -> genomic_events
   -> genomic_segments
 ```
@@ -188,7 +200,7 @@ ISCN-derived records add:
 ```text
 sample_test_results
   -> karyotypes
-  -> genomic_events
+  -> genomic_event_groups
   -> genomic_segments
 ```
 
@@ -196,7 +208,7 @@ Array-derived records skip karyotypes:
 
 ```text
 sample_test_results
-  -> genomic_events
+  -> genomic_event_groups
   -> genomic_segments
 ```
 
@@ -359,6 +371,7 @@ Important fields:
 
 ```text
 event_id
+genomic_event_group_id
 chromosome
 start_pos
 stop_pos
@@ -369,18 +382,26 @@ number_of_sites
 annotations
 ```
 
-The segment always links back to `sample_test_results`. It can also link to a parent `genomic_events` row. If it came from ISCN/karyotype interpretation, it also links to `karyotypes`.
+The segment always links back to `sample_test_results`. It also links to a Phase 2.7 `genomic_event_groups` row. It can link to a row-level `genomic_events` record for event provenance and visualization links. If it came from ISCN/karyotype interpretation, it also links to `karyotypes`.
 
 `annotation_names` and `annotations` work together. `annotation_names` stores ordered source-specific column names for a result, and `annotations` stores the matching ordered values for each segment. This lets the prototype keep fields such as `Gene`, `Class`, `Lumpy`, `CNVNATOR`, `Clinical`, `DGV`, and `gnomAD_version` without adding a new schema column for every pipeline-specific annotation.
 
 ### `genomic_events`
 
-Represents the parent event for one or more genomic intervals.
+Represents row-level event provenance for imported segment/breakpoint rows.
+
+`event_id` and `event_group_id` have different jobs:
+
+```text
+event_id = unique database identity for one imported genomic event/segment row
+event_group_id = optional source/group label shared by multiple rows that describe one biological abnormality
+```
 
 For simple CNVs, the current importer creates:
 
 ```text
 one genomic_events row
+one genomic_event_groups row with AUTO-{source_file_id}-{row_number}
 one genomic_segments row
 no genomic_links row
 ```
@@ -388,21 +409,47 @@ no genomic_links row
 For linked events, such as generic translocation-style rows, the model is:
 
 ```text
-one genomic_events row
+one genomic_events row per breakpoint/segment row
+two or more genomic_events rows may share event_group_id
+one genomic_event_groups row reused by all rows in the source event group
 two or more genomic_segments rows
 one or more genomic_links rows
 ```
 
 This avoids overloading `genomic_segments` with relationship logic. A segment remains a place on the genome; an event explains that one or more places belong to the same biological observation.
 
-The Phase 2.6 importer supports multi-row grouping for translocations:
+### `genomic_event_groups`
+
+Represents the Phase 2.7 event bundle. This is the table to use when you want to ask, "which segments belong to the same biological event?"
+
+Important fields:
+
+```text
+genomic_event_group_id
+sample_test_result_id
+event_group_label
+raw_event_text
+created_at
+```
+
+If the input file includes `EVENT_GROUP_ID` or `event_group_id`, that value becomes `event_group_label`. Rows with the same `sample_test_result_id` and label reuse the same group.
+
+If the input file leaves the group blank, the importer creates a single-segment group:
+
+```text
+AUTO-{source_file_id}-{row_number}
+```
+
+This means ordinary deletions and duplications still get a group row, but they are single-event groups unless the source file explicitly says multiple rows belong together.
+
+The Phase 2.7 importer supports multi-row grouping for translocations:
 
 ```text
 event_group_id
 event_type = TRANS or T
 ```
 
-Rows with the same `sample_accession_id` and `event_group_id` are attached to one `genomic_events` row. When two or more grouped rows are `TRANS`/`T`, the importer creates `genomic_links` rows with `link_type = TRANSLOCATION`. Common aliases such as `group_id`, `variant_id`, `pair_id`, `link_id`, and `breakend_id` are accepted for `event_group_id`.
+Rows with the same result and `event_group_id` share one `genomic_event_groups` row. When two or more grouped rows are `TRANS`/`T`, the importer also creates `genomic_links` rows with `link_type = TRANSLOCATION`. Common aliases such as `group_id`, `variant_id`, `pair_id`, `link_id`, and `breakend_id` are accepted for `event_group_id`.
 
 ### `genomic_links`
 
@@ -864,6 +911,7 @@ The current implementation also includes data-integrity verification for:
 
 ```text
 No orphan genomic_segments
+No orphan genomic_event_groups
 No orphan karyotypes
 No orphan sample_test_results
 No duplicate accession identifiers
@@ -878,6 +926,7 @@ output/import_summary.txt
 output/run_log.tsv
 output/segments.tsv
 output/genomic_events.tsv
+output/event_groups.tsv
 output/genomic_links.tsv
 output/circos_links.tsv
 output/segments_by_sample.tsv
@@ -931,6 +980,9 @@ genome_build
 calling_method
 raw_iscn
 annotation_names
+event_id
+genomic_event_group_id
+event_group_label
 segment_id
 chromosome
 start_pos
@@ -940,6 +992,19 @@ copy_number
 annotations
 validation_issue_count
 validation_summary
+```
+
+`event_groups.tsv` summarizes Phase 2.7 event bundles:
+
+```text
+genomic_event_group_id
+sample_test_result_id
+sample_accession_id
+source_file_name
+event_group_label
+segment_count
+chromosomes_involved
+raw_event_text
 ```
 
 ## Required Queries
@@ -1045,6 +1110,12 @@ Search by interval overlap:
 Search by event group:
 
 ```bash
+./apache-maven-3.9.15/bin/mvn exec:java -Dexec.args="search --event-group TXG001"
+```
+
+Search by row-level event id:
+
+```bash
 ./apache-maven-3.9.15/bin/mvn exec:java -Dexec.args="search --event-id 101"
 ```
 
@@ -1118,6 +1189,8 @@ Supported filters:
 
 ```text
 --sample
+--event-id
+--event-group
 --event-type
 --chromosome
 --start
@@ -1265,11 +1338,11 @@ The DAO layer is intentionally minimal. It exists to keep SQL out of the importe
 
 An ORM would hide some of the relationship details. For this phase, explicit SQL is useful because the project is proving the schema and relationship flow.
 
-### Why The Importer Creates One Result Per Record
+### Why The Importer Groups Rows Into Shared Results
 
-The current importer creates a `sample_test_result` per CNV record. This keeps the first prototype simple and makes each imported segment easy to trace to its source row.
+The Phase 2.7 importer creates one `sample_test_result` for rows that share the same sample, lab protocol, test type, pipeline, source file, genome build, calling method, raw ISCN text, and annotation layout.
 
-In a more mature importer, records from the same file/sample/test could be grouped under a shared `sample_test_result`. That may better reflect real-world batch imports, depending on how source files are structured.
+This better matches real lab results, where one test result can contain multiple findings or multiple breakpoints from one complex event. Individual source rows remain traceable through row-level `genomic_events`, `genomic_segments`, validation issues, and report trace fields.
 
 ### Why Missing Genome Builds Are Rejected
 
@@ -1282,7 +1355,6 @@ Only ISCN-derived segments need karyotype provenance. Array-derived segments can
 ## Current Known Gaps
 
 - No vendor-specific CNV parsers yet.
-- No grouping of multiple records into one shared test result yet.
 - No update/merge behavior for repeated imports.
 - No PostgreSQL migration scripts yet.
 - No clinical phenotype tables yet.
@@ -1290,13 +1362,12 @@ Only ISCN-derived segments need karyotype provenance. Array-derived segments can
 - No UI/API layer in this repository.
 - Generic annotations are stored as ordered strings rather than a normalized annotation table.
 
-These are expected gaps for Phase 2.6, not accidental omissions.
+These are expected gaps for Phase 2.7, not accidental omissions.
 
 ## Next Good Additions
 
 Useful next implementation steps:
 
-- Add importer grouping so one file/sample can create one `sample_test_result` with many segments.
 - Add more DAO query methods for provenance inspection.
 - Add stricter annotation-specific search instead of broad string search.
 - Add CLI commands for creating and querying Phase 2.6 clinical decision records.

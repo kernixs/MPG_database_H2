@@ -23,6 +23,8 @@ public class SearchService {
         StringBuilder sql = new StringBuilder("""
                 SELECT
                     gs.event_id,
+                    gs.genomic_event_group_id,
+                    geg.event_group_label,
                     gs.segment_id,
                     sa.accession_identifier AS sample_accession_id,
                     gs.chromosome,
@@ -37,6 +39,7 @@ public class SearchService {
                     str.annotation_names,
                     gs.annotations
                 FROM genomic_segments gs
+                LEFT JOIN genomic_event_groups geg ON geg.genomic_event_group_id = gs.genomic_event_group_id
                 JOIN sample_test_results str ON str.sample_test_result_id = gs.sample_test_result_id
                 JOIN sample_tests st ON st.sample_test_id = str.sample_test_id
                 JOIN sample_accessions sa ON sa.sample_accession_id = st.sample_accession_id
@@ -46,6 +49,7 @@ public class SearchService {
         List<Object> params = new ArrayList<>();
         addValues(sql, params, filters, "sample", "sa.accession_identifier");
         addValues(sql, params, filters, "event-id", "gs.event_id");
+        addValues(sql, params, filters, "event-group", "geg.event_group_label");
         addValues(sql, params, filters, "event-type", "gs.event_type");
         addValues(sql, params, filters, "chromosome", "gs.chromosome");
         addValues(sql, params, filters, "calling-method", "str.calling_method");
@@ -211,6 +215,8 @@ public class SearchService {
                 rows.add(new SearchRow(
                         rs.getLong("segment_id"),
                         nullableLong(rs, "event_id"),
+                        nullableLong(rs, "genomic_event_group_id"),
+                        rs.getString("event_group_label"),
                         rs.getString("sample_accession_id"),
                         rs.getString("chromosome"),
                         rs.getLong("start_pos"),
@@ -231,9 +237,11 @@ public class SearchService {
 
     private String table(List<SearchRow> rows) {
         StringBuilder sb = new StringBuilder();
-        sb.append("EVENT_ID\tSEGMENT_ID\tSAMPLE_ACCESSION_ID\tCHROMOSOME\tSTART_POS\tSTOP_POS\tEVENT_TYPE\tCOPY_NUMBER\tCALLING_METHOD\tGENOME_BUILD\tCONFIDENCE\tSOURCE_FILE\tANNOTATION_NAMES\tANNOTATIONS\tMATCHED_ANNOTATIONS\n");
+        sb.append("EVENT_ID\tGENOMIC_EVENT_GROUP_ID\tEVENT_GROUP_LABEL\tSEGMENT_ID\tSAMPLE_ACCESSION_ID\tCHROMOSOME\tSTART_POS\tSTOP_POS\tEVENT_TYPE\tCOPY_NUMBER\tCALLING_METHOD\tGENOME_BUILD\tCONFIDENCE\tSOURCE_FILE\tANNOTATION_NAMES\tANNOTATIONS\tMATCHED_ANNOTATIONS\n");
         for (SearchRow row : rows) {
             sb.append(row.eventId() == null ? "" : row.eventId()).append('\t')
+                    .append(row.genomicEventGroupId() == null ? "" : row.genomicEventGroupId()).append('\t')
+                    .append(nullToEmpty(row.eventGroupLabel())).append('\t')
                     .append(row.segmentId()).append('\t')
                     .append(nullToEmpty(row.sampleAccessionId())).append('\t')
                     .append(nullToEmpty(row.chromosome())).append('\t')
@@ -290,6 +298,8 @@ public class SearchService {
     private record SearchRow(
             long segmentId,
             Long eventId,
+            Long genomicEventGroupId,
+            String eventGroupLabel,
             String sampleAccessionId,
             String chromosome,
             long startPos,

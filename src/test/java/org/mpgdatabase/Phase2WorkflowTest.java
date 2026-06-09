@@ -44,6 +44,7 @@ class Phase2WorkflowTest {
             assertTrue(report.overallPassed(), verification.terminalSummary(report));
             assertEquals(3, report.tableCounts().get("genomic_segments"));
             assertEquals(3, report.tableCounts().get("genomic_events"));
+            assertEquals(3, report.tableCounts().get("genomic_event_groups"));
             assertEquals(0, report.tableCounts().get("genomic_links"));
             assertEquals(3, report.tableCounts().get("validation_issues"));
             assertEquals(2, report.tableCounts().get("source_files"));
@@ -76,10 +77,13 @@ class Phase2WorkflowTest {
                     """));
             assertTrue(Files.exists(outputDir.resolve("source_files.tsv")));
             assertTrue(Files.exists(outputDir.resolve("genomic_events.tsv")));
+            assertTrue(Files.exists(outputDir.resolve("event_groups.tsv")));
             assertTrue(Files.exists(outputDir.resolve("genomic_links.tsv")));
             assertTrue(Files.exists(outputDir.resolve("circos_links.tsv")));
             String resultTrace = Files.readString(outputDir.resolve("result_trace.tsv"));
             assertTrue(resultTrace.contains("EVENT_ID"), resultTrace);
+            assertTrue(resultTrace.contains("GENOMIC_EVENT_GROUP_ID"), resultTrace);
+            assertTrue(resultTrace.contains("EVENT_GROUP_LABEL"), resultTrace);
             assertTrue(resultTrace.contains("EVENT_STATUS"), resultTrace);
             assertTrue(resultTrace.contains("SOURCE_FILE_ID"), resultTrace);
             assertTrue(resultTrace.contains("SOURCE_FILE"), resultTrace);
@@ -97,6 +101,10 @@ class Phase2WorkflowTest {
                     SELECT COUNT(*) FROM genomic_segments
                     WHERE event_id IS NULL
                     """));
+            assertEquals(0, count(connection, """
+                    SELECT COUNT(*) FROM genomic_segments
+                    WHERE genomic_event_group_id IS NULL
+                    """));
         }
     }
 
@@ -112,13 +120,14 @@ class Phase2WorkflowTest {
             assertTrue(wgs.success());
             assertEquals(452, wgs.segmentsInserted());
             assertEquals(452, count(connection, "SELECT COUNT(*) FROM genomic_events"));
+            assertEquals(452, count(connection, "SELECT COUNT(*) FROM genomic_event_groups"));
             assertEquals(452, count(connection, "SELECT COUNT(*) FROM genomic_segments WHERE event_id IS NOT NULL"));
             assertEquals(1, count(connection, "SELECT COUNT(*) FROM source_files"));
             assertEquals(1, count(connection, """
                     SELECT COUNT(*) FROM source_files
                     WHERE import_status = 'SUCCESS'
                     """));
-            assertEquals(452, count(connection, """
+            assertEquals(1, count(connection, """
                     SELECT COUNT(*) FROM sample_test_results
                     WHERE calling_method = 'NGS-derived' AND genome_build = 'hg19'
                     """));
@@ -161,6 +170,8 @@ class Phase2WorkflowTest {
             assertFalse(emptyAnnotationValueSearch.isBlank());
 
             String multiEventSearch = new SearchService(connection).search(Map.of("event-type", "DEL,DUP"));
+            assertTrue(multiEventSearch.contains("GENOMIC_EVENT_GROUP_ID"), multiEventSearch);
+            assertTrue(multiEventSearch.contains("EVENT_GROUP_LABEL"), multiEventSearch);
             assertTrue(multiEventSearch.contains("DEL"), multiEventSearch);
             assertTrue(multiEventSearch.contains("DUP"), multiEventSearch);
 
@@ -398,9 +409,19 @@ class Phase2WorkflowTest {
             assertTrue(result.success());
             assertEquals(100, result.recordsSeen());
             assertEquals(100, result.segmentsInserted());
-            assertEquals(50, count(connection, "SELECT COUNT(*) FROM genomic_events"));
+            assertEquals(100, count(connection, "SELECT COUNT(*) FROM genomic_events"));
+            assertEquals(50, count(connection, "SELECT COUNT(*) FROM genomic_event_groups"));
             assertEquals(100, count(connection, "SELECT COUNT(*) FROM genomic_segments"));
             assertEquals(50, count(connection, "SELECT COUNT(*) FROM genomic_links"));
+            assertEquals(0, count(connection, """
+                    SELECT COUNT(*)
+                    FROM (
+                        SELECT event_id
+                        FROM genomic_segments
+                        GROUP BY event_id
+                        HAVING COUNT(*) > 1
+                    ) duplicate_events
+                    """));
             assertEquals(1, count(connection, """
                     SELECT COUNT(*) FROM genomic_links gl
                     JOIN genomic_segments src ON src.segment_id = gl.source_segment_id
@@ -419,8 +440,70 @@ class Phase2WorkflowTest {
                     .terminalSummary(report));
             assertTrue(Files.readString(outputDir.resolve("genomic_links.tsv"))
                     .contains("TRANSLOCATION"));
+            assertTrue(Files.readString(outputDir.resolve("event_groups.tsv"))
+                    .contains("TXG001"));
             assertTrue(Files.readString(outputDir.resolve("circos_links.tsv"))
                     .contains("chr22"));
+        }
+    }
+
+    @Test
+    void groupsMixedSimpleAndComplexEventsForPhase27() throws Exception {
+        try (Connection connection = Database.connect("jdbc:h2:mem:phase27_event_groups;DB_CLOSE_DELAY=-1")) {
+            Database.initialize(connection);
+            CnvImportService importer = new CnvImportService(connection, new CnvParserFactory());
+            var result = importer.importFile(Path.of("data/realistic_cnv_mixed_events_import.cnv"), null);
+
+            assertTrue(result.success());
+            assertEquals(10, result.recordsSeen());
+            assertEquals(10, result.segmentsInserted());
+            assertEquals(10, count(connection, "SELECT COUNT(*) FROM genomic_segments"));
+            assertEquals(7, count(connection, "SELECT COUNT(*) FROM genomic_event_groups"));
+            assertEquals(4, count(connection, """
+                    SELECT COUNT(*) FROM genomic_event_groups
+                    WHERE event_group_label LIKE 'AUTO-%'
+                    """));
+            assertEquals(1, count(connection, """
+                    SELECT COUNT(*)
+                    FROM (
+                        SELECT geg.genomic_event_group_id
+                        FROM genomic_event_groups geg
+                        JOIN genomic_segments gs ON gs.genomic_event_group_id = geg.genomic_event_group_id
+                        WHERE geg.event_group_label = 'TXG001'
+                        GROUP BY geg.genomic_event_group_id
+                        HAVING COUNT(*) = 2
+                    )
+                    """));
+            assertEquals(1, count(connection, """
+                    SELECT COUNT(*)
+                    FROM (
+                        SELECT geg.genomic_event_group_id
+                        FROM genomic_event_groups geg
+                        JOIN genomic_segments gs ON gs.genomic_event_group_id = geg.genomic_event_group_id
+                        WHERE geg.event_group_label = 'TXG001'
+                          AND gs.chromosome IN ('chr9', 'chr22')
+                        GROUP BY geg.genomic_event_group_id
+                        HAVING COUNT(DISTINCT gs.chromosome) = 2
+                    )
+                    """));
+
+            String groupSearch = new SearchService(connection).search(Map.of("event-group", "TXG001"));
+            assertTrue(groupSearch.contains("TXG001"), groupSearch);
+            assertTrue(groupSearch.contains("chr9"), groupSearch);
+            assertTrue(groupSearch.contains("chr22"), groupSearch);
+            assertTrue(groupSearch.contains("Rows: 2"), groupSearch);
+
+            Path outputDir = Files.createTempDirectory("phase27-output");
+            VerificationReport report = new VerificationService(connection, outputDir)
+                    .verify(true, List.of(result));
+            assertTrue(report.schema().passed(), new VerificationService(connection, outputDir)
+                    .terminalSummary(report));
+            assertTrue(report.dataIntegrity().passed(), new VerificationService(connection, outputDir)
+                    .terminalSummary(report));
+            String eventGroups = Files.readString(outputDir.resolve("event_groups.tsv"));
+            assertTrue(eventGroups.contains("TXG001"), eventGroups);
+            assertTrue(eventGroups.contains("INVG001\t2\tchr3"), eventGroups);
+            assertTrue(eventGroups.contains("chr22,chr9") || eventGroups.contains("chr9,chr22"), eventGroups);
         }
     }
 

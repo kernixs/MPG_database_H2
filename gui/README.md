@@ -126,6 +126,8 @@ event_type = TRANS or T
 
 When multiple rows share the same `sample_accession_id` and `event_group_id`, the GUI attaches them to one `genomic_events` row. If two or more grouped rows are `TRANS`/`T`, the GUI creates `genomic_links` rows with `link_type = TRANSLOCATION`. Common aliases such as `group_id`, `variant_id`, `pair_id`, `link_id`, and `breakend_id` are accepted.
 
+Each imported row still receives its own unique `event_id`. The repeated `event_group_id` is only the optional grouping label.
+
 ## Sample Data
 
 Test inputs are provided under:

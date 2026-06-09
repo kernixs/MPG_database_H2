@@ -590,8 +590,8 @@ public class CnvDatabaseGui extends JFrame {
             long accessionId = getOrCreateAccession(row.sample(), individualId);
             long sampleTestId = createSampleTest(accessionId, protocolId);
             long resultId = createSampleTestResult(sampleTestId, pipelineId, sourceFileId, row);
-            EventGroupState groupState = eventGroupState(eventGroups, resultId, sourceFileId, row);
-            long eventId = groupState.eventId();
+            EventGroupState groupState = eventGroupState(eventGroups, sourceFileId, row);
+            long eventId = createGenomicEvent(resultId, sourceFileId, row);
             long sourceSegmentId = createSegment(eventId, resultId, row.chromosome(), row.start(), row.stop(), row);
             inserted++;
             if (shouldLinkGroupedSegment(row, groupState)) {
@@ -604,18 +604,17 @@ public class CnvDatabaseGui extends JFrame {
     }
 
     private EventGroupState eventGroupState(Map<String, EventGroupState> eventGroups,
-                                            long resultId,
                                             long sourceFileId,
                                             CnvRow row) throws SQLException {
         String groupKey = eventGroupKey(sourceFileId, row);
         if (groupKey == null) {
-            return new EventGroupState(createGenomicEvent(resultId, sourceFileId, row), null);
+            return new EventGroupState(null);
         }
         EventGroupState existing = eventGroups.get(groupKey);
         if (existing != null) {
             return existing;
         }
-        EventGroupState created = new EventGroupState(createGenomicEvent(resultId, sourceFileId, row), row.eventGroupId());
+        EventGroupState created = new EventGroupState(row.eventGroupId());
         eventGroups.put(groupKey, created);
         return created;
     }
@@ -638,25 +637,14 @@ public class CnvDatabaseGui extends JFrame {
             showError("SQL blocked", "Only SELECT or WITH queries are allowed. Write/schema SQL is blocked.");
             return;
         }
+        if (isShowDatabaseTablesQuery(sql)) {
+            runDatabaseTablesQuery();
+            return;
+        }
         long started = System.nanoTime();
         try (Statement stmt = connection.createStatement(); ResultSet rs = stmt.executeQuery(sql)) {
-            ResultSetMetaData meta = rs.getMetaData();
-            int columns = meta.getColumnCount();
-            DefaultTableModel model = new DefaultTableModel();
-            for (int i = 1; i <= columns; i++) {
-                model.addColumn(meta.getColumnLabel(i));
-            }
-            int rows = 0;
-            while (rs.next()) {
-                Object[] row = new Object[columns];
-                for (int i = 1; i <= columns; i++) {
-                    row[i - 1] = rs.getObject(i);
-                }
-                model.addRow(row);
-                rows++;
-            }
-            tableModel = model;
-            resultsTable.setModel(tableModel);
+            int rows = displayResultSet(rs);
+            int columns = tableModel.getColumnCount();
             double elapsed = (System.nanoTime() - started) / 1_000_000_000.0;
             querySummaryLabel.setText(rows + " rows returned, " + columns + " columns");
             queryTimeLabel.setText("Query executed in " + String.format(Locale.ROOT, "%.3f", elapsed) + " sec");
@@ -665,6 +653,56 @@ public class CnvDatabaseGui extends JFrame {
             setStatus("SQL ERROR: " + e.getMessage());
             showError("SQL error", e.getMessage());
         }
+    }
+
+    private int displayResultSet(ResultSet rs) throws SQLException {
+        ResultSetMetaData meta = rs.getMetaData();
+        int columns = meta.getColumnCount();
+        DefaultTableModel model = new DefaultTableModel();
+        for (int i = 1; i <= columns; i++) {
+            model.addColumn(meta.getColumnLabel(i));
+        }
+        int rows = 0;
+        while (rs.next()) {
+            Object[] row = new Object[columns];
+            for (int i = 1; i <= columns; i++) {
+                row[i - 1] = rs.getObject(i);
+            }
+            model.addRow(row);
+            rows++;
+        }
+        tableModel = model;
+        resultsTable.setModel(tableModel);
+        return rows;
+    }
+
+    private void runDatabaseTablesQuery() {
+        long started = System.nanoTime();
+        try (ResultSet rs = connection.getMetaData().getTables(null, "PUBLIC", "%", new String[]{"TABLE"})) {
+            DefaultTableModel model = new DefaultTableModel();
+            model.addColumn("TABLE_NAME");
+            int rows = 0;
+            while (rs.next()) {
+                model.addRow(new Object[]{rs.getString("TABLE_NAME")});
+                rows++;
+            }
+            tableModel = model;
+            resultsTable.setModel(tableModel);
+            double elapsed = (System.nanoTime() - started) / 1_000_000_000.0;
+            querySummaryLabel.setText(rows + " rows returned, 1 columns");
+            queryTimeLabel.setText("Query executed in " + String.format(Locale.ROOT, "%.3f", elapsed) + " sec");
+            setStatus("Query executed successfully. " + rows + " rows returned.");
+        } catch (SQLException e) {
+            setStatus("SQL ERROR: " + e.getMessage());
+            showError("SQL error", e.getMessage());
+        }
+    }
+
+    private boolean isShowDatabaseTablesQuery(String sql) {
+        String compact = sql == null ? "" : sql.toLowerCase(Locale.ROOT).replaceAll("\\s+", " ").trim();
+        return compact.contains("from information_schema.tables")
+                && compact.contains("table_schema")
+                && compact.contains("public");
     }
 
     private void exportResults() {
@@ -727,6 +765,9 @@ public class CnvDatabaseGui extends JFrame {
         for (String statement : schema().split(";")) {
             String trimmed = statement.trim();
             if (!trimmed.isEmpty()) {
+                if (trimmed.toLowerCase(Locale.ROOT).contains("idx_segments_event")) {
+                    continue;
+                }
                 try (Statement stmt = conn.createStatement()) {
                     stmt.execute(trimmed);
                 }
@@ -734,6 +775,97 @@ public class CnvDatabaseGui extends JFrame {
         }
         addColumnIfMissing(conn, "GENOMIC_SEGMENTS", "EVENT_ID", "BIGINT");
         addColumnIfMissing(conn, "GENOMIC_EVENTS", "EVENT_GROUP_ID", "VARCHAR(128)");
+        try (Statement stmt = conn.createStatement()) {
+            stmt.execute("""
+                    CREATE INDEX IF NOT EXISTS idx_segments_event
+                        ON genomic_segments(event_id)
+                    """);
+        }
+        splitSharedSegmentEvents(conn);
+    }
+
+    private void splitSharedSegmentEvents(Connection conn) throws SQLException {
+        try (PreparedStatement ps = conn.prepareStatement("""
+                SELECT
+                    gs.segment_id,
+                    gs.sample_test_result_id,
+                    gs.event_type,
+                    gs.confidence,
+                    gs.annotations,
+                    str.source_file_id,
+                    str.genome_build,
+                    str.calling_method,
+                    str.raw_iscn,
+                    str.line_number,
+                    ge.event_group_id,
+                    ge.raw_event_text,
+                    ge.event_status
+                FROM genomic_segments gs
+                JOIN sample_test_results str ON str.sample_test_result_id = gs.sample_test_result_id
+                JOIN genomic_events ge ON ge.event_id = gs.event_id
+                WHERE gs.event_id IN (
+                    SELECT event_id
+                    FROM genomic_segments
+                    WHERE event_id IS NOT NULL
+                    GROUP BY event_id
+                    HAVING COUNT(*) > 1
+                )
+                AND gs.segment_id NOT IN (
+                    SELECT MIN(segment_id)
+                    FROM genomic_segments
+                    WHERE event_id IS NOT NULL
+                    GROUP BY event_id
+                    HAVING COUNT(*) > 1
+                )
+                ORDER BY gs.event_id, gs.segment_id
+                """)) {
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    long newEventId;
+                    try (PreparedStatement insert = conn.prepareStatement("""
+                            INSERT INTO genomic_events
+                                (sample_test_result_id, source_file_id, event_group_id, event_type, genome_build,
+                                 calling_method, raw_event_text, line_number, event_status, confidence, annotations)
+                            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                            """, Statement.RETURN_GENERATED_KEYS)) {
+                        insert.setLong(1, rs.getLong("sample_test_result_id"));
+                        long sourceFileId = rs.getLong("source_file_id");
+                        if (rs.wasNull()) {
+                            insert.setNull(2, java.sql.Types.BIGINT);
+                        } else {
+                            insert.setLong(2, sourceFileId);
+                        }
+                        insert.setString(3, rs.getString("event_group_id"));
+                        insert.setString(4, rs.getString("event_type"));
+                        insert.setString(5, rs.getString("genome_build"));
+                        insert.setString(6, rs.getString("calling_method"));
+                        String rawEventText = rs.getString("raw_event_text");
+                        insert.setString(7, rawEventText == null ? rs.getString("raw_iscn") : rawEventText);
+                        int lineNumber = rs.getInt("line_number");
+                        if (rs.wasNull()) {
+                            insert.setNull(8, java.sql.Types.INTEGER);
+                        } else {
+                            insert.setInt(8, lineNumber);
+                        }
+                        String eventStatus = rs.getString("event_status");
+                        insert.setString(9, eventStatus == null ? "MIGRATED" : eventStatus);
+                        insert.setString(10, rs.getString("confidence"));
+                        insert.setString(11, rs.getString("annotations"));
+                        insert.executeUpdate();
+                        newEventId = generatedId(insert);
+                    }
+                    try (PreparedStatement update = conn.prepareStatement("""
+                            UPDATE genomic_segments
+                            SET event_id = ?
+                            WHERE segment_id = ?
+                            """)) {
+                        update.setLong(1, newEventId);
+                        update.setLong(2, rs.getLong("segment_id"));
+                        update.executeUpdate();
+                    }
+                }
+            }
+        }
     }
 
     private void addColumnIfMissing(Connection conn, String table, String column, String type)
@@ -1429,17 +1561,11 @@ public class CnvDatabaseGui extends JFrame {
     }
 
     private static final class EventGroupState {
-        private final long eventId;
         private final String eventGroupId;
         private Long firstTransSegmentId;
 
-        private EventGroupState(long eventId, String eventGroupId) {
-            this.eventId = eventId;
+        private EventGroupState(String eventGroupId) {
             this.eventGroupId = eventGroupId;
-        }
-
-        private long eventId() {
-            return eventId;
         }
 
         private String eventGroupId() {

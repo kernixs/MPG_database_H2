@@ -42,6 +42,7 @@ public class CnvImportService {
                     0,
                     null);
             Map<String, EventGroupState> eventGroups = new HashMap<>();
+            Map<String, ResultContext> resultContexts = new HashMap<>();
 
             for (CnvRecord record : parsed.records()) {
                 recordsSeen++;
@@ -67,17 +68,7 @@ public class CnvImportService {
                 String callingMethod = recordCallingMethod(parsed.callingMethod(), record);
                 String testType = testType(callingMethod);
                 long labProtocolId = coreDao.findOrCreateLabProtocol(labProtocol(callingMethod), null, null);
-                long sampleTestId = coreDao.createSampleTest(sampleId, labProtocolId, testType);
                 long pipelineId = coreDao.findOrCreatePipeline(pipeline(callingMethod), "phase2.5", null);
-                long resultId = coreDao.createSampleTestResult(
-                        sampleTestId,
-                        pipelineId,
-                        sourceFileId,
-                        hasMissingGenomeBuild(genomeBuild) ? "unknown" : genomeBuild,
-                        callingMethod,
-                        record.rawIscn(),
-                        record.annotationNames(),
-                        record.lineNumber());
                 if (hasMissingGenomeBuild(genomeBuild)) {
                     coreDao.createValidationIssue(
                             null,
@@ -90,23 +81,29 @@ public class CnvImportService {
                     issuesInserted++;
                     continue;
                 }
-                Long karyotypeId = record.hasRawIscn() && CallingMethodDetector.ISCN_DERIVED.equals(callingMethod)
-                        ? coreDao.createKaryotype(resultId, record.rawIscn())
-                        : null;
-                EventGroupState groupState = eventGroupState(
-                        eventGroups,
+                ResultContext resultContext = resultContext(
+                        resultContexts,
                         coreDao,
-                        record,
-                        resultId,
+                        sampleId,
+                        labProtocolId,
+                        testType,
+                        pipelineId,
                         sourceFileId,
                         genomeBuild,
-                        callingMethod);
-                long eventId = groupState.eventId();
+                        callingMethod,
+                        record);
+                EventGroupState groupState = eventGroupState(eventGroups, record, sourceFileId, resultContext.resultId());
+                long genomicEventGroupId = coreDao.findOrCreateGenomicEventGroup(
+                        resultContext.resultId(),
+                        groupState.eventGroupLabel(),
+                        rawEventText(record));
+                long eventId = createEvent(coreDao, record, resultContext.resultId(), sourceFileId, genomeBuild, callingMethod);
                 long segmentId = segmentDao.create(new GenomicSegment(
                         0,
                         eventId,
-                        resultId,
-                        karyotypeId,
+                        genomicEventGroupId,
+                        resultContext.resultId(),
+                        resultContext.karyotypeId(),
                         record.chromosome(),
                         record.startPos(),
                         record.stopPos(),
@@ -173,25 +170,53 @@ public class CnvImportService {
 
     private EventGroupState eventGroupState(
             Map<String, EventGroupState> eventGroups,
-            CoreDao coreDao,
             CnvRecord record,
-            long resultId,
             Long sourceFileId,
-            String genomeBuild,
-            String callingMethod
-    ) throws SQLException {
-        String groupKey = eventGroupKey(sourceFileId, record);
-        if (groupKey == null) {
-            long eventId = createEvent(coreDao, record, resultId, sourceFileId, genomeBuild, callingMethod);
-            return new EventGroupState(eventId, null);
-        }
+            long resultId
+    ) {
+        String label = eventGroupLabel(sourceFileId, record);
+        String groupKey = resultId + "|" + label;
         EventGroupState existing = eventGroups.get(groupKey);
         if (existing != null) {
             return existing;
         }
-        long eventId = createEvent(coreDao, record, resultId, sourceFileId, genomeBuild, callingMethod);
-        EventGroupState created = new EventGroupState(eventId, record.eventGroupId());
+        EventGroupState created = new EventGroupState(record.eventGroupId(), label);
         eventGroups.put(groupKey, created);
+        return created;
+    }
+
+    private ResultContext resultContext(
+            Map<String, ResultContext> resultContexts,
+            CoreDao coreDao,
+            long sampleId,
+            long labProtocolId,
+            String testType,
+            long pipelineId,
+            Long sourceFileId,
+            String genomeBuild,
+            String callingMethod,
+            CnvRecord record
+    ) throws SQLException {
+        String key = resultKey(sampleId, labProtocolId, testType, pipelineId, sourceFileId, genomeBuild, callingMethod, record);
+        ResultContext existing = resultContexts.get(key);
+        if (existing != null) {
+            return existing;
+        }
+        long sampleTestId = coreDao.createSampleTest(sampleId, labProtocolId, testType);
+        long resultId = coreDao.createSampleTestResult(
+                sampleTestId,
+                pipelineId,
+                sourceFileId,
+                genomeBuild,
+                callingMethod,
+                record.rawIscn(),
+                record.annotationNames(),
+                record.lineNumber());
+        Long karyotypeId = record.hasRawIscn() && CallingMethodDetector.ISCN_DERIVED.equals(callingMethod)
+                ? coreDao.createKaryotype(resultId, record.rawIscn())
+                : null;
+        ResultContext created = new ResultContext(resultId, karyotypeId);
+        resultContexts.put(key, created);
         return created;
     }
 
@@ -217,11 +242,36 @@ public class CnvImportService {
                 record.annotations());
     }
 
-    private String eventGroupKey(Long sourceFileId, CnvRecord record) {
+    private String eventGroupLabel(Long sourceFileId, CnvRecord record) {
         if (record.eventGroupId() == null || record.eventGroupId().isBlank()) {
-            return null;
+            return "AUTO-" + sourceFileId + "-" + record.lineNumber();
         }
-        return sourceFileId + "|" + record.sampleAccessionIdentifier() + "|" + record.eventGroupId();
+        return record.eventGroupId();
+    }
+
+    private String resultKey(
+            long sampleId,
+            long labProtocolId,
+            String testType,
+            long pipelineId,
+            Long sourceFileId,
+            String genomeBuild,
+            String callingMethod,
+            CnvRecord record
+    ) {
+        return sampleId + "|"
+                + labProtocolId + "|"
+                + testType + "|"
+                + pipelineId + "|"
+                + sourceFileId + "|"
+                + genomeBuild + "|"
+                + callingMethod + "|"
+                + nullToEmpty(record.rawIscn()) + "|"
+                + nullToEmpty(record.annotationNames());
+    }
+
+    private String nullToEmpty(String value) {
+        return value == null ? "" : value;
     }
 
     private boolean shouldLinkGroupedSegment(CnvRecord record, EventGroupState groupState) {
@@ -239,6 +289,16 @@ public class CnvImportService {
             return record.rawIscn();
         }
         return record.eventGroupId();
+    }
+
+    private String rawEventText(CnvRecord record) {
+        String rawText;
+        if (record.rawIscn() != null && !record.rawIscn().isBlank()) {
+            rawText = record.rawIscn();
+        } else {
+            rawText = record.sourceFields().toString();
+        }
+        return rawText.length() <= 2000 ? rawText : rawText.substring(0, 2000);
     }
 
     private String resolveGenomeBuild(CnvRecord record, ParsedCnvFile parsed, String defaultGenomeBuild) {
@@ -343,22 +403,22 @@ public class CnvImportService {
     }
 
     private static final class EventGroupState {
-        private final long eventId;
         private final String eventGroupId;
+        private final String eventGroupLabel;
         private final List<Long> segmentIds = new ArrayList<>();
         private Long firstTransSegmentId;
 
-        private EventGroupState(long eventId, String eventGroupId) {
-            this.eventId = eventId;
+        private EventGroupState(String eventGroupId, String eventGroupLabel) {
             this.eventGroupId = eventGroupId;
-        }
-
-        private long eventId() {
-            return eventId;
+            this.eventGroupLabel = eventGroupLabel;
         }
 
         private String eventGroupId() {
             return eventGroupId;
+        }
+
+        private String eventGroupLabel() {
+            return eventGroupLabel;
         }
 
         private Long firstTransSegmentId() {
@@ -371,5 +431,8 @@ public class CnvImportService {
                 firstTransSegmentId = segmentId;
             }
         }
+    }
+
+    private record ResultContext(long resultId, Long karyotypeId) {
     }
 }

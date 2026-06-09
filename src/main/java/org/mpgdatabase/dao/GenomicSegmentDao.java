@@ -19,41 +19,46 @@ public class GenomicSegmentDao {
     public long create(GenomicSegment segment) throws SQLException {
         try (PreparedStatement ps = connection.prepareStatement("""
                 INSERT INTO genomic_segments
-                    (event_id, sample_test_result_id, karyotype_id, chromosome, start_pos, stop_pos,
+                    (event_id, genomic_event_group_id, sample_test_result_id, karyotype_id, chromosome, start_pos, stop_pos,
                      cytoband_start, cytoband_end, event_type, copy_number, array_score,
                      confidence, number_of_sites, annotations)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """, DaoSupport.returnGeneratedKeys())) {
             if (segment.eventId() == null) {
                 ps.setNull(1, Types.BIGINT);
             } else {
                 ps.setLong(1, segment.eventId());
             }
-            ps.setLong(2, segment.sampleTestResultId());
+            if (segment.genomicEventGroupId() == null) {
+                ps.setNull(2, Types.BIGINT);
+            } else {
+                ps.setLong(2, segment.genomicEventGroupId());
+            }
+            ps.setLong(3, segment.sampleTestResultId());
             if (segment.karyotypeId() == null) {
-                ps.setNull(3, Types.BIGINT);
+                ps.setNull(4, Types.BIGINT);
             } else {
-                ps.setLong(3, segment.karyotypeId());
+                ps.setLong(4, segment.karyotypeId());
             }
-            ps.setString(4, segment.chromosome());
-            ps.setLong(5, segment.startPos());
-            ps.setLong(6, segment.stopPos());
-            ps.setString(7, segment.cytobandStart());
-            ps.setString(8, segment.cytobandEnd());
-            ps.setString(9, segment.eventType());
-            ps.setInt(10, segment.copyNumber());
+            ps.setString(5, segment.chromosome());
+            ps.setLong(6, segment.startPos());
+            ps.setLong(7, segment.stopPos());
+            ps.setString(8, segment.cytobandStart());
+            ps.setString(9, segment.cytobandEnd());
+            ps.setString(10, segment.eventType());
+            ps.setInt(11, segment.copyNumber());
             if (segment.arrayScore() == null) {
-                ps.setNull(11, Types.DOUBLE);
+                ps.setNull(12, Types.DOUBLE);
             } else {
-                ps.setDouble(11, segment.arrayScore());
+                ps.setDouble(12, segment.arrayScore());
             }
-            ps.setString(12, segment.confidence());
+            ps.setString(13, segment.confidence());
             if (segment.numberOfSites() == null) {
-                ps.setNull(13, Types.INTEGER);
+                ps.setNull(14, Types.INTEGER);
             } else {
-                ps.setInt(13, segment.numberOfSites());
+                ps.setInt(14, segment.numberOfSites());
             }
-            ps.setString(14, segment.annotations());
+            ps.setString(15, segment.annotations());
             ps.executeUpdate();
             return DaoSupport.generatedId(ps);
         }
@@ -114,6 +119,7 @@ public class GenomicSegmentDao {
                 rows.add(new GenomicSegment(
                         rs.getLong("segment_id"),
                         DaoSupport.nullableLong(rs, "event_id"),
+                        DaoSupport.nullableLong(rs, "genomic_event_group_id"),
                         rs.getLong("sample_test_result_id"),
                         DaoSupport.nullableLong(rs, "karyotype_id"),
                         rs.getString("chromosome"),

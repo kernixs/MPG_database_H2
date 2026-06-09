@@ -231,6 +231,37 @@ public class CoreDao {
         }
     }
 
+    public long findOrCreateGenomicEventGroup(
+            long sampleTestResultId,
+            String eventGroupLabel,
+            String rawEventText
+    ) throws SQLException {
+        try (PreparedStatement find = connection.prepareStatement("""
+                SELECT genomic_event_group_id
+                FROM genomic_event_groups
+                WHERE sample_test_result_id = ? AND event_group_label = ?
+                """)) {
+            find.setLong(1, sampleTestResultId);
+            find.setString(2, eventGroupLabel);
+            try (var rs = find.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getLong(1);
+                }
+            }
+        }
+        try (PreparedStatement ps = connection.prepareStatement("""
+                INSERT INTO genomic_event_groups
+                    (sample_test_result_id, event_group_label, raw_event_text)
+                VALUES (?, ?, ?)
+                """, DaoSupport.returnGeneratedKeys())) {
+            ps.setLong(1, sampleTestResultId);
+            ps.setString(2, eventGroupLabel);
+            ps.setString(3, rawEventText);
+            ps.executeUpdate();
+            return DaoSupport.generatedId(ps);
+        }
+    }
+
     public long createGenomicLink(
             long eventId,
             long sourceSegmentId,

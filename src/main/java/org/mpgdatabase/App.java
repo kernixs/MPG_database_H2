@@ -31,6 +31,7 @@ public class App {
             "confidence",
             "end",
             "event-id",
+            "event-group",
             "event-type",
             "gene",
             "genome-build",
