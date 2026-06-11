@@ -19,10 +19,10 @@ public class GenomicSegmentDao {
     public long create(GenomicSegment segment) throws SQLException {
         try (PreparedStatement ps = connection.prepareStatement("""
                 INSERT INTO genomic_segments
-                    (event_id, genomic_event_group_id, sample_test_result_id, karyotype_id, chromosome, start_pos, stop_pos,
+                    (event_id, genomic_event_group_id, event_group_id, sample_test_result_id, karyotype_id, chromosome, start_pos, stop_pos,
                      cytoband_start, cytoband_end, event_type, copy_number, array_score,
-                     confidence, number_of_sites, annotations)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                     confidence, number_of_sites, raw_segment_text, annotations)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """, DaoSupport.returnGeneratedKeys())) {
             if (segment.eventId() == null) {
                 ps.setNull(1, Types.BIGINT);
@@ -34,31 +34,33 @@ public class GenomicSegmentDao {
             } else {
                 ps.setLong(2, segment.genomicEventGroupId());
             }
-            ps.setLong(3, segment.sampleTestResultId());
+            ps.setString(3, segment.eventGroupId());
+            ps.setLong(4, segment.sampleTestResultId());
             if (segment.karyotypeId() == null) {
-                ps.setNull(4, Types.BIGINT);
+                ps.setNull(5, Types.BIGINT);
             } else {
-                ps.setLong(4, segment.karyotypeId());
+                ps.setLong(5, segment.karyotypeId());
             }
-            ps.setString(5, segment.chromosome());
-            ps.setLong(6, segment.startPos());
-            ps.setLong(7, segment.stopPos());
-            ps.setString(8, segment.cytobandStart());
-            ps.setString(9, segment.cytobandEnd());
-            ps.setString(10, segment.eventType());
-            ps.setInt(11, segment.copyNumber());
+            ps.setString(6, segment.chromosome());
+            ps.setLong(7, segment.startPos());
+            ps.setLong(8, segment.stopPos());
+            ps.setString(9, segment.cytobandStart());
+            ps.setString(10, segment.cytobandEnd());
+            ps.setString(11, segment.eventType());
+            ps.setInt(12, segment.copyNumber());
             if (segment.arrayScore() == null) {
-                ps.setNull(12, Types.DOUBLE);
+                ps.setNull(13, Types.DOUBLE);
             } else {
-                ps.setDouble(12, segment.arrayScore());
+                ps.setDouble(13, segment.arrayScore());
             }
-            ps.setString(13, segment.confidence());
+            ps.setString(14, segment.confidence());
             if (segment.numberOfSites() == null) {
-                ps.setNull(14, Types.INTEGER);
+                ps.setNull(15, Types.INTEGER);
             } else {
-                ps.setInt(14, segment.numberOfSites());
+                ps.setInt(15, segment.numberOfSites());
             }
-            ps.setString(15, segment.annotations());
+            ps.setString(16, segment.rawSegmentText());
+            ps.setString(17, segment.annotations());
             ps.executeUpdate();
             return DaoSupport.generatedId(ps);
         }
@@ -120,6 +122,7 @@ public class GenomicSegmentDao {
                         rs.getLong("segment_id"),
                         DaoSupport.nullableLong(rs, "event_id"),
                         DaoSupport.nullableLong(rs, "genomic_event_group_id"),
+                        rs.getString("event_group_id"),
                         rs.getLong("sample_test_result_id"),
                         DaoSupport.nullableLong(rs, "karyotype_id"),
                         rs.getString("chromosome"),
@@ -132,6 +135,7 @@ public class GenomicSegmentDao {
                         DaoSupport.nullableDouble(rs, "array_score"),
                         rs.getString("confidence"),
                         DaoSupport.nullableInt(rs, "number_of_sites"),
+                        rs.getString("raw_segment_text"),
                         rs.getString("annotations")
                 ));
             }

@@ -45,6 +45,7 @@ public final class Models {
             long id,
             Long eventId,
             Long genomicEventGroupId,
+            String eventGroupId,
             long sampleTestResultId,
             Long karyotypeId,
             String chromosome,
@@ -57,6 +58,7 @@ public final class Models {
             Double arrayScore,
             String confidence,
             Integer numberOfSites,
+            String rawSegmentText,
             String annotations
     ) {
     }

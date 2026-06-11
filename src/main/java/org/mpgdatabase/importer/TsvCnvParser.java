@@ -23,6 +23,7 @@ public class TsvCnvParser implements CnvParser {
         "type",
         "copy_number",
         "array_score",
+        "confidence",
         "number_of_sites",
         "genome_build",
         "hg_version",
@@ -48,6 +49,12 @@ public class TsvCnvParser implements CnvParser {
         "DIC",
         "I",
         "R",
+        "RING",
+        "COMPLEX",
+        "ROH",
+        "UPD",
+        "TRISOMY",
+        "MONOSOMY",
         "NEUTRAL"
     );
 
@@ -68,6 +75,7 @@ public class TsvCnvParser implements CnvParser {
         List<CnvRecord> records = new ArrayList<>();
         List<String> header = null;
         List<String> originalHeader = null;
+        boolean unsupportedRawArrayEvidence = false;
 
         for (int i = 0; i < lines.size(); i++) {
             String line = lines.get(i);
@@ -81,7 +89,18 @@ public class TsvCnvParser implements CnvParser {
             if (header == null) {
                 originalHeader = originalHeader(line);
                 header = normalizeHeader(line);
-                records.addAll(validateHeader(header, i + 1));
+                unsupportedRawArrayEvidence = isUnsupportedRawArrayEvidence(header);
+                if (unsupportedRawArrayEvidence) {
+                    records.add(invalidRecord(
+                            i + 1,
+                            "Unsupported Array Evidence File",
+                            "File appears to be a raw array probe/manifest/evidence file, not a final called CNV interval file"));
+                } else {
+                    records.addAll(validateHeader(header, i + 1));
+                }
+                continue;
+            }
+            if (unsupportedRawArrayEvidence) {
                 continue;
             }
             records.add(readRecord(header, originalHeader, line, i + 1));
@@ -112,10 +131,12 @@ public class TsvCnvParser implements CnvParser {
         String trimmed = line.substring(1).trim();
         int equals = trimmed.indexOf('=');
         if (equals > 0) {
-            metadata.put(
-                trimmed.substring(0, equals).trim().toLowerCase(Locale.ROOT),
-                trimmed.substring(equals + 1).trim()
-            );
+            String key = normalizeColumnName(trimmed.substring(0, equals));
+            String value = trimmed.substring(equals + 1).trim();
+            metadata.put(key, value);
+            if (isGenomeBuildColumn(key)) {
+                metadata.put("genome_build", normalizeGenomeBuildMetadataValue(value));
+            }
         }
     }
 
@@ -138,9 +159,13 @@ public class TsvCnvParser implements CnvParser {
     }
 
     private String normalizeColumnName(String columnName) {
-        String normalized = columnName.trim().toLowerCase(Locale.ROOT);
+        String normalized = columnName.trim()
+                .toLowerCase(Locale.ROOT)
+                .replaceAll("[\\s\\-]+", "_")
+                .replaceAll("_+", "_");
         return switch (normalized) {
             case
+                "sampleid",
                 "sample_id",
                 "sample",
                 "accession",
@@ -151,10 +176,15 @@ public class TsvCnvParser implements CnvParser {
             case "chr" -> "chromosome";
             case "bp1", "start", "start_position" -> "start_pos";
             case "bp2", "stop", "end", "end_pos", "end_position" -> "stop_pos";
-            case "cnv_type" -> "event_type";
+            case "cnv_type", "aberration", "eventtype" -> "event_type";
             case "sv_type" -> "sv_type";
-            case "cn", "copy" -> "copy_number";
+            case "cn", "copy", "copynumber", "copy_number" -> "copy_number";
+            case "genomebuild", "genome_build", "build", "assembly", "grid_genomicbuild" -> "genome_build";
             case "hg_version" -> "hg_version";
+            case "probecount", "probe_count", "numprobes", "num_probes", "numberofprobes", "number_of_probes",
+                    "numberofsites", "number_of_sites" -> "number_of_sites";
+            case "arrayscore", "array_score", "score", "cnvscore" -> "array_score";
+            case "confidencescore", "callconfidence" -> "confidence";
             default -> normalized;
         };
     }
@@ -179,14 +209,39 @@ public class TsvCnvParser implements CnvParser {
         ) {
             requireColumn(header, issues, lineNumber, "event_type");
         }
-        if (
-            !header.contains("copy_number") &&
-            !header.contains("type") &&
-            !header.contains("sv_type")
-        ) {
-            requireColumn(header, issues, lineNumber, "copy_number");
-        }
         return issues;
+    }
+
+    private boolean isUnsupportedRawArrayEvidence(List<String> header) {
+        return containsAny(header,
+                "probename",
+                "systematicname",
+                "pvaluelogratio",
+                "gprocessedsignal",
+                "rprocessedsignal",
+                "allelea",
+                "alleleb",
+                "baf",
+                "lrr",
+                "mapinfo")
+                && !hasCalledCnvInterval(header);
+    }
+
+    private boolean hasCalledCnvInterval(List<String> header) {
+        return header.contains("sample_accession_id")
+                && header.contains("chromosome")
+                && header.contains("start_pos")
+                && header.contains("stop_pos")
+                && (header.contains("event_type") || header.contains("sv_type") || header.contains("type"));
+    }
+
+    private boolean containsAny(List<String> values, String... candidates) {
+        for (String candidate : candidates) {
+            if (values.contains(candidate)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private void requireColumn(
@@ -320,6 +375,7 @@ public class TsvCnvParser implements CnvParser {
             eventType,
             copyNumber,
             parseDouble(fields.get("array_score")),
+            fields.get("confidence"),
             parseInt(fields.get("number_of_sites")),
             firstNonBlank(fields.get("genome_build"), fields.get("hg_version")),
             fields.get("raw_iscn"),
@@ -339,6 +395,7 @@ public class TsvCnvParser implements CnvParser {
     ) {
         return new CnvRecord(
             lineNumber,
+            null,
             null,
             null,
             null,
@@ -455,8 +512,27 @@ public class TsvCnvParser implements CnvParser {
         if ("DEL".equals(normalizedEvent) || "LOSS".equals(normalizedEvent)) {
             return 1;
         }
-        if ("TRANS".equals(normalizedEvent) || "T".equals(normalizedEvent)) {
+        if (
+            "TRANS".equals(normalizedEvent) ||
+            "T".equals(normalizedEvent) ||
+            "INV".equals(normalizedEvent) ||
+            "INS".equals(normalizedEvent) ||
+            "DER".equals(normalizedEvent) ||
+            "DIC".equals(normalizedEvent) ||
+            "R".equals(normalizedEvent) ||
+            "RING".equals(normalizedEvent) ||
+            "COMPLEX".equals(normalizedEvent) ||
+            "ROH".equals(normalizedEvent) ||
+            "UPD".equals(normalizedEvent) ||
+            "NEUTRAL".equals(normalizedEvent)
+        ) {
             return 2;
+        }
+        if ("TRISOMY".equals(normalizedEvent)) {
+            return 3;
+        }
+        if ("MONOSOMY".equals(normalizedEvent)) {
+            return 1;
         }
         return null;
     }
@@ -557,5 +633,22 @@ public class TsvCnvParser implements CnvParser {
         } catch (NumberFormatException e) {
             return null;
         }
+    }
+
+    private boolean isGenomeBuildColumn(String columnName) {
+        return "genome_build".equals(columnName) || "hg_version".equals(columnName);
+    }
+
+    private String normalizeGenomeBuildMetadataValue(String value) {
+        if (value == null) {
+            return null;
+        }
+        String[] parts = value.split("[:;]");
+        for (String part : parts) {
+            if (GenomeBuildNormalizer.normalize(part) != null) {
+                return part.trim();
+            }
+        }
+        return value.trim();
     }
 }

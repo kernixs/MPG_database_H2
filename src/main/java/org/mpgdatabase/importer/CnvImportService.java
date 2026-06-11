@@ -59,17 +59,8 @@ public class CnvImportService {
                     continue;
                 }
 
-                String genomeBuild = resolveGenomeBuild(record, parsed, defaultGenomeBuild);
-                long individualId = coreDao.findOrCreateIndividual("IND-" + record.sampleAccessionIdentifier());
-                long sampleId = coreDao.findOrCreateSampleAccession(
-                        record.sampleAccessionIdentifier(),
-                        individualId,
-                        record.dnaSource());
-                String callingMethod = recordCallingMethod(parsed.callingMethod(), record);
-                String testType = testType(callingMethod);
-                long labProtocolId = coreDao.findOrCreateLabProtocol(labProtocol(callingMethod), null, null);
-                long pipelineId = coreDao.findOrCreatePipeline(pipeline(callingMethod), "phase2.5", null);
-                if (hasMissingGenomeBuild(genomeBuild)) {
+                String rawGenomeBuild = resolveGenomeBuild(record, parsed, defaultGenomeBuild);
+                if (hasMissingGenomeBuild(rawGenomeBuild)) {
                     coreDao.createValidationIssue(
                             null,
                             sourceFileId,
@@ -81,6 +72,28 @@ public class CnvImportService {
                     issuesInserted++;
                     continue;
                 }
+                String genomeBuild = GenomeBuildNormalizer.normalize(rawGenomeBuild);
+                if (genomeBuild == null) {
+                    coreDao.createValidationIssue(
+                            null,
+                            sourceFileId,
+                            record.lineNumber(),
+                            record.sampleAccessionIdentifier(),
+                            "Invalid Genome Build",
+                            "Unsupported genome build '" + rawGenomeBuild + "' at line " + record.lineNumber(),
+                            "ERROR");
+                    issuesInserted++;
+                    continue;
+                }
+                long individualId = coreDao.findOrCreateIndividual("IND-" + record.sampleAccessionIdentifier());
+                long sampleId = coreDao.findOrCreateSampleAccession(
+                        record.sampleAccessionIdentifier(),
+                        individualId,
+                        record.dnaSource());
+                String callingMethod = recordCallingMethod(parsed.callingMethod(), record);
+                String testType = testType(callingMethod);
+                long labProtocolId = coreDao.findOrCreateLabProtocol(labProtocol(callingMethod), null, null);
+                long pipelineId = coreDao.findOrCreatePipeline(pipeline(callingMethod), "phase2.5", null);
                 ResultContext resultContext = resultContext(
                         resultContexts,
                         coreDao,
@@ -93,15 +106,12 @@ public class CnvImportService {
                         callingMethod,
                         record);
                 EventGroupState groupState = eventGroupState(eventGroups, record, sourceFileId, resultContext.resultId());
-                long genomicEventGroupId = coreDao.findOrCreateGenomicEventGroup(
-                        resultContext.resultId(),
-                        groupState.eventGroupLabel(),
-                        rawEventText(record));
-                long eventId = createEvent(coreDao, record, resultContext.resultId(), sourceFileId, genomeBuild, callingMethod);
+                String eventGroupId = groupState == null ? null : groupState.eventGroupLabel();
                 long segmentId = segmentDao.create(new GenomicSegment(
                         0,
-                        eventId,
-                        genomicEventGroupId,
+                        null,
+                        null,
+                        eventGroupId,
                         resultContext.resultId(),
                         resultContext.karyotypeId(),
                         record.chromosome(),
@@ -112,22 +122,27 @@ public class CnvImportService {
                         record.eventType(),
                         record.copyNumber(),
                         record.arrayScore(),
-                        null,
+                        record.confidence(),
                         record.numberOfSites(),
+                        rawSegmentText(record),
                         record.annotations()
                 ));
                 segmentsInserted++;
                 if (shouldLinkGroupedSegment(record, groupState)) {
                     coreDao.createGenomicLink(
-                            eventId,
+                            null,
+                            null,
+                            groupState.eventGroupLabel(),
                             groupState.firstTransSegmentId(),
                             segmentId,
-                            "TRANSLOCATION",
+                            groupState.eventGroupType(),
                             null,
                             linkEvidence(record),
                             null);
                 }
-                groupState.addSegment(segmentId, record.eventType());
+                if (groupState != null) {
+                    groupState.addSegment(segmentId, record.eventType());
+                }
 
                 if (CallingMethodDetector.UNKNOWN.equals(callingMethod)) {
                     coreDao.createValidationIssue(
@@ -148,6 +163,20 @@ public class CnvImportService {
                             record.sampleAccessionIdentifier(),
                             warningIssueType,
                             warningMessage(warningIssueType, record),
+                            "WARNING");
+                    issuesInserted++;
+                }
+            }
+            for (EventGroupState groupState : eventGroups.values()) {
+                if (groupState.segmentCount() < 2) {
+                    coreDao.createValidationIssue(
+                            groupState.firstTransSegmentId(),
+                            sourceFileId,
+                            groupState.firstLineNumber(),
+                            groupState.sampleAccessionId(),
+                            "Incomplete Breakpoint Event Group",
+                            groupState.eventGroupType() + " group " + groupState.eventGroupLabel()
+                                    + " has fewer than 2 segments",
                             "WARNING");
                     issuesInserted++;
                 }
@@ -174,13 +203,23 @@ public class CnvImportService {
             Long sourceFileId,
             long resultId
     ) {
-        String label = eventGroupLabel(sourceFileId, record);
+        if (!requiresEventGroup(record)) {
+            return null;
+        }
+        String label = record.eventGroupId() == null || record.eventGroupId().isBlank()
+                ? "AUTO-BREAKPOINT-" + sourceFileId + "-" + record.lineNumber()
+                : record.eventGroupId();
         String groupKey = resultId + "|" + label;
         EventGroupState existing = eventGroups.get(groupKey);
         if (existing != null) {
             return existing;
         }
-        EventGroupState created = new EventGroupState(record.eventGroupId(), label);
+        EventGroupState created = new EventGroupState(
+                record.eventGroupId(),
+                label,
+                eventGroupType(record.eventType()),
+                record.sampleAccessionIdentifier(),
+                record.lineNumber());
         eventGroups.put(groupKey, created);
         return created;
     }
@@ -220,35 +259,6 @@ public class CnvImportService {
         return created;
     }
 
-    private long createEvent(
-            CoreDao coreDao,
-            CnvRecord record,
-            long resultId,
-            Long sourceFileId,
-            String genomeBuild,
-            String callingMethod
-    ) throws SQLException {
-        return coreDao.createGenomicEvent(
-                resultId,
-                sourceFileId,
-                record.eventGroupId(),
-                record.eventType(),
-                genomeBuild,
-                callingMethod,
-                record.rawIscn(),
-                record.lineNumber(),
-                "IMPORTED",
-                null,
-                record.annotations());
-    }
-
-    private String eventGroupLabel(Long sourceFileId, CnvRecord record) {
-        if (record.eventGroupId() == null || record.eventGroupId().isBlank()) {
-            return "AUTO-" + sourceFileId + "-" + record.lineNumber();
-        }
-        return record.eventGroupId();
-    }
-
     private String resultKey(
             long sampleId,
             long labProtocolId,
@@ -275,13 +285,33 @@ public class CnvImportService {
     }
 
     private boolean shouldLinkGroupedSegment(CnvRecord record, EventGroupState groupState) {
-        return groupState.eventGroupId() != null
-                && isTranslocation(record.eventType())
+        return groupState != null
                 && groupState.firstTransSegmentId() != null;
     }
 
-    private boolean isTranslocation(String eventType) {
-        return "TRANS".equals(eventType) || "T".equals(eventType);
+    private boolean requiresEventGroup(CnvRecord record) {
+        return record.eventGroupId() != null && !record.eventGroupId().isBlank()
+                || isBreakpointEvent(record.eventType());
+    }
+
+    private boolean isBreakpointEvent(String eventType) {
+        return switch (eventType == null ? "" : eventType) {
+            case "TRANS", "T", "INV", "INS", "DER", "DIC", "R", "RING", "COMPLEX" -> true;
+            default -> false;
+        };
+    }
+
+    private String eventGroupType(String eventType) {
+        return switch (eventType == null ? "" : eventType) {
+            case "TRANS", "T" -> "TRANSLOCATION";
+            case "INV" -> "INVERSION";
+            case "INS" -> "INSERTION";
+            case "DER" -> "DERIVATIVE";
+            case "DIC" -> "DICENTRIC";
+            case "R", "RING" -> "RING";
+            case "COMPLEX" -> "COMPLEX";
+            default -> "GROUPED_EVENT";
+        };
     }
 
     private String linkEvidence(CnvRecord record) {
@@ -301,6 +331,10 @@ public class CnvImportService {
         return rawText.length() <= 2000 ? rawText : rawText.substring(0, 2000);
     }
 
+    private String rawSegmentText(CnvRecord record) {
+        return rawEventText(record);
+    }
+
     private String resolveGenomeBuild(CnvRecord record, ParsedCnvFile parsed, String defaultGenomeBuild) {
         if (record.genomeBuild() != null && !record.genomeBuild().isBlank()) {
             return record.genomeBuild();
@@ -312,11 +346,11 @@ public class CnvImportService {
         if (defaultGenomeBuild != null && !defaultGenomeBuild.isBlank()) {
             return defaultGenomeBuild;
         }
-        return "unknown";
+        return null;
     }
 
     private boolean hasMissingGenomeBuild(String genomeBuild) {
-        return genomeBuild == null || genomeBuild.isBlank() || "unknown".equalsIgnoreCase(genomeBuild);
+        return genomeBuild == null || genomeBuild.isBlank();
     }
 
     private String importStatus(int segmentsInserted, int issuesInserted) {
@@ -359,7 +393,17 @@ public class CnvImportService {
                 || record.sourceFields().containsKey("sv_type")) {
             return CallingMethodDetector.NGS_DERIVED;
         }
-        if (record.sourceFields().containsKey("baf")
+        if (record.sourceFields().containsKey("meanbaf")
+                || record.sourceFields().containsKey("mean_baf")
+                || record.sourceFields().containsKey("meanlrr")
+                || record.sourceFields().containsKey("mean_lrr")
+                || record.sourceFields().containsKey("lohscore")
+                || record.sourceFields().containsKey("loh_score")
+                || record.sourceFields().containsKey("rohscore")
+                || record.sourceFields().containsKey("roh_score")
+                || record.sourceFields().containsKey("bafshift")
+                || record.sourceFields().containsKey("baf_shift")
+                || record.sourceFields().containsKey("baf")
                 || record.sourceFields().containsKey("lrr")
                 || record.sourceFields().containsKey("probe_count")) {
             return CallingMethodDetector.SNP_ARRAY_DERIVED;
@@ -405,12 +449,24 @@ public class CnvImportService {
     private static final class EventGroupState {
         private final String eventGroupId;
         private final String eventGroupLabel;
+        private final String eventGroupType;
+        private final String sampleAccessionId;
+        private final int firstLineNumber;
         private final List<Long> segmentIds = new ArrayList<>();
         private Long firstTransSegmentId;
 
-        private EventGroupState(String eventGroupId, String eventGroupLabel) {
+        private EventGroupState(
+                String eventGroupId,
+                String eventGroupLabel,
+                String eventGroupType,
+                String sampleAccessionId,
+                int firstLineNumber
+        ) {
             this.eventGroupId = eventGroupId;
             this.eventGroupLabel = eventGroupLabel;
+            this.eventGroupType = eventGroupType;
+            this.sampleAccessionId = sampleAccessionId;
+            this.firstLineNumber = firstLineNumber;
         }
 
         private String eventGroupId() {
@@ -421,13 +477,29 @@ public class CnvImportService {
             return eventGroupLabel;
         }
 
+        private String eventGroupType() {
+            return eventGroupType;
+        }
+
+        private String sampleAccessionId() {
+            return sampleAccessionId;
+        }
+
+        private int firstLineNumber() {
+            return firstLineNumber;
+        }
+
         private Long firstTransSegmentId() {
             return firstTransSegmentId;
         }
 
+        private int segmentCount() {
+            return segmentIds.size();
+        }
+
         private void addSegment(long segmentId, String eventType) {
             segmentIds.add(segmentId);
-            if (firstTransSegmentId == null && ("TRANS".equals(eventType) || "T".equals(eventType))) {
+            if (firstTransSegmentId == null) {
                 firstTransSegmentId = segmentId;
             }
         }

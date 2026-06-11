@@ -34,8 +34,17 @@ public final class CallingMethodDetector {
                 || containsAny(normalizedHeader, "lumpy", "cnvnator")) {
             return NGS_DERIVED;
         }
+        if (containsAll(normalizedHeader, "chromosome", "start_pos", "stop_pos")
+                && containsAny(normalizedHeader, "meanbaf", "mean_baf", "meanlrr", "mean_lrr",
+                "lohscore", "loh_score", "rohscore", "roh_score", "bafshift", "baf_shift")) {
+            return SNP_ARRAY_DERIVED;
+        }
         if (containsAny(normalizedHeader, "baf", "lrr", "probe_count")) {
             return SNP_ARRAY_DERIVED;
+        }
+        if (containsAll(normalizedHeader, "chromosome", "start_pos", "stop_pos")
+                && containsAny(normalizedHeader, "logratio", "log_ratio", "meanlogratio", "mean_log_ratio")) {
+            return ARRAY_DERIVED;
         }
         if (containsAny(normalizedHeader, "array_score", "number_of_sites")) {
             return ARRAY_DERIVED;

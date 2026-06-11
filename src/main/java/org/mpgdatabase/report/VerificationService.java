@@ -198,19 +198,6 @@ public class VerificationService {
                 LEFT JOIN genomic_events ge ON ge.event_id = gs.event_id
                 WHERE gs.event_id IS NOT NULL AND ge.event_id IS NULL
                 """);
-        checkZero(result, "Missing genomic_segments event_id", """
-                SELECT COUNT(*) FROM genomic_segments
-                WHERE event_id IS NULL
-                """);
-        checkZero(result, "Missing genomic_segments event group", """
-                SELECT COUNT(*) FROM genomic_segments
-                WHERE genomic_event_group_id IS NULL
-                """);
-        checkZero(result, "Orphan genomic_segments event groups", """
-                SELECT COUNT(*) FROM genomic_segments gs
-                LEFT JOIN genomic_event_groups geg ON geg.genomic_event_group_id = gs.genomic_event_group_id
-                WHERE gs.genomic_event_group_id IS NOT NULL AND geg.genomic_event_group_id IS NULL
-                """);
         checkZero(result, "Shared genomic_segments event_id", """
                 SELECT COUNT(*)
                 FROM (
@@ -225,16 +212,6 @@ public class VerificationService {
                 SELECT COUNT(*) FROM genomic_events ge
                 LEFT JOIN sample_test_results str ON str.sample_test_result_id = ge.sample_test_result_id
                 WHERE str.sample_test_result_id IS NULL
-                """);
-        checkZero(result, "Orphan genomic_event_groups", """
-                SELECT COUNT(*) FROM genomic_event_groups geg
-                LEFT JOIN sample_test_results str ON str.sample_test_result_id = geg.sample_test_result_id
-                WHERE str.sample_test_result_id IS NULL
-                """);
-        checkZero(result, "Orphan genomic_links events", """
-                SELECT COUNT(*) FROM genomic_links gl
-                LEFT JOIN genomic_events ge ON ge.event_id = gl.event_id
-                WHERE ge.event_id IS NULL
                 """);
         checkZero(result, "Orphan genomic_links source segments", """
                 SELECT COUNT(*) FROM genomic_links gl
@@ -352,45 +329,30 @@ public class VerificationService {
         Files.writeString(outputDir.resolve("run_log.tsv"),
                 runLogText(tableCounts, importResults, clinicalImportResults));
         Files.writeString(outputDir.resolve("segments.tsv"), queryText("""
-                SELECT segment_id, event_id, genomic_event_group_id, sample_test_result_id, karyotype_id, chromosome, start_pos, stop_pos,
-                       event_type, copy_number, array_score, number_of_sites, annotations
+                SELECT segment_id, event_group_id, sample_test_result_id, karyotype_id, chromosome, start_pos, stop_pos,
+                       event_type, copy_number, array_score, number_of_sites, raw_segment_text, annotations
                 FROM genomic_segments ORDER BY segment_id
                 """));
         Files.writeString(outputDir.resolve("event_groups.tsv"), queryText("""
                 SELECT
-                    geg.genomic_event_group_id,
-                    geg.sample_test_result_id,
+                    gs.event_group_id,
                     sa.accession_identifier AS sample_accession_id,
                     sf.file_name AS source_file_name,
-                    geg.event_group_label,
-                    COALESCE(sc.segment_count, 0) AS segment_count,
-                    COALESCE(cc.chromosomes_involved, '') AS chromosomes_involved,
-                    geg.raw_event_text
-                FROM genomic_event_groups geg
-                JOIN sample_test_results str ON str.sample_test_result_id = geg.sample_test_result_id
+                    COUNT(*) AS segment_count,
+                    LISTAGG(gs.chromosome, ',') WITHIN GROUP (ORDER BY gs.chromosome) AS chromosomes_involved,
+                    LISTAGG(gs.event_type, ',') WITHIN GROUP (ORDER BY gs.segment_id) AS event_types,
+                    LISTAGG(gs.copy_number, ',') WITHIN GROUP (ORDER BY gs.segment_id) AS copy_numbers,
+                    LISTAGG(gs.chromosome || ':' || gs.start_pos || '-' || gs.stop_pos, '; ')
+                        WITHIN GROUP (ORDER BY gs.segment_id) AS regions,
+                    LISTAGG(gs.raw_segment_text, ' | ') WITHIN GROUP (ORDER BY gs.segment_id) AS raw_event_text
+                FROM genomic_segments gs
+                JOIN sample_test_results str ON str.sample_test_result_id = gs.sample_test_result_id
                 JOIN sample_tests st ON st.sample_test_id = str.sample_test_id
                 JOIN sample_accessions sa ON sa.sample_accession_id = st.sample_accession_id
                 LEFT JOIN source_files sf ON sf.source_file_id = str.source_file_id
-                LEFT JOIN (
-                    SELECT
-                        genomic_event_group_id,
-                        COUNT(*) AS segment_count
-                    FROM genomic_segments
-                    WHERE genomic_event_group_id IS NOT NULL
-                    GROUP BY genomic_event_group_id
-                ) sc ON sc.genomic_event_group_id = geg.genomic_event_group_id
-                LEFT JOIN (
-                    SELECT
-                        genomic_event_group_id,
-                        LISTAGG(chromosome, ',') WITHIN GROUP (ORDER BY chromosome) AS chromosomes_involved
-                    FROM (
-                        SELECT DISTINCT genomic_event_group_id, chromosome
-                        FROM genomic_segments
-                        WHERE genomic_event_group_id IS NOT NULL
-                    )
-                    GROUP BY genomic_event_group_id
-                ) cc ON cc.genomic_event_group_id = geg.genomic_event_group_id
-                ORDER BY geg.genomic_event_group_id
+                WHERE gs.event_group_id IS NOT NULL AND gs.event_group_id <> ''
+                GROUP BY gs.event_group_id, sa.accession_identifier, sf.file_name
+                ORDER BY gs.event_group_id
                 """));
         Files.writeString(outputDir.resolve("genomic_events.tsv"), queryText("""
                 SELECT
@@ -412,8 +374,7 @@ public class VerificationService {
         Files.writeString(outputDir.resolve("genomic_links.tsv"), queryText("""
                 SELECT
                     gl.link_id,
-                    gl.event_id,
-                    ge.event_group_id,
+                    gl.event_group_id,
                     gl.source_segment_id,
                     src.chromosome AS source_chromosome,
                     src.start_pos AS source_start_pos,
@@ -427,7 +388,6 @@ public class VerificationService {
                     gl.evidence,
                     gl.confidence
                 FROM genomic_links gl
-                JOIN genomic_events ge ON ge.event_id = gl.event_id
                 JOIN genomic_segments src ON src.segment_id = gl.source_segment_id
                 JOIN genomic_segments tgt ON tgt.segment_id = gl.target_segment_id
                 ORDER BY gl.link_id
@@ -435,17 +395,16 @@ public class VerificationService {
         Files.writeString(outputDir.resolve("circos_links.tsv"), queryText("""
                 SELECT
                     gl.link_id,
-                    gl.event_id,
-                    ge.event_group_id,
+                    gl.event_group_id,
                     src.chromosome AS source_chromosome,
                     src.start_pos AS source_start,
                     src.stop_pos AS source_stop,
                     tgt.chromosome AS target_chromosome,
                     tgt.start_pos AS target_start,
                     tgt.stop_pos AS target_stop,
-                    gl.link_type
+                    gl.link_type,
+                    gl.evidence
                 FROM genomic_links gl
-                JOIN genomic_events ge ON ge.event_id = gl.event_id
                 JOIN genomic_segments src ON src.segment_id = gl.source_segment_id
                 JOIN genomic_segments tgt ON tgt.segment_id = gl.target_segment_id
                 ORDER BY gl.link_id
@@ -481,11 +440,10 @@ public class VerificationService {
                 ORDER BY str.sample_test_result_id
                 """));
         Files.writeString(outputDir.resolve("segments_by_sample.tsv"), queryText("""
-                SELECT sa.accession_identifier, gs.event_id, gs.genomic_event_group_id, geg.event_group_label,
+                SELECT sa.accession_identifier, gs.event_group_id,
                        gs.segment_id, gs.chromosome, gs.start_pos, gs.stop_pos,
-                       gs.event_type, gs.copy_number
+                       gs.event_type, gs.copy_number, gs.raw_segment_text
                 FROM genomic_segments gs
-                LEFT JOIN genomic_event_groups geg ON geg.genomic_event_group_id = gs.genomic_event_group_id
                 JOIN sample_test_results str ON str.sample_test_result_id = gs.sample_test_result_id
                 JOIN sample_tests st ON st.sample_test_id = str.sample_test_id
                 JOIN sample_accessions sa ON sa.sample_accession_id = st.sample_accession_id
@@ -576,28 +534,23 @@ public class VerificationService {
                     str.source_file_id,
                     sf.file_name AS source_file,
                     sf.import_status,
-                    COALESCE(ge.line_number, str.line_number) AS source_row_number,
+                    str.line_number AS source_row_number,
                     str.genome_build,
                     str.calling_method,
                     str.raw_iscn,
                     str.annotation_names,
-                    ge.event_id,
-                    ge.event_group_id,
-                    ge.event_status,
-                    gs.genomic_event_group_id,
-                    geg.event_group_label,
+                    gs.event_group_id,
                     gs.segment_id,
                     gs.chromosome,
                     gs.start_pos,
                     gs.stop_pos,
                     gs.event_type,
                     gs.copy_number,
+                    gs.raw_segment_text,
                     gs.annotations,
                     COALESCE(vi.validation_issue_count, 0) AS validation_issue_count,
                     COALESCE(vi.validation_summary, '') AS validation_summary
                 FROM genomic_segments gs
-                LEFT JOIN genomic_events ge ON ge.event_id = gs.event_id
-                LEFT JOIN genomic_event_groups geg ON geg.genomic_event_group_id = gs.genomic_event_group_id
                 JOIN sample_test_results str ON str.sample_test_result_id = gs.sample_test_result_id
                 JOIN sample_tests st ON st.sample_test_id = str.sample_test_id
                 JOIN sample_accessions sa ON sa.sample_accession_id = st.sample_accession_id
@@ -698,11 +651,10 @@ public class VerificationService {
 
     private void appendSegments(StringBuilder sb, String title, List<GenomicSegment> segments) {
         sb.append('\n').append(title).append('\n');
-        sb.append("segment_id\tevent_id\tgenomic_event_group_id\tsample_test_result_id\tkaryotype_id\tchromosome\tstart_pos\tstop_pos\tevent_type\tcopy_number\n");
+        sb.append("segment_id\tevent_group_id\tsample_test_result_id\tkaryotype_id\tchromosome\tstart_pos\tstop_pos\tevent_type\tcopy_number\n");
         for (GenomicSegment segment : segments) {
             sb.append(segment.id()).append('\t')
-                    .append(segment.eventId() == null ? "" : segment.eventId()).append('\t')
-                    .append(segment.genomicEventGroupId() == null ? "" : segment.genomicEventGroupId()).append('\t')
+                    .append(segment.eventGroupId() == null ? "" : segment.eventGroupId()).append('\t')
                     .append(segment.sampleTestResultId()).append('\t')
                     .append(segment.karyotypeId() == null ? "" : segment.karyotypeId()).append('\t')
                     .append(segment.chromosome()).append('\t')

@@ -43,8 +43,8 @@ class Phase2WorkflowTest {
             assertTrue(test.success());
             assertTrue(report.overallPassed(), verification.terminalSummary(report));
             assertEquals(3, report.tableCounts().get("genomic_segments"));
-            assertEquals(3, report.tableCounts().get("genomic_events"));
-            assertEquals(3, report.tableCounts().get("genomic_event_groups"));
+            assertEquals(0, report.tableCounts().get("genomic_events"));
+            assertEquals(0, report.tableCounts().get("genomic_event_groups"));
             assertEquals(0, report.tableCounts().get("genomic_links"));
             assertEquals(3, report.tableCounts().get("validation_issues"));
             assertEquals(2, report.tableCounts().get("source_files"));
@@ -81,10 +81,7 @@ class Phase2WorkflowTest {
             assertTrue(Files.exists(outputDir.resolve("genomic_links.tsv")));
             assertTrue(Files.exists(outputDir.resolve("circos_links.tsv")));
             String resultTrace = Files.readString(outputDir.resolve("result_trace.tsv"));
-            assertTrue(resultTrace.contains("EVENT_ID"), resultTrace);
-            assertTrue(resultTrace.contains("GENOMIC_EVENT_GROUP_ID"), resultTrace);
-            assertTrue(resultTrace.contains("EVENT_GROUP_LABEL"), resultTrace);
-            assertTrue(resultTrace.contains("EVENT_STATUS"), resultTrace);
+            assertTrue(resultTrace.contains("EVENT_GROUP_ID"), resultTrace);
             assertTrue(resultTrace.contains("SOURCE_FILE_ID"), resultTrace);
             assertTrue(resultTrace.contains("SOURCE_FILE"), resultTrace);
             assertTrue(resultTrace.contains("INDIVIDUAL_ID"), resultTrace);
@@ -97,11 +94,11 @@ class Phase2WorkflowTest {
                     JOIN genomic_segments gs ON gs.sample_test_result_id = str.sample_test_result_id
                     WHERE str.line_number IS NULL
                     """));
-            assertEquals(0, count(connection, """
+            assertEquals(3, count(connection, """
                     SELECT COUNT(*) FROM genomic_segments
                     WHERE event_id IS NULL
                     """));
-            assertEquals(0, count(connection, """
+            assertEquals(3, count(connection, """
                     SELECT COUNT(*) FROM genomic_segments
                     WHERE genomic_event_group_id IS NULL
                     """));
@@ -119,9 +116,9 @@ class Phase2WorkflowTest {
 
             assertTrue(wgs.success());
             assertEquals(452, wgs.segmentsInserted());
-            assertEquals(452, count(connection, "SELECT COUNT(*) FROM genomic_events"));
-            assertEquals(452, count(connection, "SELECT COUNT(*) FROM genomic_event_groups"));
-            assertEquals(452, count(connection, "SELECT COUNT(*) FROM genomic_segments WHERE event_id IS NOT NULL"));
+            assertEquals(0, count(connection, "SELECT COUNT(*) FROM genomic_events"));
+            assertEquals(0, count(connection, "SELECT COUNT(*) FROM genomic_event_groups"));
+            assertEquals(452, count(connection, "SELECT COUNT(*) FROM genomic_segments WHERE event_id IS NULL"));
             assertEquals(1, count(connection, "SELECT COUNT(*) FROM source_files"));
             assertEquals(1, count(connection, """
                     SELECT COUNT(*) FROM source_files
@@ -129,7 +126,7 @@ class Phase2WorkflowTest {
                     """));
             assertEquals(1, count(connection, """
                     SELECT COUNT(*) FROM sample_test_results
-                    WHERE calling_method = 'NGS-derived' AND genome_build = 'hg19'
+                    WHERE calling_method = 'NGS-derived' AND genome_build = 'GRCh37'
                     """));
             assertEquals(0, count(connection, """
                     SELECT COUNT(*) FROM genomic_segments gs
@@ -170,8 +167,7 @@ class Phase2WorkflowTest {
             assertFalse(emptyAnnotationValueSearch.isBlank());
 
             String multiEventSearch = new SearchService(connection).search(Map.of("event-type", "DEL,DUP"));
-            assertTrue(multiEventSearch.contains("GENOMIC_EVENT_GROUP_ID"), multiEventSearch);
-            assertTrue(multiEventSearch.contains("EVENT_GROUP_LABEL"), multiEventSearch);
+            assertTrue(multiEventSearch.contains("EVENT_GROUP_ID"), multiEventSearch);
             assertTrue(multiEventSearch.contains("DEL"), multiEventSearch);
             assertTrue(multiEventSearch.contains("DUP"), multiEventSearch);
 
@@ -194,8 +190,8 @@ class Phase2WorkflowTest {
                     "calling-method", "ISCN-derived,Array-derived,NGS-derived"));
             assertTrue(callingMethodSearch.contains("NGS-derived"), callingMethodSearch);
 
-            String genomeBuildSearch = new SearchService(connection).search(Map.of("genome-build", "hg19,hg38"));
-            assertTrue(genomeBuildSearch.contains("hg19"), genomeBuildSearch);
+            String genomeBuildSearch = new SearchService(connection).search(Map.of("genome-build", "GRCh37,GRCh38"));
+            assertTrue(genomeBuildSearch.contains("GRCh37"), genomeBuildSearch);
 
             String unknownSearch = new SearchService(connection).search(Map.of("event-type", "NOT_A_REAL_EVENT"));
             assertTrue(unknownSearch.contains("Rows: 0"), unknownSearch);
@@ -233,7 +229,7 @@ class Phase2WorkflowTest {
 
             String eventSearch = new SearchService(connection).search(Map.of("event-id", "1"));
             assertTrue(eventSearch.contains("EVENT_ID"), eventSearch);
-            assertTrue(eventSearch.contains("Rows: 1"), eventSearch);
+            assertTrue(eventSearch.contains("Rows: 0"), eventSearch);
         }
     }
 
@@ -255,6 +251,110 @@ class Phase2WorkflowTest {
                     WHERE issue_type = 'Annotation Count Mismatch'
                       AND severity = 'ERROR'
                     """));
+        }
+    }
+
+    @Test
+    void importsAcghArrayCnvCallsWithStructuredFieldsAndAnnotations() throws Exception {
+        Path input = Files.createTempFile("acgh-array-cnv", ".cnv");
+        Files.writeString(input, """
+                Sample\tChr\tStart\tEnd\tAberration\tCopyNumber\tBuild\tProbeCount\tMeanLogRatio\tGene\tClassification
+                ACGH001\t5\t70000000\t71000000\tLOSS\t1\thg38\t42\t-0.58\tMEF2C\tPathogenic
+                """);
+        try (Connection connection = Database.connect("jdbc:h2:mem:acgh_array;DB_CLOSE_DELAY=-1")) {
+            Database.initialize(connection);
+            CnvImportService importer = new CnvImportService(connection, new CnvParserFactory());
+            var result = importer.importFile(input, null);
+
+            assertTrue(result.success());
+            assertEquals(1, result.segmentsInserted());
+            assertEquals(1, count(connection, """
+                    SELECT COUNT(*)
+                    FROM genomic_segments gs
+                    JOIN sample_test_results str ON str.sample_test_result_id = gs.sample_test_result_id
+                    WHERE gs.chromosome = 'chr5'
+                      AND gs.start_pos = 70000000
+                      AND gs.stop_pos = 71000000
+                      AND gs.event_type = 'LOSS'
+                      AND gs.copy_number = 1
+                      AND gs.number_of_sites = 42
+                      AND str.genome_build = 'GRCh38'
+                      AND str.calling_method = 'Array-derived'
+                      AND str.annotation_names = 'MeanLogRatio;Gene;Classification'
+                      AND gs.annotations = '-0.58;MEF2C;Pathogenic'
+                    """));
+        }
+    }
+
+    @Test
+    void importsSnpArrayCnvCallsWithStructuredFieldsAndAnnotations() throws Exception {
+        Path input = Files.createTempFile("snp-array-cnv", ".cnv");
+        Files.writeString(input, """
+                SampleID\tChromosome\tBP1\tBP2\tCNV_Type\tCN\tGenomeBuild\tNumProbes\tConfidence\tMeanBAF\tMeanLRR\tLOHScore\tGene
+                SNP001\t7\t55000000\t56000000\tDUP\t3\tGRCh37\t88\tHIGH\t0.61\t0.35\t0.02\tSHH
+                """);
+        try (Connection connection = Database.connect("jdbc:h2:mem:snp_array;DB_CLOSE_DELAY=-1")) {
+            Database.initialize(connection);
+            CnvImportService importer = new CnvImportService(connection, new CnvParserFactory());
+            var result = importer.importFile(input, null);
+
+            assertTrue(result.success());
+            assertEquals(1, result.segmentsInserted());
+            assertEquals(1, count(connection, """
+                    SELECT COUNT(*)
+                    FROM genomic_segments gs
+                    JOIN sample_test_results str ON str.sample_test_result_id = gs.sample_test_result_id
+                    WHERE gs.chromosome = 'chr7'
+                      AND gs.start_pos = 55000000
+                      AND gs.stop_pos = 56000000
+                      AND gs.event_type = 'DUP'
+                      AND gs.copy_number = 3
+                      AND gs.number_of_sites = 88
+                      AND gs.confidence = 'HIGH'
+                      AND str.genome_build = 'GRCh37'
+                      AND str.calling_method = 'SNP-array-derived'
+                      AND str.annotation_names = 'MeanBAF;MeanLRR;LOHScore;Gene'
+                      AND gs.annotations = '0.61;0.35;0.02;SHH'
+                    """));
+        }
+    }
+
+    @Test
+    void rejectsArrayCnvRowsMissingRequiredIntervalFields() throws Exception {
+        Path input = Files.createTempFile("missing-array-fields", ".cnv");
+        Files.writeString(input, """
+                Sample\tChr\tEnd\tAberration\tGenomeBuild\tProbeCount
+                MISS001\t5\t71000000\tDEL\thg38\t42
+                """);
+        try (Connection connection = Database.connect("jdbc:h2:mem:array_missing_fields;DB_CLOSE_DELAY=-1")) {
+            Database.initialize(connection);
+            CnvImportService importer = new CnvImportService(connection, new CnvParserFactory());
+            var result = importer.importFile(input, null);
+
+            assertTrue(result.success());
+            assertEquals(0, result.segmentsInserted());
+            assertEquals(0, count(connection, "SELECT COUNT(*) FROM genomic_segments"));
+            assertTrue(issueCount(connection, "Missing Required Column", "ERROR") > 0
+                    || issueCount(connection, "Missing Start Position", "ERROR") > 0);
+        }
+    }
+
+    @Test
+    void rejectsRawArrayProbeEvidenceFilesAsUnsupportedForCnvImport() throws Exception {
+        Path input = Files.createTempFile("raw-array-probes", ".tsv");
+        Files.writeString(input, """
+                ProbeName\tSystematicName\tLogRatio\tPValueLogRatio\tgProcessedSignal\trProcessedSignal
+                probe_1\tA_01\t0.12\t0.05\t1234\t1299
+                """);
+        try (Connection connection = Database.connect("jdbc:h2:mem:raw_array_evidence;DB_CLOSE_DELAY=-1")) {
+            Database.initialize(connection);
+            CnvImportService importer = new CnvImportService(connection, new CnvParserFactory());
+            var result = importer.importFile(input, null);
+
+            assertTrue(result.success());
+            assertEquals(0, result.segmentsInserted());
+            assertEquals(0, count(connection, "SELECT COUNT(*) FROM genomic_segments"));
+            assertEquals(1, issueCount(connection, "Unsupported Array Evidence File", "ERROR"));
         }
     }
 
@@ -409,18 +509,25 @@ class Phase2WorkflowTest {
             assertTrue(result.success());
             assertEquals(100, result.recordsSeen());
             assertEquals(100, result.segmentsInserted());
-            assertEquals(100, count(connection, "SELECT COUNT(*) FROM genomic_events"));
-            assertEquals(50, count(connection, "SELECT COUNT(*) FROM genomic_event_groups"));
+            assertEquals(0, count(connection, "SELECT COUNT(*) FROM genomic_events"));
+            assertEquals(0, count(connection, "SELECT COUNT(*) FROM genomic_event_groups"));
             assertEquals(100, count(connection, "SELECT COUNT(*) FROM genomic_segments"));
             assertEquals(50, count(connection, "SELECT COUNT(*) FROM genomic_links"));
+            assertEquals(100, count(connection, """
+                    SELECT COUNT(*) FROM genomic_segments
+                    WHERE event_group_id IS NOT NULL
+                    """));
+            assertEquals(50, count(connection, """
+                    SELECT COUNT(*) FROM genomic_links
+                    WHERE event_group_id IS NOT NULL
+                    """));
             assertEquals(0, count(connection, """
-                    SELECT COUNT(*)
-                    FROM (
-                        SELECT event_id
-                        FROM genomic_segments
-                        GROUP BY event_id
-                        HAVING COUNT(*) > 1
-                    ) duplicate_events
+                    SELECT COUNT(*) FROM genomic_segments
+                    WHERE event_id IS NOT NULL
+                    """));
+            assertEquals(0, count(connection, """
+                    SELECT COUNT(*) FROM genomic_links
+                    WHERE event_id IS NOT NULL
                     """));
             assertEquals(1, count(connection, """
                     SELECT COUNT(*) FROM genomic_links gl
@@ -440,10 +547,13 @@ class Phase2WorkflowTest {
                     .terminalSummary(report));
             assertTrue(Files.readString(outputDir.resolve("genomic_links.tsv"))
                     .contains("TRANSLOCATION"));
-            assertTrue(Files.readString(outputDir.resolve("event_groups.tsv"))
+            assertTrue(Files.readString(outputDir.resolve("genomic_links.tsv"))
                     .contains("TXG001"));
-            assertTrue(Files.readString(outputDir.resolve("circos_links.tsv"))
-                    .contains("chr22"));
+            String circosLinks = Files.readString(outputDir.resolve("circos_links.tsv"));
+            assertTrue(circosLinks.contains("chr22"));
+            assertTrue(circosLinks.contains("SOURCE_CHROMOSOME"), circosLinks);
+            assertTrue(circosLinks.contains("TARGET_CHROMOSOME"), circosLinks);
+            assertFalse(circosLinks.contains("EVENT_ID"), circosLinks);
         }
     }
 
@@ -455,35 +565,48 @@ class Phase2WorkflowTest {
             var result = importer.importFile(Path.of("data/realistic_cnv_mixed_events_import.cnv"), null);
 
             assertTrue(result.success());
-            assertEquals(10, result.recordsSeen());
-            assertEquals(10, result.segmentsInserted());
-            assertEquals(10, count(connection, "SELECT COUNT(*) FROM genomic_segments"));
-            assertEquals(7, count(connection, "SELECT COUNT(*) FROM genomic_event_groups"));
+            assertEquals(12, result.recordsSeen());
+            assertEquals(12, result.segmentsInserted());
+            assertEquals(12, count(connection, "SELECT COUNT(*) FROM genomic_segments"));
+            assertEquals(0, count(connection, "SELECT COUNT(*) FROM genomic_event_groups"));
             assertEquals(4, count(connection, """
-                    SELECT COUNT(*) FROM genomic_event_groups
-                    WHERE event_group_label LIKE 'AUTO-%'
+                    SELECT COUNT(*) FROM genomic_segments
+                    WHERE event_group_id IS NULL
                     """));
             assertEquals(1, count(connection, """
                     SELECT COUNT(*)
                     FROM (
-                        SELECT geg.genomic_event_group_id
-                        FROM genomic_event_groups geg
-                        JOIN genomic_segments gs ON gs.genomic_event_group_id = geg.genomic_event_group_id
-                        WHERE geg.event_group_label = 'TXG001'
-                        GROUP BY geg.genomic_event_group_id
+                        SELECT event_group_id
+                        FROM genomic_segments
+                        WHERE event_group_id = 'TXG001'
+                        GROUP BY event_group_id
                         HAVING COUNT(*) = 2
                     )
                     """));
             assertEquals(1, count(connection, """
                     SELECT COUNT(*)
                     FROM (
-                        SELECT geg.genomic_event_group_id
-                        FROM genomic_event_groups geg
-                        JOIN genomic_segments gs ON gs.genomic_event_group_id = geg.genomic_event_group_id
-                        WHERE geg.event_group_label = 'TXG001'
-                          AND gs.chromosome IN ('chr9', 'chr22')
-                        GROUP BY geg.genomic_event_group_id
-                        HAVING COUNT(DISTINCT gs.chromosome) = 2
+                        SELECT event_group_id
+                        FROM genomic_segments
+                        WHERE event_group_id = 'RING001'
+                          AND event_type = 'RING'
+                        GROUP BY event_group_id
+                    )
+                    """));
+            assertEquals(1, count(connection, """
+                    SELECT COUNT(*)
+                    FROM genomic_links
+                    WHERE link_type = 'RING'
+                    """));
+            assertEquals(1, count(connection, """
+                    SELECT COUNT(*)
+                    FROM (
+                        SELECT event_group_id
+                        FROM genomic_segments
+                        WHERE event_group_id = 'TXG001'
+                          AND chromosome IN ('chr9', 'chr22')
+                        GROUP BY event_group_id
+                        HAVING COUNT(DISTINCT chromosome) = 2
                     )
                     """));
 
@@ -500,10 +623,127 @@ class Phase2WorkflowTest {
                     .terminalSummary(report));
             assertTrue(report.dataIntegrity().passed(), new VerificationService(connection, outputDir)
                     .terminalSummary(report));
-            String eventGroups = Files.readString(outputDir.resolve("event_groups.tsv"));
-            assertTrue(eventGroups.contains("TXG001"), eventGroups);
-            assertTrue(eventGroups.contains("INVG001\t2\tchr3"), eventGroups);
-            assertTrue(eventGroups.contains("chr22,chr9") || eventGroups.contains("chr9,chr22"), eventGroups);
+            String genomicLinks = Files.readString(outputDir.resolve("genomic_links.tsv"));
+            assertTrue(genomicLinks.contains("TXG001"), genomicLinks);
+            assertTrue(genomicLinks.contains("INVG001"), genomicLinks);
+            assertTrue(genomicLinks.contains("RING001"), genomicLinks);
+        }
+    }
+
+    @Test
+    void representsCnvsStructuralEventsAndLinksForPhase27() throws Exception {
+        Path input = Path.of("data/phase27_finding_model.cnv");
+
+        try (Connection connection = Database.connect("jdbc:h2:mem:phase27_finding_model;DB_CLOSE_DELAY=-1")) {
+            Database.initialize(connection);
+            CnvImportService importer = new CnvImportService(connection, new CnvParserFactory());
+            var result = importer.importFile(input, null);
+
+            assertTrue(result.success());
+            assertEquals(22, result.recordsSeen());
+            assertEquals(22, result.segmentsInserted());
+            assertEquals(0, count(connection, "SELECT COUNT(*) FROM genomic_events"));
+            assertEquals(22, count(connection, "SELECT COUNT(*) FROM genomic_segments"));
+            assertEquals(0, count(connection, "SELECT COUNT(*) FROM genomic_event_groups"));
+            assertEquals(7, count(connection, "SELECT COUNT(*) FROM genomic_links"));
+            assertEquals(8, count(connection, """
+                    SELECT COUNT(*)
+                    FROM genomic_segments
+                    WHERE event_type IN ('DEL', 'DUP', 'GAIN', 'LOSS', 'AMP', 'ROH', 'TRISOMY', 'MONOSOMY')
+                      AND event_group_id IS NULL
+                    """));
+            assertEquals(0, count(connection, """
+                    SELECT COUNT(*)
+                    FROM genomic_segments
+                    WHERE event_type IN ('DEL', 'DUP', 'GAIN', 'LOSS', 'AMP', 'ROH', 'TRISOMY', 'MONOSOMY')
+                      AND event_group_id IS NOT NULL
+                    """));
+            assertEquals(0, count(connection, """
+                    SELECT COUNT(*)
+                    FROM genomic_segments
+                    WHERE event_type IN ('TRANS', 'INV', 'INS', 'DER', 'DIC', 'RING', 'COMPLEX')
+                      AND event_group_id IS NULL
+                    """));
+            assertEquals(7, count(connection, """
+                    SELECT COUNT(*)
+                    FROM (
+                        SELECT event_group_id
+                        FROM genomic_segments
+                        WHERE event_group_id IS NOT NULL
+                        GROUP BY event_group_id
+                        HAVING COUNT(*) = 2
+                    )
+                    """));
+            assertEquals(0, count(connection, """
+                    SELECT COUNT(*)
+                    FROM genomic_links gl
+                    JOIN genomic_segments src ON src.segment_id = gl.source_segment_id
+                    JOIN genomic_segments tgt ON tgt.segment_id = gl.target_segment_id
+                    WHERE src.event_type IN ('DEL', 'DUP', 'GAIN', 'LOSS', 'AMP', 'ROH', 'TRISOMY', 'MONOSOMY')
+                       OR tgt.event_type IN ('DEL', 'DUP', 'GAIN', 'LOSS', 'AMP', 'ROH', 'TRISOMY', 'MONOSOMY')
+                    """));
+            assertEquals(1, count(connection, "SELECT COUNT(*) FROM genomic_links WHERE link_type = 'TRANSLOCATION'"));
+            assertEquals(1, count(connection, "SELECT COUNT(*) FROM genomic_links WHERE link_type = 'INVERSION'"));
+            assertEquals(1, count(connection, "SELECT COUNT(*) FROM genomic_links WHERE link_type = 'INSERTION'"));
+            assertEquals(1, count(connection, "SELECT COUNT(*) FROM genomic_links WHERE link_type = 'DERIVATIVE'"));
+            assertEquals(1, count(connection, "SELECT COUNT(*) FROM genomic_links WHERE link_type = 'DICENTRIC'"));
+            assertEquals(1, count(connection, "SELECT COUNT(*) FROM genomic_links WHERE link_type = 'RING'"));
+            assertEquals(1, count(connection, "SELECT COUNT(*) FROM genomic_links WHERE link_type = 'COMPLEX'"));
+        }
+    }
+
+    @Test
+    void normalizesAndRejectsGenomeBuildsForPhase28() throws Exception {
+        Path tempDir = Files.createTempDirectory("phase28-genome-builds");
+        Path input = tempDir.resolve("genome_build_aliases.cnv");
+        Files.writeString(input, String.join("\n",
+                "sample_accession_id\tchromosome\tstart_pos\tstop_pos\tevent_type\tcopy_number\tgenome_build\traw_iscn",
+                "B37A\tchr1\t10\t20\tDEL\t1\tGRCh37\t",
+                "B37B\tchr1\t30\t40\tDEL\t1\thg19\t",
+                "B37C\tchr1\t50\t60\tDEL\t1\tBuild 37\t",
+                "B37D\tchr1\t70\t80\tDEL\t1\tb37\t",
+                "B38A\tchr2\t10\t20\tDUP\t3\tGRCh38\t",
+                "B38B\tchr2\t30\t40\tDUP\t3\thg38\t",
+                "B38C\tchr2\t50\t60\tDUP\t3\tBuild 38\t",
+                "B38D\tchr2\t70\t80\tDUP\t3\tb38\t",
+                "T2TA\tchr3\t10\t20\tGAIN\t3\tT2T\t",
+                "T2TB\tchr3\t30\t40\tGAIN\t3\tCHM13\t",
+                "T2TC\tchr3\t50\t60\tGAIN\t3\tT2T-CHM13\t",
+                "T2TD\tchr3\t70\t80\tGAIN\t3\tCHM13v2\t",
+                "T2TE\tchr3\t90\t100\tGAIN\t3\tCHM13v2.0\t",
+                "BAD1\tchr4\t10\t20\tLOSS\t1\tbanana38\t",
+                "BAD2\tchr4\t30\t40\tLOSS\t1\thg83\t",
+                "BAD3\tchr4\t50\t60\tLOSS\t1\tbuild99\t",
+                "BAD4\tchr4\t70\t80\tLOSS\t1\tunknown\t",
+                "BAD5\tchr4\t90\t100\tLOSS\t1\trandom_text\t",
+                "MISS1\tchr4\t110\t120\tLOSS\t1\t\t",
+                ""));
+
+        try (Connection connection = Database.connect("jdbc:h2:mem:phase28_genome_builds;DB_CLOSE_DELAY=-1")) {
+            Database.initialize(connection);
+            CnvImportService importer = new CnvImportService(connection, new CnvParserFactory());
+            var result = importer.importFile(input, null);
+
+            assertTrue(result.success());
+            assertEquals(19, result.recordsSeen());
+            assertEquals(13, result.segmentsInserted());
+            assertEquals(13, count(connection, "SELECT COUNT(*) FROM genomic_segments"));
+            assertEquals(4, count(connection, "SELECT COUNT(*) FROM sample_test_results WHERE genome_build = 'GRCh37'"));
+            assertEquals(4, count(connection, "SELECT COUNT(*) FROM sample_test_results WHERE genome_build = 'GRCh38'"));
+            assertEquals(5, count(connection, "SELECT COUNT(*) FROM sample_test_results WHERE genome_build = 'T2T-CHM13'"));
+            assertEquals(0, count(connection, """
+                    SELECT COUNT(*)
+                    FROM sample_test_results
+                    WHERE genome_build NOT IN ('GRCh37', 'GRCh38', 'T2T-CHM13', 'NCBI36')
+                    """));
+            assertEquals(5, issueCount(connection, "Invalid Genome Build", "ERROR"));
+            assertEquals(1, issueCount(connection, "Missing Genome Build", "ERROR"));
+            assertEquals(0, count(connection, """
+                    SELECT COUNT(*)
+                    FROM genomic_segments gs
+                    JOIN sample_test_results str ON str.sample_test_result_id = gs.sample_test_result_id
+                    WHERE str.genome_build IN ('hg19', 'hg38', 'Build 37', 'Build 38', 'T2T', 'CHM13', 'unknown')
+                    """));
         }
     }
 
@@ -536,10 +776,10 @@ class Phase2WorkflowTest {
             assertTrue(result.success());
             assertEquals(13, result.recordsSeen());
             assertEquals(6, result.segmentsInserted());
-            assertEquals(11, result.issuesInserted());
+            assertEquals(12, result.issuesInserted());
             assertEquals(6, count(connection, "SELECT COUNT(*) FROM genomic_segments"));
             assertEquals(7, count(connection, "SELECT COUNT(*) FROM validation_issues WHERE severity = 'ERROR'"));
-            assertEquals(4, count(connection, "SELECT COUNT(*) FROM validation_issues WHERE severity = 'WARNING'"));
+            assertEquals(5, count(connection, "SELECT COUNT(*) FROM validation_issues WHERE severity = 'WARNING'"));
 
             assertEquals(2, issueCount(connection, "Missing Genome Build", "ERROR"));
             assertEquals(1, issueCount(connection, "Missing Chromosome", "ERROR"));
@@ -552,6 +792,7 @@ class Phase2WorkflowTest {
             assertEquals(1, issueCount(connection, "Marker Chromosome Event", "WARNING"));
             assertEquals(1, issueCount(connection, "Uncertain Breakpoint", "WARNING"));
             assertEquals(1, issueCount(connection, "Mosaic Karyotype", "WARNING"));
+            assertEquals(1, issueCount(connection, "Incomplete Breakpoint Event Group", "WARNING"));
             assertEquals(0, count(connection, """
                     SELECT COUNT(*) FROM validation_issues
                     WHERE issue_type = 'Marker Chromosome Event'

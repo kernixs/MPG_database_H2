@@ -93,6 +93,16 @@ copy_number
 genome_build
 ```
 
+Genome build aliases are normalized before storage:
+
+```text
+hg19, Build 37, b37 -> GRCh37
+hg38, Build 38, b38 -> GRCh38
+T2T, CHM13, CHM13v2 -> T2T-CHM13
+```
+
+Unsupported build names are rejected instead of being stored as free text.
+
 Optional supported fields include:
 
 ```text
@@ -124,9 +134,15 @@ event_group_id
 event_type = TRANS or T
 ```
 
-When multiple rows share the same `sample_accession_id` and `event_group_id`, the GUI attaches them to one `genomic_events` row. If two or more grouped rows are `TRANS`/`T`, the GUI creates `genomic_links` rows with `link_type = TRANSLOCATION`. Common aliases such as `group_id`, `variant_id`, `pair_id`, `link_id`, and `breakend_id` are accepted.
+When multiple rows share the same result context and `event_group_id`, the GUI preserves that label directly on each `genomic_segments` row. If two or more grouped breakpoint rows are imported, the GUI also creates `genomic_links` rows with the same `event_group_id` and mapped link types such as `TRANSLOCATION`, `INVERSION`, `DERIVATIVE`, and `RING`. Common aliases such as `group_id`, `variant_id`, `pair_id`, `link_id`, and `breakend_id` are accepted.
 
-Each imported row still receives its own unique `event_id`. The repeated `event_group_id` is only the optional grouping label.
+New GUI imports do not require `genomic_events` or new `genomic_event_groups` rows. The repeated `event_group_id` is stored directly on `genomic_segments.event_group_id` and on any generated `genomic_links.event_group_id`.
+
+Rows without `event_group_id` are imported as standalone CNV segments. They do not get a link unless another rule creates one.
+
+To verify linked events in the GUI, inspect `genomic_links` directly with the translocation query shown below.
+
+The legacy event group table remains available for older database files, but it is not used by new GUI imports or query presets.
 
 ## Sample Data
 
@@ -186,10 +202,22 @@ LIMIT 100
 
 To inspect translocation links after importing `gui/sample-data/translocation_pair.tsv`:
 
+```text
+                 genomic_segments
+              segment_id   segment_id
+                  ^             ^
+                  |             |
+source_segment_id |             | target_segment_id
+                  |             |
+              genomic_links
+```
+
+There is one `genomic_segments` table. In the query below, it is joined twice with aliases `src` and `tgt` so each link can expose both endpoints for visualization.
+
 ```sql
 SELECT
     gl.link_id,
-    gl.event_id,
+    gl.event_group_id,
     src.chromosome AS source_chr,
     src.start_pos AS source_start,
     src.stop_pos AS source_stop,

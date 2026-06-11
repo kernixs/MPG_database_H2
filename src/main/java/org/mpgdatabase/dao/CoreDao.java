@@ -188,82 +188,10 @@ public class CoreDao {
         }
     }
 
-    public long createGenomicEvent(
-            long sampleTestResultId,
-            Long sourceFileId,
-            String eventGroupId,
-            String eventType,
-            String genomeBuild,
-            String callingMethod,
-            String rawEventText,
-            Integer lineNumber,
-            String eventStatus,
-            String confidence,
-            String annotations
-    ) throws SQLException {
-        try (PreparedStatement ps = connection.prepareStatement("""
-                INSERT INTO genomic_events
-                    (sample_test_result_id, source_file_id, event_group_id, event_type, genome_build, calling_method,
-                     raw_event_text, line_number, event_status, confidence, annotations)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                """, DaoSupport.returnGeneratedKeys())) {
-            ps.setLong(1, sampleTestResultId);
-            if (sourceFileId == null) {
-                ps.setNull(2, java.sql.Types.BIGINT);
-            } else {
-                ps.setLong(2, sourceFileId);
-            }
-            ps.setString(3, eventGroupId);
-            ps.setString(4, eventType);
-            ps.setString(5, genomeBuild);
-            ps.setString(6, callingMethod);
-            ps.setString(7, rawEventText);
-            if (lineNumber == null) {
-                ps.setNull(8, java.sql.Types.INTEGER);
-            } else {
-                ps.setInt(8, lineNumber);
-            }
-            ps.setString(9, eventStatus);
-            ps.setString(10, confidence);
-            ps.setString(11, annotations);
-            ps.executeUpdate();
-            return DaoSupport.generatedId(ps);
-        }
-    }
-
-    public long findOrCreateGenomicEventGroup(
-            long sampleTestResultId,
-            String eventGroupLabel,
-            String rawEventText
-    ) throws SQLException {
-        try (PreparedStatement find = connection.prepareStatement("""
-                SELECT genomic_event_group_id
-                FROM genomic_event_groups
-                WHERE sample_test_result_id = ? AND event_group_label = ?
-                """)) {
-            find.setLong(1, sampleTestResultId);
-            find.setString(2, eventGroupLabel);
-            try (var rs = find.executeQuery()) {
-                if (rs.next()) {
-                    return rs.getLong(1);
-                }
-            }
-        }
-        try (PreparedStatement ps = connection.prepareStatement("""
-                INSERT INTO genomic_event_groups
-                    (sample_test_result_id, event_group_label, raw_event_text)
-                VALUES (?, ?, ?)
-                """, DaoSupport.returnGeneratedKeys())) {
-            ps.setLong(1, sampleTestResultId);
-            ps.setString(2, eventGroupLabel);
-            ps.setString(3, rawEventText);
-            ps.executeUpdate();
-            return DaoSupport.generatedId(ps);
-        }
-    }
-
     public long createGenomicLink(
-            long eventId,
+            Long genomicEventGroupId,
+            Long eventId,
+            String eventGroupId,
             long sourceSegmentId,
             long targetSegmentId,
             String linkType,
@@ -273,16 +201,26 @@ public class CoreDao {
     ) throws SQLException {
         try (PreparedStatement ps = connection.prepareStatement("""
                 INSERT INTO genomic_links
-                    (event_id, source_segment_id, target_segment_id, link_type, orientation, evidence, confidence)
-                VALUES (?, ?, ?, ?, ?, ?, ?)
+                    (genomic_event_group_id, event_id, event_group_id, source_segment_id, target_segment_id, link_type, orientation, evidence, confidence)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """, DaoSupport.returnGeneratedKeys())) {
-            ps.setLong(1, eventId);
-            ps.setLong(2, sourceSegmentId);
-            ps.setLong(3, targetSegmentId);
-            ps.setString(4, linkType);
-            ps.setString(5, orientation);
-            ps.setString(6, evidence);
-            ps.setString(7, confidence);
+            if (genomicEventGroupId == null) {
+                ps.setNull(1, java.sql.Types.BIGINT);
+            } else {
+                ps.setLong(1, genomicEventGroupId);
+            }
+            if (eventId == null) {
+                ps.setNull(2, java.sql.Types.BIGINT);
+            } else {
+                ps.setLong(2, eventId);
+            }
+            ps.setString(3, eventGroupId);
+            ps.setLong(4, sourceSegmentId);
+            ps.setLong(5, targetSegmentId);
+            ps.setString(6, linkType);
+            ps.setString(7, orientation);
+            ps.setString(8, evidence);
+            ps.setString(9, confidence);
             ps.executeUpdate();
             return DaoSupport.generatedId(ps);
         }

@@ -13,6 +13,7 @@ public record CnvRecord(
         String eventType,
         Integer copyNumber,
         Double arrayScore,
+        String confidence,
         Integer numberOfSites,
         String genomeBuild,
         String rawIscn,

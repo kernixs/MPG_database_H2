@@ -138,10 +138,10 @@ The current schema has 16 tables.
 | 6 | `source_files` | One row per imported input file. Tracks file provenance, pipeline, import status, row count, and notes. | `source_file_id`, `file_name`, `file_path`, `pipeline_id`, `imported_at`, `import_status`, `row_count`, `notes` |
 | 7 | `sample_test_results` | Result-level provenance for a sample test. Links the test to a pipeline and source file. | `sample_test_result_id`, `sample_test_id`, `pipeline_id`, `source_file_id`, `genome_build`, `calling_method`, `raw_iscn`, `annotation_names` |
 | 8 | `karyotypes` | ISCN/karyotype-level records derived from or preserving ISCN text. | `karyotype_id`, `sample_test_result_id`, `karyotype_text`, `clone_number`, `cell_count`, `abnormalities` |
-| 9 | `genomic_events` | Row-level event provenance for one imported segment/breakpoint row. | `event_id`, `sample_test_result_id`, `source_file_id`, `event_group_id`, `event_type`, `genome_build`, `calling_method`, `raw_event_text`, `event_status` |
-| 10 | `genomic_event_groups` | Phase 2.7 grouping layer for one biological event that may contain one or more segments. | `genomic_event_group_id`, `sample_test_result_id`, `event_group_label`, `raw_event_text`, `created_at` |
-| 11 | `genomic_segments` | Normalized queryable genomic intervals. Each segment belongs to a result and an event group. | `segment_id`, `event_id`, `genomic_event_group_id`, `sample_test_result_id`, `karyotype_id`, `chromosome`, `start_pos`, `stop_pos`, `event_type`, `copy_number`, `annotations` |
-| 12 | `genomic_links` | Explicit links between two genomic segments for translocations, inversions, insertions, and Circos-style visualizations. | `link_id`, `event_id`, `source_segment_id`, `target_segment_id`, `link_type`, `orientation`, `evidence`, `confidence` |
+| 9 | `genomic_events` | Deprecated compatibility table from earlier prototypes. New Phase 2.7 imports do not require or write this table. | `event_id`, `sample_test_result_id`, `source_file_id`, `event_group_id`, `event_type`, `genome_build`, `calling_method`, `raw_event_text`, `event_status` |
+| 10 | `genomic_event_groups` | Deprecated compatibility table from the earlier grouping design. New imports preserve the source label directly as `event_group_id`. | `genomic_event_group_id`, `sample_test_result_id`, `event_group_label`, `event_group_type`, `raw_event_text`, `created_at` |
+| 11 | `genomic_segments` | Normalized queryable genomic locations/pieces. Standalone CNVs have `event_group_id = NULL`; grouped SV pieces preserve the source `event_group_id` directly. | `segment_id`, `event_group_id`, `sample_test_result_id`, `karyotype_id`, `chromosome`, `start_pos`, `stop_pos`, `event_type`, `copy_number`, `raw_segment_text`, `annotations` |
+| 12 | `genomic_links` | Global/direct relationships between two genomic segments for translocations, inversions, insertions, derivatives, rings, and complex events. | `link_id`, `event_group_id`, `source_segment_id`, `target_segment_id`, `link_type`, `orientation`, `evidence`, `confidence` |
 | 13 | `validation_issues` | Import, parsing, or data-quality issues captured during processing. | `validation_issue_id`, `segment_id`, `issue_type`, `issue_message`, `severity` |
 | 14 | `variant_classifications` | Classification assertions for observed genomic segments. | `classification_id`, `segment_id`, `classification_label`, `guideline_system`, `guideline_version`, `evidence_score`, `evidence_summary`, `review_status`, `is_current` |
 | 15 | `signed_out_calls` | Case-level clinical conclusion and report/sign-out decision for a classified segment. | `signed_out_call_id`, `segment_id`, `classification_id`, `individual_id`, `sample_test_result_id`, `clinical_significance`, `interpretation_text`, `signed_out_status`, `report_text` |
@@ -173,17 +173,17 @@ individuals
   -> sample_accessions
   -> sample_tests
   -> sample_test_results
-  -> genomic_event_groups
   -> genomic_segments
 ```
 
-Row-level event provenance also attaches to the same result and segment rows:
+Optional grouping is stored directly as the source `event_group_id` label:
 
 ```text
-sample_test_results
-  -> genomic_events
-  -> genomic_segments
+genomic_segments.event_group_id = TXG001
+genomic_links.event_group_id = TXG001
 ```
+
+This label is optional. Standalone CNVs such as `DEL`, `DUP`, `GAIN`, `LOSS`, and `AMP` normally have `genomic_segments.event_group_id = NULL`.
 
 Additional provenance tables attach to that flow:
 
@@ -200,7 +200,6 @@ ISCN-derived records add:
 ```text
 sample_test_results
   -> karyotypes
-  -> genomic_event_groups
   -> genomic_segments
 ```
 
@@ -208,22 +207,26 @@ Array-derived records skip karyotypes:
 
 ```text
 sample_test_results
-  -> genomic_event_groups
   -> genomic_segments
 ```
 
 For array-derived records, `genomic_segments.karyotype_id` is allowed to be `NULL`.
 
-Linked or complex events add:
+Global/direct links are separate from the provenance path:
 
 ```text
-genomic_events
-  -> genomic_segments
-  -> genomic_links
-  -> genomic_segments
+                 genomic_segments
+              segment_id   segment_id
+                  ^             ^
+                  |             |
+source_segment_id |             | target_segment_id
+                  |             |
+              genomic_links
 ```
 
-This is the structure needed for Circos-style plots, where the important visual element is often a link between two genomic locations rather than a single interval.
+There is only one `genomic_segments` table. The two labels mean the same table is joined twice: once as the source segment and once as the target segment. This is the structure needed for Circos-style plots. The plot should start from `genomic_links`, join directly to the source and target `genomic_segments`, and filter `link_type = 'TRANSLOCATION'` when only translocation arcs are needed. It does not need to traverse `genomic_events` or `genomic_event_groups`.
+
+`genomic_events` and `genomic_event_groups` remain in the schema only as deprecated compatibility tables for older prototype databases. New imports should use `genomic_segments.event_group_id` and `genomic_links.event_group_id` directly.
 
 Phase 2.6 clinical decision records attach after a segment exists:
 
@@ -370,8 +373,7 @@ Represents normalized queryable genomic intervals.
 Important fields:
 
 ```text
-event_id
-genomic_event_group_id
+event_group_id
 chromosome
 start_pos
 stop_pos
@@ -382,45 +384,42 @@ number_of_sites
 annotations
 ```
 
-The segment always links back to `sample_test_results`. It also links to a Phase 2.7 `genomic_event_groups` row. It can link to a row-level `genomic_events` record for event provenance and visualization links. If it came from ISCN/karyotype interpretation, it also links to `karyotypes`.
+The segment always links back to `sample_test_results`. It can optionally preserve a source `event_group_id` value such as `TXG001`, `INVG001`, or `DERG001` when the source file says multiple rows belong to the same biological event. If it came from ISCN/karyotype interpretation, it also links to `karyotypes`.
 
 `annotation_names` and `annotations` work together. `annotation_names` stores ordered source-specific column names for a result, and `annotations` stores the matching ordered values for each segment. This lets the prototype keep fields such as `Gene`, `Class`, `Lumpy`, `CNVNATOR`, `Clinical`, `DGV`, and `gnomAD_version` without adding a new schema column for every pipeline-specific annotation.
 
 ### `genomic_events`
 
-Represents row-level event provenance for imported segment/breakpoint rows.
-
-`event_id` and `event_group_id` have different jobs:
+Deprecated compatibility table from earlier prototypes. New Phase 2.7 imports no longer write `genomic_events`; the active structural-event model is:
 
 ```text
-event_id = unique database identity for one imported genomic event/segment row
-event_group_id = optional source/group label shared by multiple rows that describe one biological abnormality
+segment = where
+event_group_id = source label shared by linked rows
+link = relationship between two locations
 ```
 
 For simple CNVs, the current importer creates:
 
 ```text
-one genomic_events row
-one genomic_event_groups row with AUTO-{source_file_id}-{row_number}
 one genomic_segments row
+event_group_id = NULL
 no genomic_links row
 ```
 
 For linked events, such as generic translocation-style rows, the model is:
 
 ```text
-one genomic_events row per breakpoint/segment row
-two or more genomic_events rows may share event_group_id
-one genomic_event_groups row reused by all rows in the source event group
 two or more genomic_segments rows
+same event_group_id stored directly on those segments
 one or more genomic_links rows
+same event_group_id stored directly on those links
 ```
 
-This avoids overloading `genomic_segments` with relationship logic. A segment remains a place on the genome; an event explains that one or more places belong to the same biological observation.
+This keeps the model flat. A segment remains a place on the genome, and a link stores the explicit relationship between two places.
 
 ### `genomic_event_groups`
 
-Represents the Phase 2.7 event bundle. This is the table to use when you want to ask, "which segments belong to the same biological event?"
+Deprecated compatibility table from the earlier grouping design. New imports do not need this table to ask, "which segments belong to the same biological event?" Use `genomic_segments.event_group_id` or `genomic_links.event_group_id` instead.
 
 Important fields:
 
@@ -428,28 +427,23 @@ Important fields:
 genomic_event_group_id
 sample_test_result_id
 event_group_label
+event_group_type
 raw_event_text
 created_at
 ```
 
-If the input file includes `EVENT_GROUP_ID` or `event_group_id`, that value becomes `event_group_label`. Rows with the same `sample_test_result_id` and label reuse the same group.
+If the input file includes `EVENT_GROUP_ID` or `event_group_id`, that value is stored directly as `event_group_id` on `genomic_segments` and, when links are created, on `genomic_links`.
 
-If the input file leaves the group blank, the importer creates a single-segment group:
+If the input file leaves the group blank, the segment is treated as a standalone CNV segment and `genomic_segments.event_group_id` stays `NULL`.
 
-```text
-AUTO-{source_file_id}-{row_number}
-```
-
-This means ordinary deletions and duplications still get a group row, but they are single-event groups unless the source file explicitly says multiple rows belong together.
-
-The Phase 2.7 importer supports multi-row grouping for translocations:
+The Phase 2.7 importer supports multi-row grouping for breakpoint and structural events:
 
 ```text
 event_group_id
-event_type = TRANS or T
+event_type = TRANS, T, INV, INS, DER, DIC, RING, or COMPLEX
 ```
 
-Rows with the same result and `event_group_id` share one `genomic_event_groups` row. When two or more grouped rows are `TRANS`/`T`, the importer also creates `genomic_links` rows with `link_type = TRANSLOCATION`. Common aliases such as `group_id`, `variant_id`, `pair_id`, `link_id`, and `breakend_id` are accepted for `event_group_id`.
+Rows with the same result and `event_group_id` can be linked together. The importer creates `genomic_links` rows with mapped link types such as `TRANSLOCATION`, `INVERSION`, `DERIVATIVE`, `RING`, and `COMPLEX`. Common aliases such as `group_id`, `variant_id`, `pair_id`, `link_id`, and `breakend_id` are accepted for `event_group_id`.
 
 ### `genomic_links`
 
@@ -464,7 +458,24 @@ insertion: source material linked to destination location
 derivative chromosome: multiple segments linked under one complex event
 ```
 
-`genomic_links` is also the source for future Circos-style exports. The generated `output/circos_links.tsv` report has source and target chromosome coordinates in a shape that can be converted into a Circos link file.
+`genomic_links` points directly to the two related `genomic_segments` through `source_segment_id` and `target_segment_id`. It also stores the source `event_group_id`, link type, evidence/raw ISCN text, and confidence directly. The generated `output/circos_links.tsv` report starts from `genomic_links` and outputs source and target chromosome coordinates in a shape that can be converted into a Circos link file.
+
+For translocation-only Circos links, use the direct link model:
+
+```sql
+SELECT
+    src.chromosome AS source_chromosome,
+    src.start_pos AS source_start,
+    src.stop_pos AS source_stop,
+    tgt.chromosome AS target_chromosome,
+    tgt.start_pos AS target_start,
+    tgt.stop_pos AS target_stop,
+    gl.link_type
+FROM genomic_links gl
+JOIN genomic_segments src ON src.segment_id = gl.source_segment_id
+JOIN genomic_segments tgt ON tgt.segment_id = gl.target_segment_id
+WHERE gl.link_type = 'TRANSLOCATION';
+```
 
 ### `validation_issues`
 
@@ -760,18 +771,47 @@ chromosome
 start_pos
 stop_pos
 event_type
-copy_number
+genome_build
+```
+
+`copy_number` is preferred, but it can be inferred for common called CNV event types:
+
+```text
+DEL / LOSS -> 1
+DUP / GAIN / AMP -> 3
+ROH / UPD / NEUTRAL -> 2
 ```
 
 Optional columns:
 
 ```text
+copy_number
 array_score
 number_of_sites
-genome_build
 raw_iscn
 dna_source
 ```
+
+Final called aCGH and SNP-array CNV interval files are supported. This phase does not import raw array probe, manifest, or evidence rows as CNV segments.
+
+Common aCGH/SNP-array aliases are mapped into structured fields:
+
+```text
+Sample / SampleID / sample_id -> sample_accession_id
+Chr / Chromosome -> chromosome
+Start / BP1 / Start_Position -> start_pos
+End / Stop / BP2 / End_Position -> stop_pos
+Type / CNV_Type / Aberration / EventType -> event_type
+CopyNumber / Copy_Number / CN -> copy_number
+GenomeBuild / Genome_Build / Build / Assembly / hg_version -> genome_build
+ProbeCount / NumProbes / NumberOfProbes / NumberOfSites -> number_of_sites
+ArrayScore / Array_Score / Score / CNVScore -> array_score
+Confidence / ConfidenceScore / CallConfidence -> confidence
+```
+
+aCGH-style fields such as `LogRatio` or `MeanLogRatio` help detect `Array-derived` files. SNP-array-style fields such as `MeanBAF`, `MeanLRR`, `LOHScore`, or `ROHScore` help detect `SNP-array-derived` files. Extra columns such as `Gene`, `Cytoband`, `Classification`, `Clinical`, `DGV`, `QCFlag`, `MeanBAF`, and `MeanLRR` are preserved in `annotation_names` and `annotations`.
+
+Raw probe/evidence-only files with columns such as `ProbeName`, `SystematicName`, `PValueLogRatio`, `gProcessedSignal`, `rProcessedSignal`, `AlleleA`, `AlleleB`, `BAF`, `LRR`, or `MapInfo` are rejected for CNV segment import unless they also contain a called CNV interval and event type. The importer records `Unsupported Array Evidence File` in `validation_issues`.
 
 The parser also supports a WGS/NGS classified SV result table with columns such as:
 
@@ -817,7 +857,7 @@ sample_accession_id	chromosome	start_pos	stop_pos	event_type	copy_number	array_s
 SIM001	chr5	75000000	120000000	DEL	1	0.91	421	hg38	46,XX,del(5)(q13q33)
 ```
 
-## Genome Build Resolution
+## Genome Build Resolution And Normalization
 
 Genome build is resolved in this order:
 
@@ -831,14 +871,30 @@ Genome build is resolved in this order:
 3. importer default genome build
 4. unresolved
 
-If the build cannot be resolved, no `genomic_segments` row is inserted for that record. The importer still continues with other rows and creates a validation issue:
+After resolution, Phase 2.8 normalizes supported aliases to canonical stored values:
+
+```text
+hg19, Build 37, b37 -> GRCh37
+hg38, Build 38, b38 -> GRCh38
+T2T, CHM13, CHM13v2, CHM13v2.0 -> T2T-CHM13
+hg18, Build 36, b36 -> NCBI36
+```
+
+If the build is missing, no `genomic_segments` row is inserted for that record. The importer still continues with other rows and creates a validation issue:
 
 ```text
 issue_type = Missing Genome Build
 severity = ERROR
 ```
 
-Genome build is required before genomic coordinates are stored because a coordinate interval is not meaningful without its reference build.
+If a build value is present but unsupported, such as `banana38`, `hg83`, `build99`, `unknown`, or `random_text`, the row is also skipped and recorded as:
+
+```text
+issue_type = Invalid Genome Build
+severity = ERROR
+```
+
+Genome build is required before genomic coordinates are stored because a coordinate interval is not meaningful without its reference build. Stored result rows should contain only canonical build values such as `GRCh37`, `GRCh38`, `T2T-CHM13`, or intentionally supported legacy `NCBI36`.
 
 ## ISCN vs Array Handling
 
@@ -911,7 +967,7 @@ The current implementation also includes data-integrity verification for:
 
 ```text
 No orphan genomic_segments
-No orphan genomic_event_groups
+No orphan genomic_links source/target segments
 No orphan karyotypes
 No orphan sample_test_results
 No duplicate accession identifiers
@@ -939,6 +995,10 @@ output/result_trace.tsv
 ```
 
 These reports are verification artifacts, not a full user-facing export layer.
+
+`genomic_events.tsv` is a legacy compatibility export. New imports do not write row-level `genomic_events`.
+
+`event_groups.tsv` summarizes direct `event_group_id` labels from `genomic_segments`, not rows from the deprecated `genomic_event_groups` table.
 
 `run_log.tsv` is the run-level operational log. It records each genomic import, clinical decision import, and verification step in a structured TSV format.
 
@@ -980,9 +1040,7 @@ genome_build
 calling_method
 raw_iscn
 annotation_names
-event_id
-genomic_event_group_id
-event_group_label
+event_group_id
 segment_id
 chromosome
 start_pos
@@ -994,16 +1052,17 @@ validation_issue_count
 validation_summary
 ```
 
-`event_groups.tsv` summarizes Phase 2.7 event bundles:
+`event_groups.tsv` summarizes Phase 2.7 event bundles from direct segment labels:
 
 ```text
-genomic_event_group_id
-sample_test_result_id
+event_group_id
 sample_accession_id
 source_file_name
-event_group_label
 segment_count
 chromosomes_involved
+event_types
+copy_numbers
+regions
 raw_event_text
 ```
 
@@ -1113,7 +1172,7 @@ Search by event group:
 ./apache-maven-3.9.15/bin/mvn exec:java -Dexec.args="search --event-group TXG001"
 ```
 
-Search by row-level event id:
+Search by legacy row-level event id, for older databases that still contain `genomic_events` links:
 
 ```bash
 ./apache-maven-3.9.15/bin/mvn exec:java -Dexec.args="search --event-id 101"
@@ -1164,7 +1223,7 @@ Annotation matching is exact for Phase 2.5. For example, `Gene=BRCA` does not au
 Search multiple values:
 
 ```bash
-./apache-maven-3.9.15/bin/mvn exec:java -Dexec.args="search --event-type DEL,DUP --genome-build hg19,hg38"
+./apache-maven-3.9.15/bin/mvn exec:java -Dexec.args="search --event-type DEL,DUP --genome-build GRCh37,GRCh38"
 ```
 
 Within one filter, comma-separated values are treated as OR. Between different filters, conditions are combined with AND.
@@ -1297,6 +1356,7 @@ README.md
 data/
   example.cnv
   test.cnv
+  phase27_finding_model.cnv
 src/main/resources/
   schema.sql
 src/main/java/org/mpgdatabase/
@@ -1342,7 +1402,7 @@ An ORM would hide some of the relationship details. For this phase, explicit SQL
 
 The Phase 2.7 importer creates one `sample_test_result` for rows that share the same sample, lab protocol, test type, pipeline, source file, genome build, calling method, raw ISCN text, and annotation layout.
 
-This better matches real lab results, where one test result can contain multiple findings or multiple breakpoints from one complex event. Individual source rows remain traceable through row-level `genomic_events`, `genomic_segments`, validation issues, and report trace fields.
+This better matches real lab results, where one test result can contain multiple findings or multiple breakpoints from one complex event. Individual source rows remain traceable through `genomic_segments`, direct `event_group_id` labels, `genomic_links`, validation issues, and report trace fields.
 
 ### Why Missing Genome Builds Are Rejected
 

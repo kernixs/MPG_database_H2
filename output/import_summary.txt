@@ -3,28 +3,34 @@ ERROR	Rejected row; no genomic_segments row inserted
 WARNING	Imported row; flagged for review
 
 Table Counts
-individuals	318
-sample_accessions	318
-lab_protocols	3
-sample_tests	780
-pipelines	3
-source_files	7
-sample_test_results	780
-karyotypes	101
-genomic_segments	755
-validation_issues	35
-variant_classifications	100
-signed_out_calls	100
-notes	100
+individuals	600
+sample_accessions	394
+lab_protocols	4
+sample_tests	1848
+pipelines	4
+source_files	46
+sample_test_results	1848
+karyotypes	338
+genomic_events	111
+genomic_event_groups	1123
+genomic_segments	2722
+genomic_links	51
+validation_issues	187
+variant_classifications	400
+signed_out_calls	400
+notes	400
 
 Import Results
 25-54321WGS_05Nov2025_SWGS111_SV_DEL_DUP_Classify_Result.txt	PASS	records=452	segments=452	issues=0
 array_derived_100.cnv	PASS	records=100	segments=100	issues=0
 example.cnv	PASS	records=3	segments=3	issues=0
-iscn_derived_100.cnv	PASS	records=100	segments=100	issues=9
+iscn_derived_100.cnv	PASS	records=100	segments=100	issues=30
 ngs_derived_100.txt	PASS	records=100	segments=100	issues=0
+phase27_finding_model.cnv	FAIL	records=10	segments=10	issues=1
+realistic_cnv_mixed_events_import.cnv	FAIL	records=6	segments=6	issues=1
 test.cnv	PASS	records=3	segments=0	issues=3
 test_v2.cnv	PASS	records=23	segments=0	issues=23
+translocation_pair.cnv	FAIL	records=2	segments=2	issues=1
 
 Clinical Decision Import Results
 phase26_clinical_decisions.tsv	PASS	records=100	classifications=100	signed_out_calls=100	notes=100

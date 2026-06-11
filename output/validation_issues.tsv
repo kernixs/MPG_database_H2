@@ -34,3 +34,221 @@ VALIDATION_ISSUE_ID	SEGMENT_ID	SOURCE_FILE_ID	SOURCE_FILE	SOURCE_FILE_PATH	ROW_N
 33		7	test_v2.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/test_v2.cnv	22	SIM028	Missing Genome Build	ERROR	Genome build is required before inserting genomic coordinates for line 22	REJECTED ROW
 34		7	test_v2.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/test_v2.cnv	23	SIM030	Missing Genome Build	ERROR	Genome build is required before inserting genomic coordinates for line 23	REJECTED ROW
 35		7	test_v2.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/test_v2.cnv	24	SIM032	Missing Genome Build	ERROR	Genome build is required before inserting genomic coordinates for line 24	REJECTED ROW
+36							Import Failure	ERROR	Column "EVENT_GROUP_ID" not found; SQL statement:
+INSERT INTO genomic_segments
+    (event_id, genomic_event_group_id, event_group_id, sample_test_result_id, karyotype_id, chromosome, start_pos, stop_pos,
+     cytoband_start, cytoband_end, event_type, copy_number, array_score,
+     confidence, number_of_sites, raw_segment_text, annotations)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+ [42122-224]	REJECTED ROW
+37							Import Failure	ERROR	Column "EVENT_GROUP_ID" not found; SQL statement:
+INSERT INTO genomic_segments
+    (event_id, genomic_event_group_id, event_group_id, sample_test_result_id, karyotype_id, chromosome, start_pos, stop_pos,
+     cytoband_start, cytoband_end, event_type, copy_number, array_score,
+     confidence, number_of_sites, raw_segment_text, annotations)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+ [42122-224]	REJECTED ROW
+38							Import Failure	ERROR	Column "EVENT_GROUP_ID" not found; SQL statement:
+INSERT INTO genomic_segments
+    (event_id, genomic_event_group_id, event_group_id, sample_test_result_id, karyotype_id, chromosome, start_pos, stop_pos,
+     cytoband_start, cytoband_end, event_type, copy_number, array_score,
+     confidence, number_of_sites, raw_segment_text, annotations)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+ [42122-224]	REJECTED ROW
+39							Import Failure	ERROR	Column "EVENT_GROUP_ID" not found; SQL statement:
+INSERT INTO genomic_segments
+    (event_id, genomic_event_group_id, event_group_id, sample_test_result_id, karyotype_id, chromosome, start_pos, stop_pos,
+     cytoband_start, cytoband_end, event_type, copy_number, array_score,
+     confidence, number_of_sites, raw_segment_text, annotations)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+ [42122-224]	REJECTED ROW
+40							Import Failure	ERROR	Column "EVENT_GROUP_ID" not found; SQL statement:
+INSERT INTO genomic_segments
+    (event_id, genomic_event_group_id, event_group_id, sample_test_result_id, karyotype_id, chromosome, start_pos, stop_pos,
+     cytoband_start, cytoband_end, event_type, copy_number, array_score,
+     confidence, number_of_sites, raw_segment_text, annotations)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+ [42122-224]	REJECTED ROW
+41							Import Failure	ERROR	Column "EVENT_GROUP_ID" not found; SQL statement:
+INSERT INTO genomic_segments
+    (event_id, genomic_event_group_id, event_group_id, sample_test_result_id, karyotype_id, chromosome, start_pos, stop_pos,
+     cytoband_start, cytoband_end, event_type, copy_number, array_score,
+     confidence, number_of_sites, raw_segment_text, annotations)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+ [42122-224]	REJECTED ROW
+42							Import Failure	ERROR	Column "EVENT_GROUP_ID" not found; SQL statement:
+INSERT INTO genomic_segments
+    (event_id, genomic_event_group_id, event_group_id, sample_test_result_id, karyotype_id, chromosome, start_pos, stop_pos,
+     cytoband_start, cytoband_end, event_type, copy_number, array_score,
+     confidence, number_of_sites, raw_segment_text, annotations)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+ [42122-224]	REJECTED ROW
+43		24	test.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/test.cnv	2	SIM001	Missing Genome Build	ERROR	Genome build is required before inserting genomic coordinates for line 2	REJECTED ROW
+44		24	test.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/test.cnv	3	SIM003	Missing Genome Build	ERROR	Genome build is required before inserting genomic coordinates for line 3	REJECTED ROW
+45		24	test.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/test.cnv	4	SIM004	Unparseable Row	ERROR	Unparseable row at line 4: one or more numeric fields could not be parsed	REJECTED ROW
+46		25	test_v2.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/test_v2.cnv	2	SIM002	Missing Genome Build	ERROR	Genome build is required before inserting genomic coordinates for line 2	REJECTED ROW
+47		25	test_v2.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/test_v2.cnv	3	SIM004	Missing Genome Build	ERROR	Genome build is required before inserting genomic coordinates for line 3	REJECTED ROW
+48		25	test_v2.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/test_v2.cnv	4	SIM006	Missing Genome Build	ERROR	Genome build is required before inserting genomic coordinates for line 4	REJECTED ROW
+49		25	test_v2.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/test_v2.cnv	5	SIM008	Missing Genome Build	ERROR	Genome build is required before inserting genomic coordinates for line 5	REJECTED ROW
+50		25	test_v2.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/test_v2.cnv	6	SIM010	Missing Genome Build	ERROR	Genome build is required before inserting genomic coordinates for line 6	REJECTED ROW
+51		25	test_v2.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/test_v2.cnv	7	SIM012	Missing Genome Build	ERROR	Genome build is required before inserting genomic coordinates for line 7	REJECTED ROW
+52		25	test_v2.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/test_v2.cnv	8	SIM014	Missing Genome Build	ERROR	Genome build is required before inserting genomic coordinates for line 8	REJECTED ROW
+53		25	test_v2.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/test_v2.cnv	9	SIM014	Missing Genome Build	ERROR	Genome build is required before inserting genomic coordinates for line 9	REJECTED ROW
+54		25	test_v2.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/test_v2.cnv	10	SIM016	Missing Genome Build	ERROR	Genome build is required before inserting genomic coordinates for line 10	REJECTED ROW
+55		25	test_v2.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/test_v2.cnv	11	SIM016	Missing Genome Build	ERROR	Genome build is required before inserting genomic coordinates for line 11	REJECTED ROW
+56		25	test_v2.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/test_v2.cnv	12	SIM018	Missing Genome Build	ERROR	Genome build is required before inserting genomic coordinates for line 12	REJECTED ROW
+57		25	test_v2.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/test_v2.cnv	13	SIM018	Missing Genome Build	ERROR	Genome build is required before inserting genomic coordinates for line 13	REJECTED ROW
+58		25	test_v2.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/test_v2.cnv	14	SIM020	Missing Genome Build	ERROR	Genome build is required before inserting genomic coordinates for line 14	REJECTED ROW
+59		25	test_v2.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/test_v2.cnv	15	SIM020	Missing Genome Build	ERROR	Genome build is required before inserting genomic coordinates for line 15	REJECTED ROW
+60		25	test_v2.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/test_v2.cnv	16	SIM022	Missing Genome Build	ERROR	Genome build is required before inserting genomic coordinates for line 16	REJECTED ROW
+61		25	test_v2.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/test_v2.cnv	17	SIM022	Missing Genome Build	ERROR	Genome build is required before inserting genomic coordinates for line 17	REJECTED ROW
+62		25	test_v2.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/test_v2.cnv	18	SIM026	Missing Genome Build	ERROR	Genome build is required before inserting genomic coordinates for line 18	REJECTED ROW
+63		25	test_v2.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/test_v2.cnv	19	SIM026	Missing Genome Build	ERROR	Genome build is required before inserting genomic coordinates for line 19	REJECTED ROW
+64		25	test_v2.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/test_v2.cnv	20	SIM028	Missing Genome Build	ERROR	Genome build is required before inserting genomic coordinates for line 20	REJECTED ROW
+65		25	test_v2.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/test_v2.cnv	21	SIM028	Missing Genome Build	ERROR	Genome build is required before inserting genomic coordinates for line 21	REJECTED ROW
+66		25	test_v2.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/test_v2.cnv	22	SIM028	Missing Genome Build	ERROR	Genome build is required before inserting genomic coordinates for line 22	REJECTED ROW
+67		25	test_v2.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/test_v2.cnv	23	SIM030	Missing Genome Build	ERROR	Genome build is required before inserting genomic coordinates for line 23	REJECTED ROW
+68		25	test_v2.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/test_v2.cnv	24	SIM032	Missing Genome Build	ERROR	Genome build is required before inserting genomic coordinates for line 24	REJECTED ROW
+69							Import Failure	ERROR	Column "EVENT_GROUP_ID" not found; SQL statement:
+INSERT INTO genomic_segments
+    (event_id, genomic_event_group_id, event_group_id, sample_test_result_id, karyotype_id, chromosome, start_pos, stop_pos,
+     cytoband_start, cytoband_end, event_type, copy_number, array_score,
+     confidence, number_of_sites, raw_segment_text, annotations)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+ [42122-224]	REJECTED ROW
+70	1748	30	iscn_derived_100.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/iscn_derived_100.cnv	18	ISCN017	Mosaic Karyotype	WARNING	Mosaic Karyotype detected in raw ISCN at line 18	IMPORTED + FLAGGED
+71	1754	30	iscn_derived_100.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/iscn_derived_100.cnv	24	ISCN023	Uncertain Breakpoint	WARNING	Uncertain Breakpoint detected in raw ISCN at line 24	IMPORTED + FLAGGED
+72	1765	30	iscn_derived_100.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/iscn_derived_100.cnv	35	ISCN034	Mosaic Karyotype	WARNING	Mosaic Karyotype detected in raw ISCN at line 35	IMPORTED + FLAGGED
+73	1777	30	iscn_derived_100.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/iscn_derived_100.cnv	47	ISCN046	Uncertain Breakpoint	WARNING	Uncertain Breakpoint detected in raw ISCN at line 47	IMPORTED + FLAGGED
+74	1782	30	iscn_derived_100.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/iscn_derived_100.cnv	52	ISCN051	Mosaic Karyotype	WARNING	Mosaic Karyotype detected in raw ISCN at line 52	IMPORTED + FLAGGED
+75	1799	30	iscn_derived_100.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/iscn_derived_100.cnv	69	ISCN068	Mosaic Karyotype	WARNING	Mosaic Karyotype detected in raw ISCN at line 69	IMPORTED + FLAGGED
+76	1800	30	iscn_derived_100.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/iscn_derived_100.cnv	70	ISCN069	Uncertain Breakpoint	WARNING	Uncertain Breakpoint detected in raw ISCN at line 70	IMPORTED + FLAGGED
+77	1816	30	iscn_derived_100.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/iscn_derived_100.cnv	86	ISCN085	Mosaic Karyotype	WARNING	Mosaic Karyotype detected in raw ISCN at line 86	IMPORTED + FLAGGED
+78	1823	30	iscn_derived_100.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/iscn_derived_100.cnv	93	ISCN092	Uncertain Breakpoint	WARNING	Uncertain Breakpoint detected in raw ISCN at line 93	IMPORTED + FLAGGED
+79	1789	30	iscn_derived_100.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/iscn_derived_100.cnv	59	ISCN058	Incomplete Breakpoint Event Group	WARNING	DERIVATIVE group AUTO-BREAKPOINT-30-59 has fewer than 2 segments	IMPORTED + FLAGGED
+80	1761	30	iscn_derived_100.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/iscn_derived_100.cnv	31	ISCN030	Incomplete Breakpoint Event Group	WARNING	DERIVATIVE group AUTO-BREAKPOINT-30-31 has fewer than 2 segments	IMPORTED + FLAGGED
+81	1799	30	iscn_derived_100.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/iscn_derived_100.cnv	69	ISCN068	Incomplete Breakpoint Event Group	WARNING	DERIVATIVE group AUTO-BREAKPOINT-30-69 has fewer than 2 segments	IMPORTED + FLAGGED
+82	1738	30	iscn_derived_100.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/iscn_derived_100.cnv	8	ISCN007	Incomplete Breakpoint Event Group	WARNING	DERIVATIVE group AUTO-BREAKPOINT-30-8 has fewer than 2 segments	IMPORTED + FLAGGED
+83	1740	30	iscn_derived_100.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/iscn_derived_100.cnv	10	ISCN009	Incomplete Breakpoint Event Group	WARNING	DERIVATIVE group AUTO-BREAKPOINT-30-10 has fewer than 2 segments	IMPORTED + FLAGGED
+84	1822	30	iscn_derived_100.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/iscn_derived_100.cnv	92	ISCN091	Incomplete Breakpoint Event Group	WARNING	DERIVATIVE group AUTO-BREAKPOINT-30-92 has fewer than 2 segments	IMPORTED + FLAGGED
+85	1824	30	iscn_derived_100.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/iscn_derived_100.cnv	94	ISCN093	Incomplete Breakpoint Event Group	WARNING	DERIVATIVE group AUTO-BREAKPOINT-30-94 has fewer than 2 segments	IMPORTED + FLAGGED
+86	1796	30	iscn_derived_100.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/iscn_derived_100.cnv	66	ISCN065	Incomplete Breakpoint Event Group	WARNING	DERIVATIVE group AUTO-BREAKPOINT-30-66 has fewer than 2 segments	IMPORTED + FLAGGED
+87	1783	30	iscn_derived_100.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/iscn_derived_100.cnv	53	ISCN052	Incomplete Breakpoint Event Group	WARNING	DERIVATIVE group AUTO-BREAKPOINT-30-53 has fewer than 2 segments	IMPORTED + FLAGGED
+88	1813	30	iscn_derived_100.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/iscn_derived_100.cnv	83	ISCN082	Incomplete Breakpoint Event Group	WARNING	DERIVATIVE group AUTO-BREAKPOINT-30-83 has fewer than 2 segments	IMPORTED + FLAGGED
+89	1827	30	iscn_derived_100.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/iscn_derived_100.cnv	97	ISCN096	Incomplete Breakpoint Event Group	WARNING	DERIVATIVE group AUTO-BREAKPOINT-30-97 has fewer than 2 segments	IMPORTED + FLAGGED
+90	1749	30	iscn_derived_100.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/iscn_derived_100.cnv	19	ISCN018	Incomplete Breakpoint Event Group	WARNING	DERIVATIVE group AUTO-BREAKPOINT-30-19 has fewer than 2 segments	IMPORTED + FLAGGED
+91	1772	30	iscn_derived_100.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/iscn_derived_100.cnv	42	ISCN041	Incomplete Breakpoint Event Group	WARNING	DERIVATIVE group AUTO-BREAKPOINT-30-42 has fewer than 2 segments	IMPORTED + FLAGGED
+92	1818	30	iscn_derived_100.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/iscn_derived_100.cnv	88	ISCN087	Incomplete Breakpoint Event Group	WARNING	DERIVATIVE group AUTO-BREAKPOINT-30-88 has fewer than 2 segments	IMPORTED + FLAGGED
+93	1784	30	iscn_derived_100.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/iscn_derived_100.cnv	54	ISCN053	Incomplete Breakpoint Event Group	WARNING	DERIVATIVE group AUTO-BREAKPOINT-30-54 has fewer than 2 segments	IMPORTED + FLAGGED
+94	1736	30	iscn_derived_100.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/iscn_derived_100.cnv	6	ISCN005	Incomplete Breakpoint Event Group	WARNING	DERIVATIVE group AUTO-BREAKPOINT-30-6 has fewer than 2 segments	IMPORTED + FLAGGED
+95	1757	30	iscn_derived_100.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/iscn_derived_100.cnv	27	ISCN026	Incomplete Breakpoint Event Group	WARNING	DERIVATIVE group AUTO-BREAKPOINT-30-27 has fewer than 2 segments	IMPORTED + FLAGGED
+96	1767	30	iscn_derived_100.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/iscn_derived_100.cnv	37	ISCN036	Incomplete Breakpoint Event Group	WARNING	DERIVATIVE group AUTO-BREAKPOINT-30-37 has fewer than 2 segments	IMPORTED + FLAGGED
+97	1755	30	iscn_derived_100.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/iscn_derived_100.cnv	25	ISCN024	Incomplete Breakpoint Event Group	WARNING	DERIVATIVE group AUTO-BREAKPOINT-30-25 has fewer than 2 segments	IMPORTED + FLAGGED
+98	1782	30	iscn_derived_100.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/iscn_derived_100.cnv	52	ISCN051	Incomplete Breakpoint Event Group	WARNING	DERIVATIVE group AUTO-BREAKPOINT-30-52 has fewer than 2 segments	IMPORTED + FLAGGED
+99	1732	30	iscn_derived_100.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/iscn_derived_100.cnv	2	ISCN001	Incomplete Breakpoint Event Group	WARNING	DERIVATIVE group AUTO-BREAKPOINT-30-2 has fewer than 2 segments	IMPORTED + FLAGGED
+100							Import Failure	ERROR	NULL not allowed for column "EVENT_ID"; SQL statement:
+INSERT INTO genomic_links
+    (genomic_event_group_id, event_id, event_group_id, source_segment_id, target_segment_id, link_type, orientation, evidence, confidence)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) [23502-224]	REJECTED ROW
+101							Import Failure	ERROR	NULL not allowed for column "EVENT_ID"; SQL statement:
+INSERT INTO genomic_links
+    (genomic_event_group_id, event_id, event_group_id, source_segment_id, target_segment_id, link_type, orientation, evidence, confidence)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) [23502-224]	REJECTED ROW
+102		34	test.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/test.cnv	2	SIM001	Missing Genome Build	ERROR	Genome build is required before inserting genomic coordinates for line 2	REJECTED ROW
+103		34	test.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/test.cnv	3	SIM003	Missing Genome Build	ERROR	Genome build is required before inserting genomic coordinates for line 3	REJECTED ROW
+104		34	test.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/test.cnv	4	SIM004	Unparseable Row	ERROR	Unparseable row at line 4: one or more numeric fields could not be parsed	REJECTED ROW
+105		35	test_v2.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/test_v2.cnv	2	SIM002	Missing Genome Build	ERROR	Genome build is required before inserting genomic coordinates for line 2	REJECTED ROW
+106		35	test_v2.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/test_v2.cnv	3	SIM004	Missing Genome Build	ERROR	Genome build is required before inserting genomic coordinates for line 3	REJECTED ROW
+107		35	test_v2.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/test_v2.cnv	4	SIM006	Missing Genome Build	ERROR	Genome build is required before inserting genomic coordinates for line 4	REJECTED ROW
+108		35	test_v2.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/test_v2.cnv	5	SIM008	Missing Genome Build	ERROR	Genome build is required before inserting genomic coordinates for line 5	REJECTED ROW
+109		35	test_v2.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/test_v2.cnv	6	SIM010	Missing Genome Build	ERROR	Genome build is required before inserting genomic coordinates for line 6	REJECTED ROW
+110		35	test_v2.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/test_v2.cnv	7	SIM012	Missing Genome Build	ERROR	Genome build is required before inserting genomic coordinates for line 7	REJECTED ROW
+111		35	test_v2.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/test_v2.cnv	8	SIM014	Missing Genome Build	ERROR	Genome build is required before inserting genomic coordinates for line 8	REJECTED ROW
+112		35	test_v2.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/test_v2.cnv	9	SIM014	Missing Genome Build	ERROR	Genome build is required before inserting genomic coordinates for line 9	REJECTED ROW
+113		35	test_v2.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/test_v2.cnv	10	SIM016	Missing Genome Build	ERROR	Genome build is required before inserting genomic coordinates for line 10	REJECTED ROW
+114		35	test_v2.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/test_v2.cnv	11	SIM016	Missing Genome Build	ERROR	Genome build is required before inserting genomic coordinates for line 11	REJECTED ROW
+115		35	test_v2.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/test_v2.cnv	12	SIM018	Missing Genome Build	ERROR	Genome build is required before inserting genomic coordinates for line 12	REJECTED ROW
+116		35	test_v2.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/test_v2.cnv	13	SIM018	Missing Genome Build	ERROR	Genome build is required before inserting genomic coordinates for line 13	REJECTED ROW
+117		35	test_v2.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/test_v2.cnv	14	SIM020	Missing Genome Build	ERROR	Genome build is required before inserting genomic coordinates for line 14	REJECTED ROW
+118		35	test_v2.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/test_v2.cnv	15	SIM020	Missing Genome Build	ERROR	Genome build is required before inserting genomic coordinates for line 15	REJECTED ROW
+119		35	test_v2.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/test_v2.cnv	16	SIM022	Missing Genome Build	ERROR	Genome build is required before inserting genomic coordinates for line 16	REJECTED ROW
+120		35	test_v2.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/test_v2.cnv	17	SIM022	Missing Genome Build	ERROR	Genome build is required before inserting genomic coordinates for line 17	REJECTED ROW
+121		35	test_v2.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/test_v2.cnv	18	SIM026	Missing Genome Build	ERROR	Genome build is required before inserting genomic coordinates for line 18	REJECTED ROW
+122		35	test_v2.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/test_v2.cnv	19	SIM026	Missing Genome Build	ERROR	Genome build is required before inserting genomic coordinates for line 19	REJECTED ROW
+123		35	test_v2.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/test_v2.cnv	20	SIM028	Missing Genome Build	ERROR	Genome build is required before inserting genomic coordinates for line 20	REJECTED ROW
+124		35	test_v2.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/test_v2.cnv	21	SIM028	Missing Genome Build	ERROR	Genome build is required before inserting genomic coordinates for line 21	REJECTED ROW
+125		35	test_v2.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/test_v2.cnv	22	SIM028	Missing Genome Build	ERROR	Genome build is required before inserting genomic coordinates for line 22	REJECTED ROW
+126		35	test_v2.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/test_v2.cnv	23	SIM030	Missing Genome Build	ERROR	Genome build is required before inserting genomic coordinates for line 23	REJECTED ROW
+127		35	test_v2.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/test_v2.cnv	24	SIM032	Missing Genome Build	ERROR	Genome build is required before inserting genomic coordinates for line 24	REJECTED ROW
+128							Import Failure	ERROR	NULL not allowed for column "EVENT_ID"; SQL statement:
+INSERT INTO genomic_links
+    (genomic_event_group_id, event_id, event_group_id, source_segment_id, target_segment_id, link_type, orientation, evidence, confidence)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) [23502-224]	REJECTED ROW
+129	2521	40	iscn_derived_100.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/iscn_derived_100.cnv	18	ISCN017	Mosaic Karyotype	WARNING	Mosaic Karyotype detected in raw ISCN at line 18	IMPORTED + FLAGGED
+130	2527	40	iscn_derived_100.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/iscn_derived_100.cnv	24	ISCN023	Uncertain Breakpoint	WARNING	Uncertain Breakpoint detected in raw ISCN at line 24	IMPORTED + FLAGGED
+131	2538	40	iscn_derived_100.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/iscn_derived_100.cnv	35	ISCN034	Mosaic Karyotype	WARNING	Mosaic Karyotype detected in raw ISCN at line 35	IMPORTED + FLAGGED
+132	2550	40	iscn_derived_100.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/iscn_derived_100.cnv	47	ISCN046	Uncertain Breakpoint	WARNING	Uncertain Breakpoint detected in raw ISCN at line 47	IMPORTED + FLAGGED
+133	2555	40	iscn_derived_100.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/iscn_derived_100.cnv	52	ISCN051	Mosaic Karyotype	WARNING	Mosaic Karyotype detected in raw ISCN at line 52	IMPORTED + FLAGGED
+134	2572	40	iscn_derived_100.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/iscn_derived_100.cnv	69	ISCN068	Mosaic Karyotype	WARNING	Mosaic Karyotype detected in raw ISCN at line 69	IMPORTED + FLAGGED
+135	2573	40	iscn_derived_100.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/iscn_derived_100.cnv	70	ISCN069	Uncertain Breakpoint	WARNING	Uncertain Breakpoint detected in raw ISCN at line 70	IMPORTED + FLAGGED
+136	2589	40	iscn_derived_100.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/iscn_derived_100.cnv	86	ISCN085	Mosaic Karyotype	WARNING	Mosaic Karyotype detected in raw ISCN at line 86	IMPORTED + FLAGGED
+137	2596	40	iscn_derived_100.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/iscn_derived_100.cnv	93	ISCN092	Uncertain Breakpoint	WARNING	Uncertain Breakpoint detected in raw ISCN at line 93	IMPORTED + FLAGGED
+138	2522	40	iscn_derived_100.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/iscn_derived_100.cnv	19	ISCN018	Incomplete Breakpoint Event Group	WARNING	DERIVATIVE group AUTO-BREAKPOINT-40-19 has fewer than 2 segments	IMPORTED + FLAGGED
+139	2591	40	iscn_derived_100.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/iscn_derived_100.cnv	88	ISCN087	Incomplete Breakpoint Event Group	WARNING	DERIVATIVE group AUTO-BREAKPOINT-40-88 has fewer than 2 segments	IMPORTED + FLAGGED
+140	2557	40	iscn_derived_100.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/iscn_derived_100.cnv	54	ISCN053	Incomplete Breakpoint Event Group	WARNING	DERIVATIVE group AUTO-BREAKPOINT-40-54 has fewer than 2 segments	IMPORTED + FLAGGED
+141	2511	40	iscn_derived_100.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/iscn_derived_100.cnv	8	ISCN007	Incomplete Breakpoint Event Group	WARNING	DERIVATIVE group AUTO-BREAKPOINT-40-8 has fewer than 2 segments	IMPORTED + FLAGGED
+142	2530	40	iscn_derived_100.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/iscn_derived_100.cnv	27	ISCN026	Incomplete Breakpoint Event Group	WARNING	DERIVATIVE group AUTO-BREAKPOINT-40-27 has fewer than 2 segments	IMPORTED + FLAGGED
+143	2513	40	iscn_derived_100.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/iscn_derived_100.cnv	10	ISCN009	Incomplete Breakpoint Event Group	WARNING	DERIVATIVE group AUTO-BREAKPOINT-40-10 has fewer than 2 segments	IMPORTED + FLAGGED
+144	2572	40	iscn_derived_100.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/iscn_derived_100.cnv	69	ISCN068	Incomplete Breakpoint Event Group	WARNING	DERIVATIVE group AUTO-BREAKPOINT-40-69 has fewer than 2 segments	IMPORTED + FLAGGED
+145	2528	40	iscn_derived_100.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/iscn_derived_100.cnv	25	ISCN024	Incomplete Breakpoint Event Group	WARNING	DERIVATIVE group AUTO-BREAKPOINT-40-25 has fewer than 2 segments	IMPORTED + FLAGGED
+146	2555	40	iscn_derived_100.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/iscn_derived_100.cnv	52	ISCN051	Incomplete Breakpoint Event Group	WARNING	DERIVATIVE group AUTO-BREAKPOINT-40-52 has fewer than 2 segments	IMPORTED + FLAGGED
+147	2586	40	iscn_derived_100.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/iscn_derived_100.cnv	83	ISCN082	Incomplete Breakpoint Event Group	WARNING	DERIVATIVE group AUTO-BREAKPOINT-40-83 has fewer than 2 segments	IMPORTED + FLAGGED
+148	2540	40	iscn_derived_100.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/iscn_derived_100.cnv	37	ISCN036	Incomplete Breakpoint Event Group	WARNING	DERIVATIVE group AUTO-BREAKPOINT-40-37 has fewer than 2 segments	IMPORTED + FLAGGED
+149	2545	40	iscn_derived_100.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/iscn_derived_100.cnv	42	ISCN041	Incomplete Breakpoint Event Group	WARNING	DERIVATIVE group AUTO-BREAKPOINT-40-42 has fewer than 2 segments	IMPORTED + FLAGGED
+150	2534	40	iscn_derived_100.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/iscn_derived_100.cnv	31	ISCN030	Incomplete Breakpoint Event Group	WARNING	DERIVATIVE group AUTO-BREAKPOINT-40-31 has fewer than 2 segments	IMPORTED + FLAGGED
+151	2509	40	iscn_derived_100.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/iscn_derived_100.cnv	6	ISCN005	Incomplete Breakpoint Event Group	WARNING	DERIVATIVE group AUTO-BREAKPOINT-40-6 has fewer than 2 segments	IMPORTED + FLAGGED
+152	2595	40	iscn_derived_100.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/iscn_derived_100.cnv	92	ISCN091	Incomplete Breakpoint Event Group	WARNING	DERIVATIVE group AUTO-BREAKPOINT-40-92 has fewer than 2 segments	IMPORTED + FLAGGED
+153	2597	40	iscn_derived_100.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/iscn_derived_100.cnv	94	ISCN093	Incomplete Breakpoint Event Group	WARNING	DERIVATIVE group AUTO-BREAKPOINT-40-94 has fewer than 2 segments	IMPORTED + FLAGGED
+154	2569	40	iscn_derived_100.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/iscn_derived_100.cnv	66	ISCN065	Incomplete Breakpoint Event Group	WARNING	DERIVATIVE group AUTO-BREAKPOINT-40-66 has fewer than 2 segments	IMPORTED + FLAGGED
+155	2600	40	iscn_derived_100.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/iscn_derived_100.cnv	97	ISCN096	Incomplete Breakpoint Event Group	WARNING	DERIVATIVE group AUTO-BREAKPOINT-40-97 has fewer than 2 segments	IMPORTED + FLAGGED
+156	2556	40	iscn_derived_100.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/iscn_derived_100.cnv	53	ISCN052	Incomplete Breakpoint Event Group	WARNING	DERIVATIVE group AUTO-BREAKPOINT-40-53 has fewer than 2 segments	IMPORTED + FLAGGED
+157	2505	40	iscn_derived_100.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/iscn_derived_100.cnv	2	ISCN001	Incomplete Breakpoint Event Group	WARNING	DERIVATIVE group AUTO-BREAKPOINT-40-2 has fewer than 2 segments	IMPORTED + FLAGGED
+158	2562	40	iscn_derived_100.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/iscn_derived_100.cnv	59	ISCN058	Incomplete Breakpoint Event Group	WARNING	DERIVATIVE group AUTO-BREAKPOINT-40-59 has fewer than 2 segments	IMPORTED + FLAGGED
+159							Import Failure	ERROR	NULL not allowed for column "EVENT_ID"; SQL statement:
+INSERT INTO genomic_links
+    (genomic_event_group_id, event_id, event_group_id, source_segment_id, target_segment_id, link_type, orientation, evidence, confidence)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) [23502-224]	REJECTED ROW
+160							Import Failure	ERROR	NULL not allowed for column "EVENT_ID"; SQL statement:
+INSERT INTO genomic_links
+    (genomic_event_group_id, event_id, event_group_id, source_segment_id, target_segment_id, link_type, orientation, evidence, confidence)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) [23502-224]	REJECTED ROW
+161		44	test.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/test.cnv	2	SIM001	Missing Genome Build	ERROR	Genome build is required before inserting genomic coordinates for line 2	REJECTED ROW
+162		44	test.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/test.cnv	3	SIM003	Missing Genome Build	ERROR	Genome build is required before inserting genomic coordinates for line 3	REJECTED ROW
+163		44	test.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/test.cnv	4	SIM004	Unparseable Row	ERROR	Unparseable row at line 4: one or more numeric fields could not be parsed	REJECTED ROW
+164		45	test_v2.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/test_v2.cnv	2	SIM002	Missing Genome Build	ERROR	Genome build is required before inserting genomic coordinates for line 2	REJECTED ROW
+165		45	test_v2.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/test_v2.cnv	3	SIM004	Missing Genome Build	ERROR	Genome build is required before inserting genomic coordinates for line 3	REJECTED ROW
+166		45	test_v2.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/test_v2.cnv	4	SIM006	Missing Genome Build	ERROR	Genome build is required before inserting genomic coordinates for line 4	REJECTED ROW
+167		45	test_v2.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/test_v2.cnv	5	SIM008	Missing Genome Build	ERROR	Genome build is required before inserting genomic coordinates for line 5	REJECTED ROW
+168		45	test_v2.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/test_v2.cnv	6	SIM010	Missing Genome Build	ERROR	Genome build is required before inserting genomic coordinates for line 6	REJECTED ROW
+169		45	test_v2.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/test_v2.cnv	7	SIM012	Missing Genome Build	ERROR	Genome build is required before inserting genomic coordinates for line 7	REJECTED ROW
+170		45	test_v2.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/test_v2.cnv	8	SIM014	Missing Genome Build	ERROR	Genome build is required before inserting genomic coordinates for line 8	REJECTED ROW
+171		45	test_v2.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/test_v2.cnv	9	SIM014	Missing Genome Build	ERROR	Genome build is required before inserting genomic coordinates for line 9	REJECTED ROW
+172		45	test_v2.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/test_v2.cnv	10	SIM016	Missing Genome Build	ERROR	Genome build is required before inserting genomic coordinates for line 10	REJECTED ROW
+173		45	test_v2.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/test_v2.cnv	11	SIM016	Missing Genome Build	ERROR	Genome build is required before inserting genomic coordinates for line 11	REJECTED ROW
+174		45	test_v2.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/test_v2.cnv	12	SIM018	Missing Genome Build	ERROR	Genome build is required before inserting genomic coordinates for line 12	REJECTED ROW
+175		45	test_v2.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/test_v2.cnv	13	SIM018	Missing Genome Build	ERROR	Genome build is required before inserting genomic coordinates for line 13	REJECTED ROW
+176		45	test_v2.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/test_v2.cnv	14	SIM020	Missing Genome Build	ERROR	Genome build is required before inserting genomic coordinates for line 14	REJECTED ROW
+177		45	test_v2.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/test_v2.cnv	15	SIM020	Missing Genome Build	ERROR	Genome build is required before inserting genomic coordinates for line 15	REJECTED ROW
+178		45	test_v2.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/test_v2.cnv	16	SIM022	Missing Genome Build	ERROR	Genome build is required before inserting genomic coordinates for line 16	REJECTED ROW
+179		45	test_v2.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/test_v2.cnv	17	SIM022	Missing Genome Build	ERROR	Genome build is required before inserting genomic coordinates for line 17	REJECTED ROW
+180		45	test_v2.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/test_v2.cnv	18	SIM026	Missing Genome Build	ERROR	Genome build is required before inserting genomic coordinates for line 18	REJECTED ROW
+181		45	test_v2.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/test_v2.cnv	19	SIM026	Missing Genome Build	ERROR	Genome build is required before inserting genomic coordinates for line 19	REJECTED ROW
+182		45	test_v2.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/test_v2.cnv	20	SIM028	Missing Genome Build	ERROR	Genome build is required before inserting genomic coordinates for line 20	REJECTED ROW
+183		45	test_v2.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/test_v2.cnv	21	SIM028	Missing Genome Build	ERROR	Genome build is required before inserting genomic coordinates for line 21	REJECTED ROW
+184		45	test_v2.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/test_v2.cnv	22	SIM028	Missing Genome Build	ERROR	Genome build is required before inserting genomic coordinates for line 22	REJECTED ROW
+185		45	test_v2.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/test_v2.cnv	23	SIM030	Missing Genome Build	ERROR	Genome build is required before inserting genomic coordinates for line 23	REJECTED ROW
+186		45	test_v2.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/test_v2.cnv	24	SIM032	Missing Genome Build	ERROR	Genome build is required before inserting genomic coordinates for line 24	REJECTED ROW
+187							Import Failure	ERROR	NULL not allowed for column "EVENT_ID"; SQL statement:
+INSERT INTO genomic_links
+    (genomic_event_group_id, event_id, event_group_id, source_segment_id, target_segment_id, link_type, orientation, evidence, confidence)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) [23502-224]	REJECTED ROW

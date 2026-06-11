@@ -1,20 +1,55 @@
 
 Segments for sample SIM001
-segment_id	sample_test_result_id	karyotype_id	chromosome	start_pos	stop_pos	event_type	copy_number
-553	553	1	chr5	75000000	120000000	DEL	1
-554	554		chr7	55000000	61000000	DUP	3
+segment_id	event_group_id	sample_test_result_id	karyotype_id	chromosome	start_pos	stop_pos	event_type	copy_number
+553		553	1	chr5	75000000	120000000	DEL	1
+554		554		chr7	55000000	61000000	DUP	3
+1729		1312	107	chr5	75000000	120000000	DEL	1
+1730		1313		chr7	55000000	61000000	DUP	3
+2502		1631	223	chr5	75000000	120000000	DEL	1
+2503		1632		chr7	55000000	61000000	DUP	3
 
 Segments overlapping chr5:70000000-150000000
-segment_id	sample_test_result_id	karyotype_id	chromosome	start_pos	stop_pos	event_type	copy_number
-79	79		chr5	141011866	141579477	DEL	1
-80	80		chr5	141011634	141579328	DUP	3
-100	100		chr5	140554179	140559292	DUP	3
-419	419		chr5	138787101	138837100	DEL	1
-473	473		chr5	102161158	111121407	DUP	3
-514	514		chr5	84008224	98486545	LOSS	1
-525	525		chr5	139332964	142836580	LOSS	1
-553	553	1	chr5	75000000	120000000	DEL	1
-630	630	76	chr5	71405173	85298742	DUP	3
+segment_id	event_group_id	sample_test_result_id	karyotype_id	chromosome	start_pos	stop_pos	event_type	copy_number
+79		79		chr5	141011866	141579477	DEL	1
+80		80		chr5	141011634	141579328	DUP	3
+100		100		chr5	140554179	140559292	DUP	3
+419		419		chr5	138787101	138837100	DEL	1
+473		473		chr5	102161158	111121407	DUP	3
+514		514		chr5	84008224	98486545	LOSS	1
+525		525		chr5	139332964	142836580	LOSS	1
+553		553	1	chr5	75000000	120000000	DEL	1
+630		630	76	chr5	71405173	85298742	DUP	3
+761		786		chr5	70500000	74000000	DUP	3
+763		788		chr5	65000000	71000000	DEL	1
+764		789		chr5	90000000	130000000	DUP	3
+787		812		chr5	102161158	111121407	DUP	3
+828		853		chr5	84008224	98486545	LOSS	1
+839		864		chr5	139332964	142836580	LOSS	1
+941		966		chr5	71405173	85298742	DUP	3
+987		1012		chr5	102161158	111121407	DUP	3
+1028		1053		chr5	84008224	98486545	LOSS	1
+1039		1064		chr5	139332964	142836580	LOSS	1
+1077	TXG006	1103		chr5	70000000	70003000	TRANS	2
+1125	TXG030	1151		chr5	141011866	141013200	TRANS	2
+1175	DERG001	1201		chr5	70000000	70100000	DER	2
+1255		1211		chr5	141011866	141579477	DEL	1
+1256		1211		chr5	141011634	141579328	DUP	3
+1276		1211		chr5	140554179	140559292	DUP	3
+1595		1211		chr5	138787101	138837100	DEL	1
+1649		1232		chr5	102161158	111121407	DUP	3
+1690		1273		chr5	84008224	98486545	LOSS	1
+1701		1284		chr5	139332964	142836580	LOSS	1
+1729		1312	107	chr5	75000000	120000000	DEL	1
+1806		1389	182	chr5	71405173	85298742	DUP	3
+2028		1530		chr5	141011866	141579477	DEL	1
+2029		1530		chr5	141011634	141579328	DUP	3
+2049		1530		chr5	140554179	140559292	DUP	3
+2368		1530		chr5	138787101	138837100	DEL	1
+2422		1551		chr5	102161158	111121407	DUP	3
+2463		1592		chr5	84008224	98486545	LOSS	1
+2474		1603		chr5	139332964	142836580	LOSS	1
+2502		1631	223	chr5	75000000	120000000	DEL	1
+2579		1708	298	chr5	71405173	85298742	DUP	3
 
 Validation Issues
 VALIDATION_ISSUE_ID	ISSUE_TYPE	ISSUE_MESSAGE	SEVERITY
@@ -53,107 +88,563 @@ VALIDATION_ISSUE_ID	ISSUE_TYPE	ISSUE_MESSAGE	SEVERITY
 33	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 22	ERROR
 34	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 23	ERROR
 35	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 24	ERROR
+36	Import Failure	Column "EVENT_GROUP_ID" not found; SQL statement:
+INSERT INTO genomic_segments
+    (event_id, genomic_event_group_id, event_group_id, sample_test_result_id, karyotype_id, chromosome, start_pos, stop_pos,
+     cytoband_start, cytoband_end, event_type, copy_number, array_score,
+     confidence, number_of_sites, raw_segment_text, annotations)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+ [42122-224]	ERROR
+37	Import Failure	Column "EVENT_GROUP_ID" not found; SQL statement:
+INSERT INTO genomic_segments
+    (event_id, genomic_event_group_id, event_group_id, sample_test_result_id, karyotype_id, chromosome, start_pos, stop_pos,
+     cytoband_start, cytoband_end, event_type, copy_number, array_score,
+     confidence, number_of_sites, raw_segment_text, annotations)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+ [42122-224]	ERROR
+38	Import Failure	Column "EVENT_GROUP_ID" not found; SQL statement:
+INSERT INTO genomic_segments
+    (event_id, genomic_event_group_id, event_group_id, sample_test_result_id, karyotype_id, chromosome, start_pos, stop_pos,
+     cytoband_start, cytoband_end, event_type, copy_number, array_score,
+     confidence, number_of_sites, raw_segment_text, annotations)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+ [42122-224]	ERROR
+39	Import Failure	Column "EVENT_GROUP_ID" not found; SQL statement:
+INSERT INTO genomic_segments
+    (event_id, genomic_event_group_id, event_group_id, sample_test_result_id, karyotype_id, chromosome, start_pos, stop_pos,
+     cytoband_start, cytoband_end, event_type, copy_number, array_score,
+     confidence, number_of_sites, raw_segment_text, annotations)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+ [42122-224]	ERROR
+40	Import Failure	Column "EVENT_GROUP_ID" not found; SQL statement:
+INSERT INTO genomic_segments
+    (event_id, genomic_event_group_id, event_group_id, sample_test_result_id, karyotype_id, chromosome, start_pos, stop_pos,
+     cytoband_start, cytoband_end, event_type, copy_number, array_score,
+     confidence, number_of_sites, raw_segment_text, annotations)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+ [42122-224]	ERROR
+41	Import Failure	Column "EVENT_GROUP_ID" not found; SQL statement:
+INSERT INTO genomic_segments
+    (event_id, genomic_event_group_id, event_group_id, sample_test_result_id, karyotype_id, chromosome, start_pos, stop_pos,
+     cytoband_start, cytoband_end, event_type, copy_number, array_score,
+     confidence, number_of_sites, raw_segment_text, annotations)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+ [42122-224]	ERROR
+42	Import Failure	Column "EVENT_GROUP_ID" not found; SQL statement:
+INSERT INTO genomic_segments
+    (event_id, genomic_event_group_id, event_group_id, sample_test_result_id, karyotype_id, chromosome, start_pos, stop_pos,
+     cytoband_start, cytoband_end, event_type, copy_number, array_score,
+     confidence, number_of_sites, raw_segment_text, annotations)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+ [42122-224]	ERROR
+43	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 2	ERROR
+44	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 3	ERROR
+45	Unparseable Row	Unparseable row at line 4: one or more numeric fields could not be parsed	ERROR
+46	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 2	ERROR
+47	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 3	ERROR
+48	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 4	ERROR
+49	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 5	ERROR
+50	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 6	ERROR
+51	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 7	ERROR
+52	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 8	ERROR
+53	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 9	ERROR
+54	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 10	ERROR
+55	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 11	ERROR
+56	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 12	ERROR
+57	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 13	ERROR
+58	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 14	ERROR
+59	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 15	ERROR
+60	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 16	ERROR
+61	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 17	ERROR
+62	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 18	ERROR
+63	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 19	ERROR
+64	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 20	ERROR
+65	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 21	ERROR
+66	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 22	ERROR
+67	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 23	ERROR
+68	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 24	ERROR
+69	Import Failure	Column "EVENT_GROUP_ID" not found; SQL statement:
+INSERT INTO genomic_segments
+    (event_id, genomic_event_group_id, event_group_id, sample_test_result_id, karyotype_id, chromosome, start_pos, stop_pos,
+     cytoband_start, cytoband_end, event_type, copy_number, array_score,
+     confidence, number_of_sites, raw_segment_text, annotations)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+ [42122-224]	ERROR
+70	Mosaic Karyotype	Mosaic Karyotype detected in raw ISCN at line 18	WARNING
+71	Uncertain Breakpoint	Uncertain Breakpoint detected in raw ISCN at line 24	WARNING
+72	Mosaic Karyotype	Mosaic Karyotype detected in raw ISCN at line 35	WARNING
+73	Uncertain Breakpoint	Uncertain Breakpoint detected in raw ISCN at line 47	WARNING
+74	Mosaic Karyotype	Mosaic Karyotype detected in raw ISCN at line 52	WARNING
+75	Mosaic Karyotype	Mosaic Karyotype detected in raw ISCN at line 69	WARNING
+76	Uncertain Breakpoint	Uncertain Breakpoint detected in raw ISCN at line 70	WARNING
+77	Mosaic Karyotype	Mosaic Karyotype detected in raw ISCN at line 86	WARNING
+78	Uncertain Breakpoint	Uncertain Breakpoint detected in raw ISCN at line 93	WARNING
+79	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-30-59 has fewer than 2 segments	WARNING
+80	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-30-31 has fewer than 2 segments	WARNING
+81	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-30-69 has fewer than 2 segments	WARNING
+82	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-30-8 has fewer than 2 segments	WARNING
+83	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-30-10 has fewer than 2 segments	WARNING
+84	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-30-92 has fewer than 2 segments	WARNING
+85	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-30-94 has fewer than 2 segments	WARNING
+86	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-30-66 has fewer than 2 segments	WARNING
+87	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-30-53 has fewer than 2 segments	WARNING
+88	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-30-83 has fewer than 2 segments	WARNING
+89	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-30-97 has fewer than 2 segments	WARNING
+90	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-30-19 has fewer than 2 segments	WARNING
+91	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-30-42 has fewer than 2 segments	WARNING
+92	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-30-88 has fewer than 2 segments	WARNING
+93	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-30-54 has fewer than 2 segments	WARNING
+94	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-30-6 has fewer than 2 segments	WARNING
+95	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-30-27 has fewer than 2 segments	WARNING
+96	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-30-37 has fewer than 2 segments	WARNING
+97	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-30-25 has fewer than 2 segments	WARNING
+98	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-30-52 has fewer than 2 segments	WARNING
+99	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-30-2 has fewer than 2 segments	WARNING
+100	Import Failure	NULL not allowed for column "EVENT_ID"; SQL statement:
+INSERT INTO genomic_links
+    (genomic_event_group_id, event_id, event_group_id, source_segment_id, target_segment_id, link_type, orientation, evidence, confidence)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) [23502-224]	ERROR
+101	Import Failure	NULL not allowed for column "EVENT_ID"; SQL statement:
+INSERT INTO genomic_links
+    (genomic_event_group_id, event_id, event_group_id, source_segment_id, target_segment_id, link_type, orientation, evidence, confidence)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) [23502-224]	ERROR
+102	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 2	ERROR
+103	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 3	ERROR
+104	Unparseable Row	Unparseable row at line 4: one or more numeric fields could not be parsed	ERROR
+105	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 2	ERROR
+106	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 3	ERROR
+107	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 4	ERROR
+108	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 5	ERROR
+109	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 6	ERROR
+110	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 7	ERROR
+111	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 8	ERROR
+112	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 9	ERROR
+113	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 10	ERROR
+114	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 11	ERROR
+115	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 12	ERROR
+116	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 13	ERROR
+117	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 14	ERROR
+118	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 15	ERROR
+119	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 16	ERROR
+120	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 17	ERROR
+121	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 18	ERROR
+122	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 19	ERROR
+123	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 20	ERROR
+124	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 21	ERROR
+125	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 22	ERROR
+126	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 23	ERROR
+127	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 24	ERROR
+128	Import Failure	NULL not allowed for column "EVENT_ID"; SQL statement:
+INSERT INTO genomic_links
+    (genomic_event_group_id, event_id, event_group_id, source_segment_id, target_segment_id, link_type, orientation, evidence, confidence)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) [23502-224]	ERROR
+129	Mosaic Karyotype	Mosaic Karyotype detected in raw ISCN at line 18	WARNING
+130	Uncertain Breakpoint	Uncertain Breakpoint detected in raw ISCN at line 24	WARNING
+131	Mosaic Karyotype	Mosaic Karyotype detected in raw ISCN at line 35	WARNING
+132	Uncertain Breakpoint	Uncertain Breakpoint detected in raw ISCN at line 47	WARNING
+133	Mosaic Karyotype	Mosaic Karyotype detected in raw ISCN at line 52	WARNING
+134	Mosaic Karyotype	Mosaic Karyotype detected in raw ISCN at line 69	WARNING
+135	Uncertain Breakpoint	Uncertain Breakpoint detected in raw ISCN at line 70	WARNING
+136	Mosaic Karyotype	Mosaic Karyotype detected in raw ISCN at line 86	WARNING
+137	Uncertain Breakpoint	Uncertain Breakpoint detected in raw ISCN at line 93	WARNING
+138	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-40-19 has fewer than 2 segments	WARNING
+139	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-40-88 has fewer than 2 segments	WARNING
+140	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-40-54 has fewer than 2 segments	WARNING
+141	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-40-8 has fewer than 2 segments	WARNING
+142	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-40-27 has fewer than 2 segments	WARNING
+143	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-40-10 has fewer than 2 segments	WARNING
+144	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-40-69 has fewer than 2 segments	WARNING
+145	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-40-25 has fewer than 2 segments	WARNING
+146	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-40-52 has fewer than 2 segments	WARNING
+147	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-40-83 has fewer than 2 segments	WARNING
+148	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-40-37 has fewer than 2 segments	WARNING
+149	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-40-42 has fewer than 2 segments	WARNING
+150	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-40-31 has fewer than 2 segments	WARNING
+151	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-40-6 has fewer than 2 segments	WARNING
+152	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-40-92 has fewer than 2 segments	WARNING
+153	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-40-94 has fewer than 2 segments	WARNING
+154	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-40-66 has fewer than 2 segments	WARNING
+155	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-40-97 has fewer than 2 segments	WARNING
+156	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-40-53 has fewer than 2 segments	WARNING
+157	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-40-2 has fewer than 2 segments	WARNING
+158	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-40-59 has fewer than 2 segments	WARNING
+159	Import Failure	NULL not allowed for column "EVENT_ID"; SQL statement:
+INSERT INTO genomic_links
+    (genomic_event_group_id, event_id, event_group_id, source_segment_id, target_segment_id, link_type, orientation, evidence, confidence)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) [23502-224]	ERROR
+160	Import Failure	NULL not allowed for column "EVENT_ID"; SQL statement:
+INSERT INTO genomic_links
+    (genomic_event_group_id, event_id, event_group_id, source_segment_id, target_segment_id, link_type, orientation, evidence, confidence)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) [23502-224]	ERROR
+161	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 2	ERROR
+162	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 3	ERROR
+163	Unparseable Row	Unparseable row at line 4: one or more numeric fields could not be parsed	ERROR
+164	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 2	ERROR
+165	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 3	ERROR
+166	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 4	ERROR
+167	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 5	ERROR
+168	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 6	ERROR
+169	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 7	ERROR
+170	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 8	ERROR
+171	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 9	ERROR
+172	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 10	ERROR
+173	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 11	ERROR
+174	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 12	ERROR
+175	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 13	ERROR
+176	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 14	ERROR
+177	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 15	ERROR
+178	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 16	ERROR
+179	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 17	ERROR
+180	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 18	ERROR
+181	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 19	ERROR
+182	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 20	ERROR
+183	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 21	ERROR
+184	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 22	ERROR
+185	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 23	ERROR
+186	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 24	ERROR
+187	Import Failure	NULL not allowed for column "EVENT_ID"; SQL statement:
+INSERT INTO genomic_links
+    (genomic_event_group_id, event_id, event_group_id, source_segment_id, target_segment_id, link_type, orientation, evidence, confidence)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) [23502-224]	ERROR
 
 ISCN-derived segments
-segment_id	sample_test_result_id	karyotype_id	chromosome	start_pos	stop_pos	event_type	copy_number
-553	553	1	chr5	75000000	120000000	DEL	1
-556	556	2	chr21	29985207	30429817	DER	2
-557	557	3	chr1	25251125	28944261	DUP	3
-558	558	4	chr9	217379832	231989271	DEL	1
-559	559	5	chr11	27536862	29117879	GAIN	3
-560	560	6	chr3	148287279	153230994	DER	2
-561	561	7	chr3	62589327	77151510	DEL	1
-562	562	8	chr22	71766312	83565902	DER	2
-563	563	9	chr21	184827068	194196134	DUP	3
-564	564	10	chr7	152351235	167079243	DER	2
-565	565	11	chrY	150791111	159858649	LOSS	1
-566	566	12	chr16	24503309	37208229	DEL	1
-567	567	13	chr13	160057580	167935154	ADD	2
-568	568	14	chr14	42555148	50192368	DEL	1
-569	569	15	chr12	204784934	207520277	ADD	2
-570	570	16	chr10	64377491	65374314	DUP	3
-571	571	17	chr22	127682641	136931814	DUP	3
-572	572	18	chr21	100339303	107714402	ADD	2
-573	573	19	chr8	2030277	3246343	DER	2
-574	574	20	chr22	130402462	134021759	ADD	2
-575	575	21	chr4	176994335	184251173	LOSS	1
-576	576	22	chr11	215007415	229488881	DEL	1
-577	577	23	chr15	67156907	81853346	DEL	1
-578	578	24	chr14	130463297	138564151	DUP	3
-579	579	25	chr10	113650206	125362072	DER	2
-580	580	26	chr19	197597944	206719470	DEL	1
-581	581	27	chr3	159828520	160993714	DER	2
-582	582	28	chr22	156778336	166286270	ADD	2
-583	583	29	chr22	173375298	178433413	GAIN	3
-584	584	30	chr9	35656038	41536434	DEL	1
-585	585	31	chr21	142086436	142242685	DER	2
-586	586	32	chrY	148604841	151237824	LOSS	1
-587	587	33	chr2	24876180	35542707	GAIN	3
-588	588	34	chr15	148190585	160054720	GAIN	3
-589	589	35	chr5	11328349	16525065	LOSS	1
-590	590	36	chr14	166707554	179306701	DUP	3
-591	591	37	chr11	210120274	217052674	DER	2
-592	592	38	chr8	53672423	67397472	GAIN	3
-593	593	39	chr3	207688289	212396229	LOSS	1
-594	594	40	chr19	71360584	72027433	DEL	1
-595	595	41	chr19	51123882	55422416	DEL	1
-596	596	42	chr11	167377006	172668636	DER	2
-597	597	43	chr10	148923967	151084501	DUP	3
-598	598	44	chr10	56520484	63757810	ADD	2
-599	599	45	chr6	176958901	178406534	LOSS	1
-600	600	46	chr5	6656640	7456977	DUP	3
-601	601	47	chrX	103173435	111492707	GAIN	3
-602	602	48	chr18	66993652	81251374	DEL	1
-603	603	49	chr15	42823624	55325091	GAIN	3
-604	604	50	chr3	191640741	196459463	DUP	3
-605	605	51	chrX	41118350	52995096	DUP	3
-606	606	52	chr13	206740479	216564705	DER	2
-607	607	53	chr14	144577482	157143713	DER	2
-608	608	54	chr1	104483060	110147377	DER	2
-609	609	55	chr19	151602819	162751109	DEL	1
-610	610	56	chr11	56917125	64570713	LOSS	1
-611	611	57	chrY	144899199	145798050	LOSS	1
-612	612	58	chr20	41004824	45031944	DUP	3
-613	613	59	chr20	163106756	175679866	DER	2
-614	614	60	chrX	53338744	54638753	ADD	2
-615	615	61	chr18	115091846	126215332	LOSS	1
-616	616	62	chr21	123510341	135402010	DUP	3
-617	617	63	chr8	23363394	28068033	GAIN	3
-618	618	64	chr6	130975689	134559469	LOSS	1
-619	619	65	chr8	193393571	200237303	GAIN	3
-620	620	66	chr10	59584331	66394056	DER	2
-621	621	67	chrX	121901317	126471540	LOSS	1
-622	622	68	chr7	198367676	206516180	LOSS	1
-623	623	69	chr6	81239339	81501709	DER	2
-624	624	70	chr1	154199191	158994613	GAIN	3
-625	625	71	chr13	132102213	133370105	ADD	2
-626	626	72	chr18	205303725	212310966	ADD	2
-627	627	73	chr14	82074884	91639903	ADD	2
-628	628	74	chr6	148274290	149558669	DUP	3
-629	629	75	chrX	75991635	87810809	GAIN	3
-630	630	76	chr5	71405173	85298742	DUP	3
-631	631	77	chr10	187933330	194711302	LOSS	1
-632	632	78	chr9	7043055	8600265	DUP	3
-633	633	79	chr21	118810050	123501742	DUP	3
-634	634	80	chr11	86283419	97551393	DEL	1
-635	635	81	chr3	84527556	88787106	LOSS	1
-636	636	82	chr17	97214407	107685469	GAIN	3
-637	637	83	chr16	32695067	33204415	DER	2
-638	638	84	chr14	25120655	28915506	DEL	1
-639	639	85	chr16	126860532	130974658	GAIN	3
-640	640	86	chr17	71818614	85610149	DEL	1
-641	641	87	chr11	148254203	161078082	ADD	2
-642	642	88	chr11	200005267	207965491	DER	2
-643	643	89	chr19	89219149	103835299	DEL	1
-644	644	90	chr5	20186555	28088300	LOSS	1
-645	645	91	chr21	193029239	207942989	GAIN	3
-646	646	92	chr3	116593328	118269929	DER	2
-647	647	93	chr2	78850313	84889329	LOSS	1
-648	648	94	chr20	102788453	113210467	DER	2
-649	649	95	chr22	2622603	16147105	GAIN	3
-650	650	96	chr14	185404622	189625573	GAIN	3
-651	651	97	chr12	154399903	159388817	DER	2
-652	652	98	chr8	163057768	176536953	LOSS	1
-653	653	99	chr15	9056222	18804856	LOSS	1
-654	654	100	chr18	98309133	107240357	ADD	2
-655	655	101	chr3	37884173	50561735	DUP	3
+segment_id	event_group_id	sample_test_result_id	karyotype_id	chromosome	start_pos	stop_pos	event_type	copy_number
+553		553	1	chr5	75000000	120000000	DEL	1
+556		556	2	chr21	29985207	30429817	DER	2
+557		557	3	chr1	25251125	28944261	DUP	3
+558		558	4	chr9	217379832	231989271	DEL	1
+559		559	5	chr11	27536862	29117879	GAIN	3
+560		560	6	chr3	148287279	153230994	DER	2
+561		561	7	chr3	62589327	77151510	DEL	1
+562		562	8	chr22	71766312	83565902	DER	2
+563		563	9	chr21	184827068	194196134	DUP	3
+564		564	10	chr7	152351235	167079243	DER	2
+565		565	11	chrY	150791111	159858649	LOSS	1
+566		566	12	chr16	24503309	37208229	DEL	1
+567		567	13	chr13	160057580	167935154	ADD	2
+568		568	14	chr14	42555148	50192368	DEL	1
+569		569	15	chr12	204784934	207520277	ADD	2
+570		570	16	chr10	64377491	65374314	DUP	3
+571		571	17	chr22	127682641	136931814	DUP	3
+572		572	18	chr21	100339303	107714402	ADD	2
+573		573	19	chr8	2030277	3246343	DER	2
+574		574	20	chr22	130402462	134021759	ADD	2
+575		575	21	chr4	176994335	184251173	LOSS	1
+576		576	22	chr11	215007415	229488881	DEL	1
+577		577	23	chr15	67156907	81853346	DEL	1
+578		578	24	chr14	130463297	138564151	DUP	3
+579		579	25	chr10	113650206	125362072	DER	2
+580		580	26	chr19	197597944	206719470	DEL	1
+581		581	27	chr3	159828520	160993714	DER	2
+582		582	28	chr22	156778336	166286270	ADD	2
+583		583	29	chr22	173375298	178433413	GAIN	3
+584		584	30	chr9	35656038	41536434	DEL	1
+585		585	31	chr21	142086436	142242685	DER	2
+586		586	32	chrY	148604841	151237824	LOSS	1
+587		587	33	chr2	24876180	35542707	GAIN	3
+588		588	34	chr15	148190585	160054720	GAIN	3
+589		589	35	chr5	11328349	16525065	LOSS	1
+590		590	36	chr14	166707554	179306701	DUP	3
+591		591	37	chr11	210120274	217052674	DER	2
+592		592	38	chr8	53672423	67397472	GAIN	3
+593		593	39	chr3	207688289	212396229	LOSS	1
+594		594	40	chr19	71360584	72027433	DEL	1
+595		595	41	chr19	51123882	55422416	DEL	1
+596		596	42	chr11	167377006	172668636	DER	2
+597		597	43	chr10	148923967	151084501	DUP	3
+598		598	44	chr10	56520484	63757810	ADD	2
+599		599	45	chr6	176958901	178406534	LOSS	1
+600		600	46	chr5	6656640	7456977	DUP	3
+601		601	47	chrX	103173435	111492707	GAIN	3
+602		602	48	chr18	66993652	81251374	DEL	1
+603		603	49	chr15	42823624	55325091	GAIN	3
+604		604	50	chr3	191640741	196459463	DUP	3
+605		605	51	chrX	41118350	52995096	DUP	3
+606		606	52	chr13	206740479	216564705	DER	2
+607		607	53	chr14	144577482	157143713	DER	2
+608		608	54	chr1	104483060	110147377	DER	2
+609		609	55	chr19	151602819	162751109	DEL	1
+610		610	56	chr11	56917125	64570713	LOSS	1
+611		611	57	chrY	144899199	145798050	LOSS	1
+612		612	58	chr20	41004824	45031944	DUP	3
+613		613	59	chr20	163106756	175679866	DER	2
+614		614	60	chrX	53338744	54638753	ADD	2
+615		615	61	chr18	115091846	126215332	LOSS	1
+616		616	62	chr21	123510341	135402010	DUP	3
+617		617	63	chr8	23363394	28068033	GAIN	3
+618		618	64	chr6	130975689	134559469	LOSS	1
+619		619	65	chr8	193393571	200237303	GAIN	3
+620		620	66	chr10	59584331	66394056	DER	2
+621		621	67	chrX	121901317	126471540	LOSS	1
+622		622	68	chr7	198367676	206516180	LOSS	1
+623		623	69	chr6	81239339	81501709	DER	2
+624		624	70	chr1	154199191	158994613	GAIN	3
+625		625	71	chr13	132102213	133370105	ADD	2
+626		626	72	chr18	205303725	212310966	ADD	2
+627		627	73	chr14	82074884	91639903	ADD	2
+628		628	74	chr6	148274290	149558669	DUP	3
+629		629	75	chrX	75991635	87810809	GAIN	3
+630		630	76	chr5	71405173	85298742	DUP	3
+631		631	77	chr10	187933330	194711302	LOSS	1
+632		632	78	chr9	7043055	8600265	DUP	3
+633		633	79	chr21	118810050	123501742	DUP	3
+634		634	80	chr11	86283419	97551393	DEL	1
+635		635	81	chr3	84527556	88787106	LOSS	1
+636		636	82	chr17	97214407	107685469	GAIN	3
+637		637	83	chr16	32695067	33204415	DER	2
+638		638	84	chr14	25120655	28915506	DEL	1
+639		639	85	chr16	126860532	130974658	GAIN	3
+640		640	86	chr17	71818614	85610149	DEL	1
+641		641	87	chr11	148254203	161078082	ADD	2
+642		642	88	chr11	200005267	207965491	DER	2
+643		643	89	chr19	89219149	103835299	DEL	1
+644		644	90	chr5	20186555	28088300	LOSS	1
+645		645	91	chr21	193029239	207942989	GAIN	3
+646		646	92	chr3	116593328	118269929	DER	2
+647		647	93	chr2	78850313	84889329	LOSS	1
+648		648	94	chr20	102788453	113210467	DER	2
+649		649	95	chr22	2622603	16147105	GAIN	3
+650		650	96	chr14	185404622	189625573	GAIN	3
+651		651	97	chr12	154399903	159388817	DER	2
+652		652	98	chr8	163057768	176536953	LOSS	1
+653		653	99	chr15	9056222	18804856	LOSS	1
+654		654	100	chr18	98309133	107240357	ADD	2
+655		655	101	chr3	37884173	50561735	DUP	3
+1729		1312	107	chr5	75000000	120000000	DEL	1
+1732	AUTO-BREAKPOINT-30-2	1315	108	chr21	29985207	30429817	DER	2
+1733		1316	109	chr1	25251125	28944261	DUP	3
+1734		1317	110	chr9	217379832	231989271	DEL	1
+1735		1318	111	chr11	27536862	29117879	GAIN	3
+1736	AUTO-BREAKPOINT-30-6	1319	112	chr3	148287279	153230994	DER	2
+1737		1320	113	chr3	62589327	77151510	DEL	1
+1738	AUTO-BREAKPOINT-30-8	1321	114	chr22	71766312	83565902	DER	2
+1739		1322	115	chr21	184827068	194196134	DUP	3
+1740	AUTO-BREAKPOINT-30-10	1323	116	chr7	152351235	167079243	DER	2
+1741		1324	117	chrY	150791111	159858649	LOSS	1
+1742		1325	118	chr16	24503309	37208229	DEL	1
+1743		1326	119	chr13	160057580	167935154	ADD	2
+1744		1327	120	chr14	42555148	50192368	DEL	1
+1745		1328	121	chr12	204784934	207520277	ADD	2
+1746		1329	122	chr10	64377491	65374314	DUP	3
+1747		1330	123	chr22	127682641	136931814	DUP	3
+1748		1331	124	chr21	100339303	107714402	ADD	2
+1749	AUTO-BREAKPOINT-30-19	1332	125	chr8	2030277	3246343	DER	2
+1750		1333	126	chr22	130402462	134021759	ADD	2
+1751		1334	127	chr4	176994335	184251173	LOSS	1
+1752		1335	128	chr11	215007415	229488881	DEL	1
+1753		1336	129	chr15	67156907	81853346	DEL	1
+1754		1337	130	chr14	130463297	138564151	DUP	3
+1755	AUTO-BREAKPOINT-30-25	1338	131	chr10	113650206	125362072	DER	2
+1756		1339	132	chr19	197597944	206719470	DEL	1
+1757	AUTO-BREAKPOINT-30-27	1340	133	chr3	159828520	160993714	DER	2
+1758		1341	134	chr22	156778336	166286270	ADD	2
+1759		1342	135	chr22	173375298	178433413	GAIN	3
+1760		1343	136	chr9	35656038	41536434	DEL	1
+1761	AUTO-BREAKPOINT-30-31	1344	137	chr21	142086436	142242685	DER	2
+1762		1345	138	chrY	148604841	151237824	LOSS	1
+1763		1346	139	chr2	24876180	35542707	GAIN	3
+1764		1347	140	chr15	148190585	160054720	GAIN	3
+1765		1348	141	chr5	11328349	16525065	LOSS	1
+1766		1349	142	chr14	166707554	179306701	DUP	3
+1767	AUTO-BREAKPOINT-30-37	1350	143	chr11	210120274	217052674	DER	2
+1768		1351	144	chr8	53672423	67397472	GAIN	3
+1769		1352	145	chr3	207688289	212396229	LOSS	1
+1770		1353	146	chr19	71360584	72027433	DEL	1
+1771		1354	147	chr19	51123882	55422416	DEL	1
+1772	AUTO-BREAKPOINT-30-42	1355	148	chr11	167377006	172668636	DER	2
+1773		1356	149	chr10	148923967	151084501	DUP	3
+1774		1357	150	chr10	56520484	63757810	ADD	2
+1775		1358	151	chr6	176958901	178406534	LOSS	1
+1776		1359	152	chr5	6656640	7456977	DUP	3
+1777		1360	153	chrX	103173435	111492707	GAIN	3
+1778		1361	154	chr18	66993652	81251374	DEL	1
+1779		1362	155	chr15	42823624	55325091	GAIN	3
+1780		1363	156	chr3	191640741	196459463	DUP	3
+1781		1364	157	chrX	41118350	52995096	DUP	3
+1782	AUTO-BREAKPOINT-30-52	1365	158	chr13	206740479	216564705	DER	2
+1783	AUTO-BREAKPOINT-30-53	1366	159	chr14	144577482	157143713	DER	2
+1784	AUTO-BREAKPOINT-30-54	1367	160	chr1	104483060	110147377	DER	2
+1785		1368	161	chr19	151602819	162751109	DEL	1
+1786		1369	162	chr11	56917125	64570713	LOSS	1
+1787		1370	163	chrY	144899199	145798050	LOSS	1
+1788		1371	164	chr20	41004824	45031944	DUP	3
+1789	AUTO-BREAKPOINT-30-59	1372	165	chr20	163106756	175679866	DER	2
+1790		1373	166	chrX	53338744	54638753	ADD	2
+1791		1374	167	chr18	115091846	126215332	LOSS	1
+1792		1375	168	chr21	123510341	135402010	DUP	3
+1793		1376	169	chr8	23363394	28068033	GAIN	3
+1794		1377	170	chr6	130975689	134559469	LOSS	1
+1795		1378	171	chr8	193393571	200237303	GAIN	3
+1796	AUTO-BREAKPOINT-30-66	1379	172	chr10	59584331	66394056	DER	2
+1797		1380	173	chrX	121901317	126471540	LOSS	1
+1798		1381	174	chr7	198367676	206516180	LOSS	1
+1799	AUTO-BREAKPOINT-30-69	1382	175	chr6	81239339	81501709	DER	2
+1800		1383	176	chr1	154199191	158994613	GAIN	3
+1801		1384	177	chr13	132102213	133370105	ADD	2
+1802		1385	178	chr18	205303725	212310966	ADD	2
+1803		1386	179	chr14	82074884	91639903	ADD	2
+1804		1387	180	chr6	148274290	149558669	DUP	3
+1805		1388	181	chrX	75991635	87810809	GAIN	3
+1806		1389	182	chr5	71405173	85298742	DUP	3
+1807		1390	183	chr10	187933330	194711302	LOSS	1
+1808		1391	184	chr9	7043055	8600265	DUP	3
+1809		1392	185	chr21	118810050	123501742	DUP	3
+1810		1393	186	chr11	86283419	97551393	DEL	1
+1811		1394	187	chr3	84527556	88787106	LOSS	1
+1812		1395	188	chr17	97214407	107685469	GAIN	3
+1813	AUTO-BREAKPOINT-30-83	1396	189	chr16	32695067	33204415	DER	2
+1814		1397	190	chr14	25120655	28915506	DEL	1
+1815		1398	191	chr16	126860532	130974658	GAIN	3
+1816		1399	192	chr17	71818614	85610149	DEL	1
+1817		1400	193	chr11	148254203	161078082	ADD	2
+1818	AUTO-BREAKPOINT-30-88	1401	194	chr11	200005267	207965491	DER	2
+1819		1402	195	chr19	89219149	103835299	DEL	1
+1820		1403	196	chr5	20186555	28088300	LOSS	1
+1821		1404	197	chr21	193029239	207942989	GAIN	3
+1822	AUTO-BREAKPOINT-30-92	1405	198	chr3	116593328	118269929	DER	2
+1823		1406	199	chr2	78850313	84889329	LOSS	1
+1824	AUTO-BREAKPOINT-30-94	1407	200	chr20	102788453	113210467	DER	2
+1825		1408	201	chr22	2622603	16147105	GAIN	3
+1826		1409	202	chr14	185404622	189625573	GAIN	3
+1827	AUTO-BREAKPOINT-30-97	1410	203	chr12	154399903	159388817	DER	2
+1828		1411	204	chr8	163057768	176536953	LOSS	1
+1829		1412	205	chr15	9056222	18804856	LOSS	1
+1830		1413	206	chr18	98309133	107240357	ADD	2
+1831		1414	207	chr3	37884173	50561735	DUP	3
+1932		1515	208	chr1	1000	2000	DEL	1
+1933		1516	209	chr2	3000	4000	DUP	3
+1934		1517	210	chr3	5000	6000	GAIN	3
+1935		1518	211	chr4	7000	8000	LOSS	1
+1936		1519	212	chr5	9000	10000	AMP	5
+1937		1520	213	chr6	11000	12000	ROH	2
+1938		1521	214	chr7	13000	14000	TRISOMY	3
+1939		1522	215	chr8	15000	16000	MONOSOMY	1
+1940	TX001	1523	216	chr9	17000	18000	TRANS	2
+1941	TX001	1523	216	chr22	19000	20000	TRANS	2
+1942		1524	217	chr7	51109096	63573985	DEL	1
+1943		1525	218	chr17	36095248	42636838	DUP	3
+1944		1526	219	chr22	114775783	124126409	GAIN	3
+1945		1527	220	chr13	125258155	134236318	LOSS	1
+1946	TXG001	1528	221	chr9	133700000	133701000	TRANS	2
+1947	TXG001	1528	221	chr22	23200000	23201000	TRANS	2
+1948	TXG001	1529	222	chr9	133700000	133701000	TRANS	2
+1949	TXG001	1529	222	chr22	23200000	23201000	TRANS	2
+2502		1631	223	chr5	75000000	120000000	DEL	1
+2505	AUTO-BREAKPOINT-40-2	1634	224	chr21	29985207	30429817	DER	2
+2506		1635	225	chr1	25251125	28944261	DUP	3
+2507		1636	226	chr9	217379832	231989271	DEL	1
+2508		1637	227	chr11	27536862	29117879	GAIN	3
+2509	AUTO-BREAKPOINT-40-6	1638	228	chr3	148287279	153230994	DER	2
+2510		1639	229	chr3	62589327	77151510	DEL	1
+2511	AUTO-BREAKPOINT-40-8	1640	230	chr22	71766312	83565902	DER	2
+2512		1641	231	chr21	184827068	194196134	DUP	3
+2513	AUTO-BREAKPOINT-40-10	1642	232	chr7	152351235	167079243	DER	2
+2514		1643	233	chrY	150791111	159858649	LOSS	1
+2515		1644	234	chr16	24503309	37208229	DEL	1
+2516		1645	235	chr13	160057580	167935154	ADD	2
+2517		1646	236	chr14	42555148	50192368	DEL	1
+2518		1647	237	chr12	204784934	207520277	ADD	2
+2519		1648	238	chr10	64377491	65374314	DUP	3
+2520		1649	239	chr22	127682641	136931814	DUP	3
+2521		1650	240	chr21	100339303	107714402	ADD	2
+2522	AUTO-BREAKPOINT-40-19	1651	241	chr8	2030277	3246343	DER	2
+2523		1652	242	chr22	130402462	134021759	ADD	2
+2524		1653	243	chr4	176994335	184251173	LOSS	1
+2525		1654	244	chr11	215007415	229488881	DEL	1
+2526		1655	245	chr15	67156907	81853346	DEL	1
+2527		1656	246	chr14	130463297	138564151	DUP	3
+2528	AUTO-BREAKPOINT-40-25	1657	247	chr10	113650206	125362072	DER	2
+2529		1658	248	chr19	197597944	206719470	DEL	1
+2530	AUTO-BREAKPOINT-40-27	1659	249	chr3	159828520	160993714	DER	2
+2531		1660	250	chr22	156778336	166286270	ADD	2
+2532		1661	251	chr22	173375298	178433413	GAIN	3
+2533		1662	252	chr9	35656038	41536434	DEL	1
+2534	AUTO-BREAKPOINT-40-31	1663	253	chr21	142086436	142242685	DER	2
+2535		1664	254	chrY	148604841	151237824	LOSS	1
+2536		1665	255	chr2	24876180	35542707	GAIN	3
+2537		1666	256	chr15	148190585	160054720	GAIN	3
+2538		1667	257	chr5	11328349	16525065	LOSS	1
+2539		1668	258	chr14	166707554	179306701	DUP	3
+2540	AUTO-BREAKPOINT-40-37	1669	259	chr11	210120274	217052674	DER	2
+2541		1670	260	chr8	53672423	67397472	GAIN	3
+2542		1671	261	chr3	207688289	212396229	LOSS	1
+2543		1672	262	chr19	71360584	72027433	DEL	1
+2544		1673	263	chr19	51123882	55422416	DEL	1
+2545	AUTO-BREAKPOINT-40-42	1674	264	chr11	167377006	172668636	DER	2
+2546		1675	265	chr10	148923967	151084501	DUP	3
+2547		1676	266	chr10	56520484	63757810	ADD	2
+2548		1677	267	chr6	176958901	178406534	LOSS	1
+2549		1678	268	chr5	6656640	7456977	DUP	3
+2550		1679	269	chrX	103173435	111492707	GAIN	3
+2551		1680	270	chr18	66993652	81251374	DEL	1
+2552		1681	271	chr15	42823624	55325091	GAIN	3
+2553		1682	272	chr3	191640741	196459463	DUP	3
+2554		1683	273	chrX	41118350	52995096	DUP	3
+2555	AUTO-BREAKPOINT-40-52	1684	274	chr13	206740479	216564705	DER	2
+2556	AUTO-BREAKPOINT-40-53	1685	275	chr14	144577482	157143713	DER	2
+2557	AUTO-BREAKPOINT-40-54	1686	276	chr1	104483060	110147377	DER	2
+2558		1687	277	chr19	151602819	162751109	DEL	1
+2559		1688	278	chr11	56917125	64570713	LOSS	1
+2560		1689	279	chrY	144899199	145798050	LOSS	1
+2561		1690	280	chr20	41004824	45031944	DUP	3
+2562	AUTO-BREAKPOINT-40-59	1691	281	chr20	163106756	175679866	DER	2
+2563		1692	282	chrX	53338744	54638753	ADD	2
+2564		1693	283	chr18	115091846	126215332	LOSS	1
+2565		1694	284	chr21	123510341	135402010	DUP	3
+2566		1695	285	chr8	23363394	28068033	GAIN	3
+2567		1696	286	chr6	130975689	134559469	LOSS	1
+2568		1697	287	chr8	193393571	200237303	GAIN	3
+2569	AUTO-BREAKPOINT-40-66	1698	288	chr10	59584331	66394056	DER	2
+2570		1699	289	chrX	121901317	126471540	LOSS	1
+2571		1700	290	chr7	198367676	206516180	LOSS	1
+2572	AUTO-BREAKPOINT-40-69	1701	291	chr6	81239339	81501709	DER	2
+2573		1702	292	chr1	154199191	158994613	GAIN	3
+2574		1703	293	chr13	132102213	133370105	ADD	2
+2575		1704	294	chr18	205303725	212310966	ADD	2
+2576		1705	295	chr14	82074884	91639903	ADD	2
+2577		1706	296	chr6	148274290	149558669	DUP	3
+2578		1707	297	chrX	75991635	87810809	GAIN	3
+2579		1708	298	chr5	71405173	85298742	DUP	3
+2580		1709	299	chr10	187933330	194711302	LOSS	1
+2581		1710	300	chr9	7043055	8600265	DUP	3
+2582		1711	301	chr21	118810050	123501742	DUP	3
+2583		1712	302	chr11	86283419	97551393	DEL	1
+2584		1713	303	chr3	84527556	88787106	LOSS	1
+2585		1714	304	chr17	97214407	107685469	GAIN	3
+2586	AUTO-BREAKPOINT-40-83	1715	305	chr16	32695067	33204415	DER	2
+2587		1716	306	chr14	25120655	28915506	DEL	1
+2588		1717	307	chr16	126860532	130974658	GAIN	3
+2589		1718	308	chr17	71818614	85610149	DEL	1
+2590		1719	309	chr11	148254203	161078082	ADD	2
+2591	AUTO-BREAKPOINT-40-88	1720	310	chr11	200005267	207965491	DER	2
+2592		1721	311	chr19	89219149	103835299	DEL	1
+2593		1722	312	chr5	20186555	28088300	LOSS	1
+2594		1723	313	chr21	193029239	207942989	GAIN	3
+2595	AUTO-BREAKPOINT-40-92	1724	314	chr3	116593328	118269929	DER	2
+2596		1725	315	chr2	78850313	84889329	LOSS	1
+2597	AUTO-BREAKPOINT-40-94	1726	316	chr20	102788453	113210467	DER	2
+2598		1727	317	chr22	2622603	16147105	GAIN	3
+2599		1728	318	chr14	185404622	189625573	GAIN	3
+2600	AUTO-BREAKPOINT-40-97	1729	319	chr12	154399903	159388817	DER	2
+2601		1730	320	chr8	163057768	176536953	LOSS	1
+2602		1731	321	chr15	9056222	18804856	LOSS	1
+2603		1732	322	chr18	98309133	107240357	ADD	2
+2604		1733	323	chr3	37884173	50561735	DUP	3
+2705		1834	324	chr1	1000	2000	DEL	1
+2706		1835	325	chr2	3000	4000	DUP	3
+2707		1836	326	chr3	5000	6000	GAIN	3
+2708		1837	327	chr4	7000	8000	LOSS	1
+2709		1838	328	chr5	9000	10000	AMP	5
+2710		1839	329	chr6	11000	12000	ROH	2
+2711		1840	330	chr7	13000	14000	TRISOMY	3
+2712		1841	331	chr8	15000	16000	MONOSOMY	1
+2713	TX001	1842	332	chr9	17000	18000	TRANS	2
+2714	TX001	1842	332	chr22	19000	20000	TRANS	2
+2715		1843	333	chr7	51109096	63573985	DEL	1
+2716		1844	334	chr17	36095248	42636838	DUP	3
+2717		1845	335	chr22	114775783	124126409	GAIN	3
+2718		1846	336	chr13	125258155	134236318	LOSS	1
+2719	TXG001	1847	337	chr9	133700000	133701000	TRANS	2
+2720	TXG001	1847	337	chr22	23200000	23201000	TRANS	2
+2721	TXG001	1848	338	chr9	133700000	133701000	TRANS	2
+2722	TXG001	1848	338	chr22	23200000	23201000	TRANS	2
