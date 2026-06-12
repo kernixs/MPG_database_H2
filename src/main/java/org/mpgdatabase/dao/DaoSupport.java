@@ -33,6 +33,11 @@ final class DaoSupport {
         return rs.wasNull() ? null : value;
     }
 
+    static Boolean nullableBoolean(ResultSet rs, String column) throws SQLException {
+        boolean value = rs.getBoolean(column);
+        return rs.wasNull() ? null : value;
+    }
+
     static int returnGeneratedKeys() {
         return Statement.RETURN_GENERATED_KEYS;
     }

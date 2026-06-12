@@ -59,6 +59,19 @@ public final class Models {
     ) {
     }
 
+    public record SegmentAnnotation(
+            long id,
+            long segmentId,
+            String annotationName,
+            String textValue,
+            Double numericValue,
+            Boolean booleanValue,
+            String valueType,
+            String sourceColumn,
+            int ordinalPosition
+    ) {
+    }
+
     public record ValidationIssue(long id, Long segmentId, String issueType, String issueMessage, String severity) {
     }
 

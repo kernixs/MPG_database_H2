@@ -199,7 +199,8 @@ class Phase2WorkflowTest {
             }
             String mismatchSearch = new SearchService(connection).search(Map.of("annotation", "Gene=FCGR3A"));
             assertFalse(mismatchSearch.isBlank());
-            assertEquals(1, issueCount(connection, "Annotation Count Mismatch", "WARNING"));
+            assertTrue(mismatchSearch.contains("FCGR3A"), mismatchSearch);
+            assertEquals(0, issueCount(connection, "Annotation Count Mismatch", "WARNING"));
         }
     }
 
@@ -401,6 +402,110 @@ class Phase2WorkflowTest {
             assertTrue(columnExists(connection, "GENOMIC_SEGMENTS", "CONFIDENCE"));
             assertNoDedicatedAnnotationNames(connection);
             assertAnnotationAlignment(connection);
+        }
+    }
+
+    @Test
+    void storesNgsExtraFieldsInSegmentAnnotations() throws Exception {
+        Path input = Files.createTempFile("ngs-segment-annotations", ".cnv");
+        Files.writeString(input, """
+                Sample\tChr\tStart\tEnd\tSV_Type\thg_version\tGene\tLumpy\tCNVNATOR\tgnomAD_count\tDGV_pop_percent
+                SIM001\tchr7\t51109096\t63573985\tDEL\thg38\tFCGR3A\t1\t1\t12\t0.37
+                """);
+        try (Connection connection = Database.connect("jdbc:h2:mem:ngs_segment_annotations;DB_CLOSE_DELAY=-1")) {
+            Database.initialize(connection);
+            CnvImportService importer = new CnvImportService(connection, new CnvParserFactory());
+            var result = importer.importFile(input, null);
+
+            assertTrue(result.success());
+            assertEquals(1, result.segmentsInserted());
+            assertEquals(1, count(connection, """
+                    SELECT COUNT(*)
+                    FROM genomic_segments
+                    WHERE chromosome = 'chr7'
+                      AND start_pos = 51109096
+                      AND stop_pos = 63573985
+                      AND event_type = 'DEL'
+                      AND copy_number = 1
+                      AND genome_build = 'GRCh38'
+                    """));
+            assertEquals(5, count(connection, "SELECT COUNT(*) FROM segment_annotations"));
+            assertEquals(1, count(connection, """
+                    SELECT COUNT(*)
+                    FROM genomic_segments gs
+                    JOIN segment_annotations sa ON sa.segment_id = gs.segment_id
+                    WHERE sa.annotation_name = 'Gene'
+                      AND sa.text_value = 'FCGR3A'
+                    """));
+            assertEquals(1, count(connection, """
+                    SELECT COUNT(*)
+                    FROM genomic_segments gs
+                    JOIN segment_annotations sa ON sa.segment_id = gs.segment_id
+                    WHERE sa.annotation_name = 'Lumpy'
+                      AND sa.numeric_value = 1
+                    """));
+            assertEquals(1, count(connection, """
+                    SELECT COUNT(*)
+                    FROM segment_annotations
+                    WHERE annotation_name = 'DGV_pop_percent'
+                      AND numeric_value = 0.37
+                      AND value_type = 'NUMBER'
+                    """));
+        }
+    }
+
+    @Test
+    void storesArrayExtraFieldsInSegmentAnnotationsAndSkipsBlanks() throws Exception {
+        Path input = Files.createTempFile("array-segment-annotations", ".cnv");
+        Files.writeString(input, """
+                SampleID\tChromosome\tBP1\tBP2\tCNV_Type\tCN\tGenomeBuild\tprobe_count\tLRR\tBAF\tarray_platform\tCNVNATOR
+                ARR001\tchr2\t1000\t2000\tDUP\t3\thg19\t501\t0.22\t\tCytoScan\t
+                """);
+        try (Connection connection = Database.connect("jdbc:h2:mem:array_segment_annotations;DB_CLOSE_DELAY=-1")) {
+            Database.initialize(connection);
+            CnvImportService importer = new CnvImportService(connection, new CnvParserFactory());
+            var result = importer.importFile(input, null);
+
+            assertTrue(result.success());
+            assertEquals(1, result.segmentsInserted());
+            assertEquals(3, count(connection, "SELECT COUNT(*) FROM segment_annotations"));
+            assertEquals(0, count(connection, """
+                    SELECT COUNT(*)
+                    FROM segment_annotations
+                    WHERE annotation_name IN ('BAF', 'CNVNATOR')
+                    """));
+            assertEquals(1, count(connection, """
+                    SELECT COUNT(*)
+                    FROM genomic_segments gs
+                    JOIN segment_annotations sa ON sa.segment_id = gs.segment_id
+                    WHERE sa.annotation_name = 'probe_count'
+                      AND sa.numeric_value > 400
+                    """));
+            String sizeSearch = new SearchService(connection).search(Map.of("cnv-size-min", "1001"));
+            assertTrue(sizeSearch.contains("ARR001"), sizeSearch);
+            String annotationSearch = new SearchService(connection).search(Map.of("annotation", "array_platform=CytoScan"));
+            assertTrue(annotationSearch.contains("CytoScan"), annotationSearch);
+        }
+    }
+
+    @Test
+    void duplicateFileImportsAreWarnedButNotBlocked() throws Exception {
+        Path input = Files.createTempFile("duplicate-cnv-import", ".cnv");
+        Files.writeString(input, """
+                Sample\tChr\tStart\tEnd\tAberration\tCopyNumber\tBuild\tGene
+                DUP001\tchr1\t1000\t2000\tDEL\t1\thg38\tSHH
+                """);
+        try (Connection connection = Database.connect("jdbc:h2:mem:duplicate_import_warning;DB_CLOSE_DELAY=-1")) {
+            Database.initialize(connection);
+            CnvImportService importer = new CnvImportService(connection, new CnvParserFactory());
+
+            var first = importer.importFile(input, null);
+            var second = importer.importFile(input, null);
+
+            assertTrue(first.success());
+            assertTrue(second.success());
+            assertEquals(2, count(connection, "SELECT COUNT(*) FROM source_files"));
+            assertEquals(1, issueCount(connection, "Duplicate Source File", "WARNING"));
         }
     }
 

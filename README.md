@@ -140,12 +140,13 @@ The current schema has 16 tables.
 | 8 | `karyotypes` | ISCN/karyotype-level records derived from or preserving ISCN text. | `karyotype_id`, `sample_test_result_id`, `karyotype_text`, `clone_number`, `cell_count`, `abnormalities` |
 | 9 | `genomic_events` | Deprecated compatibility table from earlier prototypes. New Phase 2.7 imports do not require or write this table. | `event_id`, `sample_test_result_id`, `source_file_id`, `event_group_id`, `event_type`, `genome_build`, `calling_method`, `raw_event_text`, `event_status` |
 | 10 | `genomic_event_groups` | Deprecated compatibility table from the earlier grouping design. New imports preserve the source label directly as `event_group_id`. | `genomic_event_group_id`, `sample_test_result_id`, `event_group_label`, `event_group_type`, `raw_event_text`, `created_at` |
-| 11 | `genomic_segments` | Normalized queryable genomic locations/pieces. Standalone CNVs have `event_group_id = NULL`; grouped SV pieces preserve the source `event_group_id` directly. | `segment_id`, `event_group_id`, `sample_test_result_id`, `karyotype_id`, `chromosome`, `start_pos`, `stop_pos`, `event_type`, `copy_number`, `raw_segment_text`, `annotations` |
-| 12 | `genomic_links` | Global/direct relationships between two genomic segments for translocations, inversions, insertions, derivatives, rings, and complex events. | `link_id`, `event_group_id`, `source_segment_id`, `target_segment_id`, `link_type`, `orientation`, `evidence`, `confidence` |
-| 13 | `validation_issues` | Import, parsing, or data-quality issues captured during processing. | `validation_issue_id`, `segment_id`, `issue_type`, `issue_message`, `severity` |
-| 14 | `variant_classifications` | Classification assertions for observed genomic segments. | `classification_id`, `segment_id`, `classification_label`, `guideline_system`, `guideline_version`, `evidence_score`, `evidence_summary`, `review_status`, `is_current` |
-| 15 | `signed_out_calls` | Case-level clinical conclusion and report/sign-out decision for a classified segment. | `signed_out_call_id`, `segment_id`, `classification_id`, `individual_id`, `sample_test_result_id`, `clinical_significance`, `interpretation_text`, `signed_out_status`, `report_text` |
-| 16 | `notes` | Typed human notes attached to segments, classifications, or signed-out calls. | `note_id`, `target_table`, `target_id`, `note_type`, `note_text`, `author`, `created_at` |
+| 11 | `genomic_segments` | Normalized queryable genomic locations/pieces. Standalone CNVs have `event_group_id = NULL`; grouped SV pieces preserve the source `event_group_id` directly. | `segment_id`, `event_group_id`, `sample_test_result_id`, `karyotype_id`, `chromosome`, `start_pos`, `stop_pos`, `event_type`, `copy_number`, `genome_build`, `confidence`, `raw_iscn`, `raw_segment_text`, `annotations` |
+| 12 | `segment_annotations` | Queryable child rows for extra CNV/SV source-file fields that are not core segment columns. | `annotation_id`, `segment_id`, `annotation_name`, `text_value`, `numeric_value`, `boolean_value`, `value_type`, `source_column`, `ordinal_position` |
+| 13 | `genomic_links` | Global/direct relationships between two genomic segments for translocations, inversions, insertions, derivatives, rings, and complex events. | `link_id`, `event_group_id`, `source_segment_id`, `target_segment_id`, `link_type`, `orientation`, `evidence`, `confidence` |
+| 14 | `validation_issues` | Import, parsing, or data-quality issues captured during processing. | `validation_issue_id`, `segment_id`, `issue_type`, `issue_message`, `severity` |
+| 15 | `variant_classifications` | Classification assertions for observed genomic segments. | `classification_id`, `segment_id`, `classification_label`, `guideline_system`, `guideline_version`, `evidence_score`, `evidence_summary`, `review_status`, `is_current` |
+| 16 | `signed_out_calls` | Case-level clinical conclusion and report/sign-out decision for a classified segment. | `signed_out_call_id`, `segment_id`, `classification_id`, `individual_id`, `sample_test_result_id`, `clinical_significance`, `interpretation_text`, `signed_out_status`, `report_text` |
+| 17 | `notes` | Typed human notes attached to segments, classifications, or signed-out calls. | `note_id`, `target_table`, `target_id`, `note_type`, `note_text`, `author`, `created_at` |
 
 The schema also includes indexes for common lookups:
 
@@ -321,6 +322,8 @@ FAILED
 
 `SUCCESS` means all rows imported without validation issues. `PARTIAL_SUCCESS` means at least one usable row imported, but one or more rows were rejected or flagged. `FAILED` means no usable rows imported or the file-level import failed.
 
+The official CNV import template is [templates/official_cnv_import_template.tsv](templates/official_cnv_import_template.tsv). Import files should provide `sample_id` or an accepted sample/accession alias. They should not provide `sample_test_result_id`; that identifier is generated internally when H2 creates the result row.
+
 ### `sample_test_results`
 
 Represents the output of running a pipeline on a sample test. This is the main result-provenance table.
@@ -373,20 +376,55 @@ Represents normalized queryable genomic intervals.
 Important fields:
 
 ```text
+segment_id
 event_group_id
+sample_test_result_id
+karyotype_id
 chromosome
 start_pos
 stop_pos
 event_type
 copy_number
-array_score
-number_of_sites
+genome_build
+confidence
+raw_iscn
+raw_segment_text
 annotations
 ```
 
 The segment always links back to `sample_test_results`. It can optionally preserve a source `event_group_id` value such as `TXG001`, `INVG001`, or `DERG001` when the source file says multiple rows belong to the same biological event. If it came from ISCN/karyotype interpretation, it also links to `karyotypes`.
 
-`annotation_names` and `annotations` work together. `annotation_names` stores ordered source-specific column names for a result, and `annotations` stores the matching ordered values for each segment. This lets the prototype keep fields such as `Gene`, `Class`, `Lumpy`, `CNVNATOR`, `Clinical`, `DGV`, and `gnomAD_version` without adding a new schema column for every pipeline-specific annotation.
+CNV size is calculated from coordinates as `stop_pos - start_pos + 1` in search and GUI output. It is not stored as a duplicate column.
+
+### `segment_annotations`
+
+Extra source-file fields are stored here as queryable child rows. This is the new searchable source of truth for assay-specific fields such as `Gene`, `Class`, `Lumpy`, `CNVNATOR`, `Clinical`, `DGV`, `gnomAD_version`, `probe_count`, `LRR`, `BAF`, and `array_platform`.
+
+Core fields stay in `genomic_segments`. Extra non-core columns become `segment_annotations` rows:
+
+```text
+segment_id
+annotation_name
+text_value
+numeric_value
+boolean_value
+value_type
+source_column
+ordinal_position
+```
+
+Blank annotation values are skipped in `segment_annotations`. The older compatibility fields remain in place: `sample_test_results.annotation_names` stores the ordered extra-column names for the result, and `genomic_segments.annotations` stores the matching pipe-delimited row values. New annotation search should use `segment_annotations`, not string parsing of the pipe fields.
+
+Example query:
+
+```sql
+SELECT gs.*
+FROM genomic_segments gs
+JOIN segment_annotations sa
+  ON sa.segment_id = gs.segment_id
+WHERE sa.annotation_name = 'Gene'
+  AND sa.text_value = 'FCGR3A';
+```
 
 ### `genomic_events`
 

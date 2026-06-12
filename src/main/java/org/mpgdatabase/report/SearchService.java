@@ -1,13 +1,10 @@
 package org.mpgdatabase.report;
 
-import org.mpgdatabase.dao.CoreDao;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -28,6 +25,7 @@ public class SearchService {
                     gs.chromosome,
                     gs.start_pos,
                     gs.stop_pos,
+                    (gs.stop_pos - gs.start_pos + 1) AS cnv_size,
                     gs.event_type,
                     gs.copy_number,
                     gs.genome_build,
@@ -52,6 +50,7 @@ public class SearchService {
         addValues(sql, params, filters, "calling-method", "str.calling_method");
         addValues(sql, params, filters, "genome-build", "gs.genome_build");
         addValues(sql, params, filters, "confidence", "gs.confidence");
+        addCnvSizeFilters(sql, params, filters);
         if (filters.containsKey("start") || filters.containsKey("stop") || filters.containsKey("end")) {
             long start = parseLong(filters.getOrDefault("start", "0"));
             long stop = parseLong(filters.getOrDefault("end", filters.getOrDefault("stop", String.valueOf(Long.MAX_VALUE))));
@@ -59,26 +58,13 @@ public class SearchService {
             params.add(stop);
             params.add(start);
         }
+        addAnnotationFilters(sql, params, annotationFilters(filters));
         sql.append(" ORDER BY gs.chromosome, gs.start_pos, gs.stop_pos, gs.segment_id");
 
-        List<AnnotationFilter> annotationFilters = annotationFilters(filters);
         List<SearchRow> rows;
         try (PreparedStatement ps = connection.prepareStatement(sql.toString())) {
-            for (int i = 0; i < params.size(); i++) {
-                Object value = params.get(i);
-                if (value instanceof Long longValue) {
-                    ps.setLong(i + 1, longValue);
-                } else {
-                    ps.setString(i + 1, value.toString());
-                }
-            }
+            bindParams(ps, params);
             rows = rows(ps);
-        }
-
-        if (!annotationFilters.isEmpty()) {
-            rows = rows.stream()
-                    .filter(row -> matchesAnnotations(row, annotationFilters))
-                    .toList();
         }
         return table(rows);
     }
@@ -116,6 +102,54 @@ public class SearchService {
         }
     }
 
+    private void addCnvSizeFilters(StringBuilder sql, List<Object> params, Map<String, String> filters) {
+        String min = firstNonBlank(filters.get("cnv-size-min"), filters.get("min-size"));
+        if (min != null) {
+            sql.append(" AND (gs.stop_pos - gs.start_pos + 1) >= ?\n");
+            params.add(parseLong(min));
+        }
+        String max = firstNonBlank(filters.get("cnv-size-max"), filters.get("max-size"));
+        if (max != null) {
+            sql.append(" AND (gs.stop_pos - gs.start_pos + 1) <= ?\n");
+            params.add(parseLong(max));
+        }
+    }
+
+    private void addAnnotationFilters(StringBuilder sql, List<Object> params, List<AnnotationFilter> filters) {
+        for (AnnotationFilter filter : filters) {
+            sql.append("""
+                     AND EXISTS (
+                         SELECT 1
+                         FROM segment_annotations san
+                         WHERE san.segment_id = gs.segment_id
+                           AND LOWER(san.annotation_name) = LOWER(?)
+                           AND (
+                    """);
+            params.add(filter.key());
+            for (int i = 0; i < filter.values().size(); i++) {
+                if (i > 0) {
+                    sql.append(" OR ");
+                }
+                sql.append("LOWER(san.text_value) = LOWER(?)");
+                params.add(filter.values().get(i));
+                Double numeric = parseDoubleOrNull(filter.values().get(i));
+                if (numeric != null) {
+                    sql.append(" OR san.numeric_value = ?");
+                    params.add(numeric);
+                }
+                Boolean bool = parseBooleanOrNull(filter.values().get(i));
+                if (bool != null) {
+                    sql.append(" OR san.boolean_value = ?");
+                    params.add(bool);
+                }
+            }
+            sql.append("""
+                           )
+                     )
+                    """);
+        }
+    }
+
     private List<AnnotationFilter> annotationFilters(Map<String, String> filters) {
         List<AnnotationFilter> annotationFilters = new ArrayList<>();
         addAnnotationFilter(annotationFilters, "Gene", filters.get("gene"));
@@ -146,54 +180,19 @@ public class SearchService {
         }
     }
 
-    private boolean matchesAnnotations(SearchRow row, List<AnnotationFilter> filters) {
-        String[] names = splitAnnotationParts(row.annotationNames());
-        String[] values = splitAnnotationParts(row.annotations());
-        if (names.length != values.length) {
-            createAnnotationMismatchWarning(row);
-            return false;
-        }
-
-        Map<String, String> annotationMap = new LinkedHashMap<>();
-        for (int i = 0; i < names.length; i++) {
-            annotationMap.put(names[i].trim().toLowerCase(Locale.ROOT), values[i].trim());
-        }
-        for (AnnotationFilter filter : filters) {
-            String actualValue = annotationMap.get(filter.key().toLowerCase(Locale.ROOT));
-            if (actualValue == null || filter.values().stream().noneMatch(value -> value.equals(actualValue))) {
-                return false;
+    private void bindParams(PreparedStatement ps, List<Object> params) throws SQLException {
+        for (int i = 0; i < params.size(); i++) {
+            Object value = params.get(i);
+            if (value instanceof Long longValue) {
+                ps.setLong(i + 1, longValue);
+            } else if (value instanceof Double doubleValue) {
+                ps.setDouble(i + 1, doubleValue);
+            } else if (value instanceof Boolean booleanValue) {
+                ps.setBoolean(i + 1, booleanValue);
+            } else {
+                ps.setString(i + 1, value.toString());
             }
         }
-        return true;
-    }
-
-    private void createAnnotationMismatchWarning(SearchRow row) {
-        try (PreparedStatement ps = connection.prepareStatement("""
-                SELECT COUNT(*) FROM validation_issues
-                WHERE segment_id = ? AND issue_type = 'Annotation Count Mismatch'
-                """)) {
-            ps.setLong(1, row.segmentId());
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next() && rs.getLong(1) > 0) {
-                    return;
-                }
-            }
-            new CoreDao(connection).createValidationIssue(
-                    row.segmentId(),
-                    "Annotation Count Mismatch",
-                    "annotation_names count does not match annotations count for segment " + row.segmentId(),
-                    "WARNING");
-        } catch (SQLException ignored) {
-            // Search should never fail just because a validation warning could not be recorded.
-        }
-    }
-
-    private String[] splitAnnotationParts(String value) {
-        if (value == null || value.isEmpty()) {
-            return new String[0];
-        }
-        String delimiter = value.contains("|") ? "\\|" : ";";
-        return value.split(delimiter, -1);
     }
 
     private List<String> splitValues(String value) {
@@ -217,6 +216,7 @@ public class SearchService {
                         rs.getString("chromosome"),
                         rs.getLong("start_pos"),
                         rs.getLong("stop_pos"),
+                        rs.getLong("cnv_size"),
                         rs.getString("event_type"),
                         rs.getInt("copy_number"),
                         rs.getString("genome_build"),
@@ -232,9 +232,9 @@ public class SearchService {
         return rows;
     }
 
-    private String table(List<SearchRow> rows) {
+    private String table(List<SearchRow> rows) throws SQLException {
         StringBuilder sb = new StringBuilder();
-        sb.append("EVENT_GROUP_ID\tSEGMENT_ID\tSAMPLE_ACCESSION_ID\tCHROMOSOME\tSTART_POS\tSTOP_POS\tEVENT_TYPE\tCOPY_NUMBER\tGENOME_BUILD\tCONFIDENCE\tRAW_ISCN\tCALLING_METHOD\tSOURCE_FILE\tANNOTATION_NAMES\tANNOTATIONS\tMATCHED_ANNOTATIONS\n");
+        sb.append("EVENT_GROUP_ID\tSEGMENT_ID\tSAMPLE_ACCESSION_ID\tCHROMOSOME\tSTART_POS\tSTOP_POS\tCNV_SIZE\tEVENT_TYPE\tCOPY_NUMBER\tGENOME_BUILD\tCONFIDENCE\tRAW_ISCN\tCALLING_METHOD\tSOURCE_FILE\tANNOTATION_NAMES\tANNOTATIONS\tMATCHED_ANNOTATIONS\n");
         for (SearchRow row : rows) {
             sb.append(nullToEmpty(row.eventGroupId())).append('\t')
                     .append(row.segmentId()).append('\t')
@@ -242,6 +242,7 @@ public class SearchService {
                     .append(nullToEmpty(row.chromosome())).append('\t')
                     .append(row.startPos()).append('\t')
                     .append(row.stopPos()).append('\t')
+                    .append(row.cnvSize()).append('\t')
                     .append(nullToEmpty(row.eventType())).append('\t')
                     .append(row.copyNumber()).append('\t')
                     .append(nullToEmpty(row.genomeBuild())).append('\t')
@@ -251,24 +252,48 @@ public class SearchService {
                     .append(nullToEmpty(row.sourceFile())).append('\t')
                     .append(nullToEmpty(row.annotationNames())).append('\t')
                     .append(nullToEmpty(row.annotations())).append('\t')
-                    .append(readableAnnotations(row))
+                    .append(readableAnnotations(row.segmentId()))
                     .append('\n');
         }
         sb.append("\nRows: ").append(rows.size()).append('\n');
         return sb.toString();
     }
 
-    private String readableAnnotations(SearchRow row) {
-        String[] names = splitAnnotationParts(row.annotationNames());
-        String[] values = splitAnnotationParts(row.annotations());
-        if (names.length != values.length) {
-            return "";
-        }
+    private String readableAnnotations(long segmentId) throws SQLException {
         List<String> pairs = new ArrayList<>();
-        for (int i = 0; i < names.length; i++) {
-            pairs.add(names[i].trim() + "=" + values[i].trim());
+        try (PreparedStatement ps = connection.prepareStatement("""
+                SELECT annotation_name, text_value, numeric_value, boolean_value, value_type
+                FROM segment_annotations
+                WHERE segment_id = ?
+                ORDER BY ordinal_position, annotation_id
+                """)) {
+            ps.setLong(1, segmentId);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    pairs.add(rs.getString("annotation_name") + "=" + displayAnnotationValue(rs));
+                }
+            }
         }
         return String.join("; ", pairs);
+    }
+
+    private String displayAnnotationValue(ResultSet rs) throws SQLException {
+        String valueType = rs.getString("value_type");
+        if ("NUMBER".equals(valueType)) {
+            double value = rs.getDouble("numeric_value");
+            if (rs.wasNull()) {
+                return "";
+            }
+            return Math.rint(value) == value ? String.valueOf((long) value) : String.valueOf(value);
+        }
+        if ("BOOLEAN".equals(valueType)) {
+            boolean value = rs.getBoolean("boolean_value");
+            if (rs.wasNull()) {
+                return "";
+            }
+            return String.valueOf(value);
+        }
+        return nullToEmpty(rs.getString("text_value"));
     }
 
     private String nullToEmpty(String value) {
@@ -277,6 +302,31 @@ public class SearchService {
 
     private long parseLong(String value) {
         return Long.parseLong(value.replace(",", ""));
+    }
+
+    private Double parseDoubleOrNull(String value) {
+        try {
+            return Double.parseDouble(value.replace(",", ""));
+        } catch (NumberFormatException e) {
+            return null;
+        }
+    }
+
+    private Boolean parseBooleanOrNull(String value) {
+        return switch (value.trim().toLowerCase(Locale.ROOT)) {
+            case "true", "yes", "y", "present", "positive", "pos", "1" -> true;
+            case "false", "no", "n", "absent", "negative", "neg", "0" -> false;
+            default -> null;
+        };
+    }
+
+    private String firstNonBlank(String... values) {
+        for (String value : values) {
+            if (value != null && !value.isBlank()) {
+                return value;
+            }
+        }
+        return null;
     }
 
     private String normalizeChromosome(String value) {
@@ -293,6 +343,7 @@ public class SearchService {
             String chromosome,
             long startPos,
             long stopPos,
+            long cnvSize,
             String eventType,
             int copyNumber,
             String genomeBuild,

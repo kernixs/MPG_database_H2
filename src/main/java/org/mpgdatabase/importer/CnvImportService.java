@@ -2,6 +2,7 @@ package org.mpgdatabase.importer;
 
 import org.mpgdatabase.dao.CoreDao;
 import org.mpgdatabase.dao.GenomicSegmentDao;
+import org.mpgdatabase.dao.SegmentAnnotationDao;
 import org.mpgdatabase.model.Models.GenomicSegment;
 
 import java.nio.file.Path;
@@ -30,17 +31,30 @@ public class CnvImportService {
             ParsedCnvFile parsed = parserFactory.parserFor(path).parse(path);
             CoreDao coreDao = new CoreDao(connection);
             GenomicSegmentDao segmentDao = new GenomicSegmentDao(connection);
+            SegmentAnnotationDao segmentAnnotationDao = new SegmentAnnotationDao(connection);
             String fileCallingMethod = CallingMethodDetector.UNKNOWN.equals(parsed.callingMethod())
                     ? CallingMethodDetector.UNKNOWN
                     : parsed.callingMethod();
             long filePipelineId = coreDao.findOrCreatePipeline(pipeline(fileCallingMethod), "phase2.5", null);
+            boolean duplicateFilePath = duplicateSourceFilePath(path);
             sourceFileId = coreDao.createSourceFile(
                     path.getFileName().toString(),
                     path.toAbsolutePath().toString(),
                     filePipelineId,
                     "IN_PROGRESS",
                     0,
-                    null);
+                    duplicateFilePath ? "WARNING: this file path was imported before" : null);
+            if (duplicateFilePath) {
+                coreDao.createValidationIssue(
+                        null,
+                        sourceFileId,
+                        null,
+                        null,
+                        "Duplicate Source File",
+                        "This file path was imported before: " + path.toAbsolutePath(),
+                        "WARNING");
+                issuesInserted++;
+            }
             Map<String, EventGroupState> eventGroups = new HashMap<>();
             Map<String, ResultContext> resultContexts = new HashMap<>();
 
@@ -123,6 +137,10 @@ public class CnvImportService {
                         rawSegmentText(record),
                         record.annotations()
                 ));
+                segmentAnnotationDao.createFromDelimited(
+                        segmentId,
+                        record.annotationNames(),
+                        record.annotations());
                 segmentsInserted++;
                 if (shouldLinkGroupedSegment(record, groupState)) {
                     coreDao.createGenomicLink(
@@ -278,6 +296,19 @@ public class CnvImportService {
 
     private String nullToEmpty(String value) {
         return value == null ? "" : value;
+    }
+
+    private boolean duplicateSourceFilePath(Path path) throws SQLException {
+        try (var ps = connection.prepareStatement("""
+                SELECT COUNT(*)
+                FROM source_files
+                WHERE file_path = ?
+                """)) {
+            ps.setString(1, path.toAbsolutePath().toString());
+            try (var rs = ps.executeQuery()) {
+                return rs.next() && rs.getLong(1) > 0;
+            }
+        }
     }
 
     private boolean shouldLinkGroupedSegment(CnvRecord record, EventGroupState groupState) {

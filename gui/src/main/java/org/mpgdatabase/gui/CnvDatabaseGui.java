@@ -40,6 +40,7 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Types;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -230,8 +231,16 @@ public class CnvDatabaseGui extends JFrame {
                 sample_accession_id, chromosome, start_pos, stop_pos, event_type, copy_number, genome_build
 
                 Optional columns:
-                event_group_id, copy_number, raw_iscn, annotation_names, annotations,
+                event_group_id, confidence, raw_iscn, raw_segment_text, annotation_names, annotations,
                 and format-specific extra annotation columns such as ProbeCount, LPR/LRR, BAF, and caller scores.
+
+                Extra columns are stored as searchable segment_annotations rows and also kept
+                in the older pipe-delimited annotation fields for compatibility.
+                Query examples:
+                SELECT gs.*
+                FROM genomic_segments gs
+                JOIN segment_annotations sa ON sa.segment_id = gs.segment_id
+                WHERE sa.annotation_name = 'Gene' AND sa.text_value = 'SHH'
 
                 Genome build aliases are normalized before storage:
                 hg19/Build 37 -> GRCh37, hg38/Build 38 -> GRCh38, T2T/CHM13 -> T2T-CHM13.
@@ -613,6 +622,7 @@ public class CnvDatabaseGui extends JFrame {
                     row.start(),
                     row.stop(),
                     row);
+            createSegmentAnnotations(sourceSegmentId, row.annotationNames(), row.annotations());
             inserted++;
             if (shouldLinkGroupedSegment(row, groupState)) {
                 createGenomicLink(null, null, groupState.eventGroupLabel(), groupState.firstTransSegmentId(), sourceSegmentId,
@@ -813,7 +823,9 @@ public class CnvDatabaseGui extends JFrame {
         for (String statement : schema().split(";")) {
             String trimmed = statement.trim();
             if (!trimmed.isEmpty()) {
-                if (trimmed.toLowerCase(Locale.ROOT).contains("idx_segments_event")) {
+                String normalized = trimmed.toLowerCase(Locale.ROOT);
+                if (normalized.contains("idx_segments_event_group_label")
+                        || normalized.contains("idx_links_event_group_label")) {
                     continue;
                 }
                 try (Statement stmt = conn.createStatement()) {
@@ -834,6 +846,7 @@ public class CnvDatabaseGui extends JFrame {
         backfillSegmentResultFields(conn);
         migrateSegmentAssayColumnsToAnnotations(conn);
         migrateGenomicSegmentLegacyColumns(conn);
+        backfillSegmentAnnotations(conn);
         try (Statement stmt = conn.createStatement()) {
             stmt.execute("""
                     CREATE INDEX IF NOT EXISTS idx_segments_event_group_label
@@ -843,6 +856,30 @@ public class CnvDatabaseGui extends JFrame {
                     CREATE INDEX IF NOT EXISTS idx_links_event_group_label
                         ON genomic_links(event_group_id)
                     """);
+        }
+    }
+
+    private void backfillSegmentAnnotations(Connection conn) throws SQLException {
+        try (PreparedStatement ps = conn.prepareStatement("""
+                SELECT gs.segment_id, str.annotation_names, gs.annotations
+                FROM genomic_segments gs
+                JOIN sample_test_results str ON str.sample_test_result_id = gs.sample_test_result_id
+                WHERE COALESCE(str.annotation_names, '') <> ''
+                  AND COALESCE(gs.annotations, '') <> ''
+                  AND NOT EXISTS (
+                      SELECT 1
+                      FROM segment_annotations sa
+                      WHERE sa.segment_id = gs.segment_id
+                  )
+                ORDER BY gs.segment_id
+                """);
+             ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                createSegmentAnnotations(
+                        rs.getLong("segment_id"),
+                        rs.getString("annotation_names"),
+                        rs.getString("annotations"));
+            }
         }
     }
 
@@ -1211,6 +1248,33 @@ public class CnvDatabaseGui extends JFrame {
                 );
                 CREATE INDEX IF NOT EXISTS idx_segments_region
                     ON genomic_segments(chromosome, start_pos, stop_pos);
+                CREATE INDEX IF NOT EXISTS idx_segments_result
+                    ON genomic_segments(sample_test_result_id);
+                CREATE INDEX IF NOT EXISTS idx_segments_event_type
+                    ON genomic_segments(event_type);
+                CREATE INDEX IF NOT EXISTS idx_segments_copy_number
+                    ON genomic_segments(copy_number);
+                CREATE INDEX IF NOT EXISTS idx_segments_genome_build
+                    ON genomic_segments(genome_build);
+                CREATE TABLE IF NOT EXISTS segment_annotations (
+                    annotation_id BIGINT GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY,
+                    segment_id BIGINT NOT NULL,
+                    annotation_name VARCHAR(256) NOT NULL,
+                    text_value VARCHAR(4096),
+                    numeric_value DOUBLE PRECISION,
+                    boolean_value BOOLEAN,
+                    value_type VARCHAR(32) NOT NULL,
+                    source_column VARCHAR(256) NOT NULL,
+                    ordinal_position INTEGER NOT NULL,
+                    FOREIGN KEY (segment_id) REFERENCES genomic_segments(segment_id),
+                    CHECK (value_type IN ('TEXT', 'NUMBER', 'BOOLEAN'))
+                );
+                CREATE INDEX IF NOT EXISTS idx_segment_annotations_segment
+                    ON segment_annotations(segment_id);
+                CREATE INDEX IF NOT EXISTS idx_segment_annotations_lookup
+                    ON segment_annotations(annotation_name, text_value);
+                CREATE INDEX IF NOT EXISTS idx_segment_annotations_numeric
+                    ON segment_annotations(annotation_name, numeric_value);
                 CREATE TABLE IF NOT EXISTS genomic_links (
                     link_id BIGINT GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY,
                     genomic_event_group_id BIGINT,
@@ -1323,6 +1387,7 @@ public class CnvDatabaseGui extends JFrame {
     }
 
     private long createSourceFile(Path path, long pipelineId, int rowCount) throws SQLException {
+        boolean duplicate = duplicateSourceFilePath(path);
         try (PreparedStatement ps = connection.prepareStatement("""
                 INSERT INTO source_files (file_name, file_path, pipeline_id, import_status, row_count, notes)
                 VALUES (?, ?, ?, ?, ?, ?)
@@ -1332,9 +1397,67 @@ public class CnvDatabaseGui extends JFrame {
             ps.setLong(3, pipelineId);
             ps.setString(4, "SUCCESS");
             ps.setInt(5, rowCount);
-            ps.setString(6, "Imported by Swing GUI");
+            ps.setString(6, duplicate
+                    ? "Imported by Swing GUI; WARNING: this file path was imported before"
+                    : "Imported by Swing GUI");
             ps.executeUpdate();
-            return generatedId(ps);
+            long sourceFileId = generatedId(ps);
+            if (duplicate) {
+                createValidationIssue(
+                        null,
+                        sourceFileId,
+                        null,
+                        null,
+                        "Duplicate Source File",
+                        "This file path was imported before: " + path.toAbsolutePath().normalize(),
+                        "WARNING");
+            }
+            return sourceFileId;
+        }
+    }
+
+    private boolean duplicateSourceFilePath(Path path) throws SQLException {
+        try (PreparedStatement ps = connection.prepareStatement("""
+                SELECT COUNT(*)
+                FROM source_files
+                WHERE file_path = ?
+                """)) {
+            ps.setString(1, path.toAbsolutePath().normalize().toString());
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next() && rs.getLong(1) > 0;
+            }
+        }
+    }
+
+    private void createValidationIssue(Long segmentId, Long sourceFileId, Integer lineNumber,
+                                       String sampleAccessionId, String issueType,
+                                       String issueMessage, String severity) throws SQLException {
+        try (PreparedStatement ps = connection.prepareStatement("""
+                INSERT INTO validation_issues
+                    (segment_id, source_file_id, line_number, sample_accession_id,
+                     issue_type, issue_message, severity)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+                """)) {
+            if (segmentId == null) {
+                ps.setNull(1, Types.BIGINT);
+            } else {
+                ps.setLong(1, segmentId);
+            }
+            if (sourceFileId == null) {
+                ps.setNull(2, Types.BIGINT);
+            } else {
+                ps.setLong(2, sourceFileId);
+            }
+            if (lineNumber == null) {
+                ps.setNull(3, Types.INTEGER);
+            } else {
+                ps.setInt(3, lineNumber);
+            }
+            ps.setString(4, sampleAccessionId);
+            ps.setString(5, issueType);
+            ps.setString(6, issueMessage);
+            ps.setString(7, severity);
+            ps.executeUpdate();
         }
     }
 
@@ -1382,6 +1505,60 @@ public class CnvDatabaseGui extends JFrame {
             ps.setString(12, row.annotations());
             ps.executeUpdate();
             return generatedId(ps);
+        }
+    }
+
+    private void createSegmentAnnotations(long segmentId, String annotationNames, String annotations) throws SQLException {
+        String[] names = annotationParts(annotationNames);
+        String[] values = annotationParts(annotations);
+        int rows = Math.min(names.length, values.length);
+        for (int i = 0; i < rows; i++) {
+            String sourceColumn = names[i].trim();
+            String value = values[i].trim();
+            if (sourceColumn.isBlank() || value.isBlank()) {
+                continue;
+            }
+            insertSegmentAnnotation(segmentId, sourceColumn, value, i + 1);
+        }
+    }
+
+    private void insertSegmentAnnotation(long segmentId, String sourceColumn, String value, int ordinalPosition)
+            throws SQLException {
+        Double numericValue = parseDoubleValue(value);
+        Boolean booleanValue = parseBooleanValue(value);
+        String valueType;
+        String textValue = null;
+        if (booleanValue != null && looksBooleanLike(sourceColumn, value)) {
+            valueType = "BOOLEAN";
+        } else if (numericValue != null) {
+            valueType = "NUMBER";
+        } else {
+            valueType = "TEXT";
+            textValue = value;
+        }
+        try (PreparedStatement ps = connection.prepareStatement("""
+                INSERT INTO segment_annotations
+                    (segment_id, annotation_name, text_value, numeric_value, boolean_value,
+                     value_type, source_column, ordinal_position)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                """)) {
+            ps.setLong(1, segmentId);
+            ps.setString(2, normalizeAnnotationName(sourceColumn));
+            ps.setString(3, textValue);
+            if (numericValue == null) {
+                ps.setNull(4, Types.DOUBLE);
+            } else {
+                ps.setDouble(4, numericValue);
+            }
+            if (booleanValue == null) {
+                ps.setNull(5, Types.BOOLEAN);
+            } else {
+                ps.setBoolean(5, booleanValue);
+            }
+            ps.setString(6, valueType);
+            ps.setString(7, sourceColumn);
+            ps.setInt(8, ordinalPosition);
+            ps.executeUpdate();
         }
     }
 
@@ -1601,6 +1778,58 @@ public class CnvDatabaseGui extends JFrame {
         }
     }
 
+    private Double parseDoubleValue(String value) {
+        try {
+            return value == null ? null : Double.parseDouble(value.replace(",", ""));
+        } catch (NumberFormatException e) {
+            return null;
+        }
+    }
+
+    private Boolean parseBooleanValue(String value) {
+        if (value == null) {
+            return null;
+        }
+        return switch (value.trim().toLowerCase(Locale.ROOT)) {
+            case "true", "yes", "y", "present", "positive", "pos", "1" -> true;
+            case "false", "no", "n", "absent", "negative", "neg", "0" -> false;
+            default -> null;
+        };
+    }
+
+    private boolean looksBooleanLike(String sourceColumn, String value) {
+        String normalizedValue = value.trim().toLowerCase(Locale.ROOT);
+        if (!List.of("true", "false", "yes", "no", "y", "n", "present", "absent",
+                "positive", "negative", "pos", "neg", "0", "1").contains(normalizedValue)) {
+            return false;
+        }
+        String normalizedName = sourceColumn.trim().toLowerCase(Locale.ROOT);
+        return normalizedName.startsWith("is_")
+                || normalizedName.startsWith("has_")
+                || normalizedName.endsWith("_flag")
+                || normalizedName.endsWith("_status")
+                || List.of("stitched", "is_valid").contains(normalizedName);
+    }
+
+    private String normalizeAnnotationName(String sourceColumn) {
+        String compact = sourceColumn.trim()
+                .replaceAll("[\\s\\-]+", "_")
+                .replaceAll("_+", "_");
+        String lower = compact.toLowerCase(Locale.ROOT);
+        return switch (lower) {
+            case "gene", "genes" -> "Gene";
+            case "lumpy" -> "Lumpy";
+            case "cnvnator" -> "CNVNATOR";
+            case "gnomad", "gnomad_count", "gnomad_sv_count" -> "gnomAD_count";
+            case "dgv_pop_percent", "dgv_percent", "dgv_population_percent" -> "DGV_pop_percent";
+            case "probecount", "probe_count", "numprobes", "num_probes",
+                    "numberofprobes", "number_of_probes", "numberofsites", "number_of_sites" -> "probe_count";
+            case "lrr", "meanlrr", "mean_lrr", "lrr_value" -> "LRR";
+            case "baf", "meanbaf", "mean_baf", "baf_pattern" -> "BAF";
+            default -> compact;
+        };
+    }
+
     private Integer resolveCopyNumber(String explicitCopyNumber, String eventType) {
         Integer parsed = parseInt(explicitCopyNumber);
         if (parsed != null) {
@@ -1761,8 +1990,7 @@ public class CnvDatabaseGui extends JFrame {
     }
 
     private String[] annotationParts(String value) {
-        String delimiter = value.contains("|") ? "\\|" : ";";
-        return value.split(delimiter, -1);
+        return value.split("[|;]", -1);
     }
 
     private String fileSummary(Path file, int rows, int errors, String status, LocalDateTime attemptedAt) {
@@ -1844,6 +2072,20 @@ public class CnvDatabaseGui extends JFrame {
                     gs.confidence,
                     gs.raw_iscn,
                     gs.annotations,
+                    (
+                        SELECT LISTAGG(sa.annotation_name || '=' ||
+                            COALESCE(sa.text_value,
+                                     CASE
+                                         WHEN sa.numeric_value IS NULL THEN NULL
+                                         WHEN sa.numeric_value = FLOOR(sa.numeric_value) THEN CAST(CAST(sa.numeric_value AS BIGINT) AS VARCHAR)
+                                         ELSE CAST(sa.numeric_value AS VARCHAR)
+                                     END,
+                                     CAST(sa.boolean_value AS VARCHAR),
+                                     ''), '; ')
+                               WITHIN GROUP (ORDER BY sa.ordinal_position, sa.annotation_id)
+                        FROM segment_annotations sa
+                        WHERE sa.segment_id = gs.segment_id
+                    ) AS segment_annotations,
                     (gs.stop_pos - gs.start_pos + 1) AS length_bp,
                     str.calling_method,
                     str.annotation_names,

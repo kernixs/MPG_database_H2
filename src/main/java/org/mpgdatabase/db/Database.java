@@ -1,5 +1,7 @@
 package org.mpgdatabase.db;
 
+import org.mpgdatabase.dao.SegmentAnnotationDao;
+
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.sql.Connection;
@@ -58,7 +60,33 @@ public final class Database {
         backfillSegmentResultFields(connection);
         migrateSegmentAssayColumnsToAnnotations(connection);
         migrateGenomicSegmentLegacyColumns(connection);
+        backfillSegmentAnnotations(connection);
         createDirectEventGroupIndexes(connection);
+    }
+
+    private static void backfillSegmentAnnotations(Connection connection) throws SQLException {
+        SegmentAnnotationDao annotationDao = new SegmentAnnotationDao(connection);
+        try (PreparedStatement ps = connection.prepareStatement("""
+                SELECT gs.segment_id, str.annotation_names, gs.annotations
+                FROM genomic_segments gs
+                JOIN sample_test_results str ON str.sample_test_result_id = gs.sample_test_result_id
+                WHERE COALESCE(str.annotation_names, '') <> ''
+                  AND COALESCE(gs.annotations, '') <> ''
+                  AND NOT EXISTS (
+                      SELECT 1
+                      FROM segment_annotations sa
+                      WHERE sa.segment_id = gs.segment_id
+                  )
+                ORDER BY gs.segment_id
+                """);
+             ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                annotationDao.createFromDelimited(
+                        rs.getLong("segment_id"),
+                        rs.getString("annotation_names"),
+                        rs.getString("annotations"));
+            }
+        }
     }
 
     private static void migrateSegmentAssayColumnsToAnnotations(Connection connection) throws SQLException {
