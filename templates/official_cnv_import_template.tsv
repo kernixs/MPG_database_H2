@@ -1,0 +1,2 @@
+sample_id	event_group_id	chromosome	start_pos	stop_pos	event_type	copy_number	genome_build	confidence	raw_iscn	raw_segment_text	Gene	Lumpy	CNVNATOR	gnomAD_count	DGV_pop_percent	probe_count	LRR	BAF	array_platform
+SIM001		chr7	51109096	63573985	DEL	1	GRCh38	HIGH		chr7:51109096-63573985 DEL	FCGR3A	1	1	12	0.37				
