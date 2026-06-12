@@ -43,21 +43,19 @@ public final class Models {
 
     public record GenomicSegment(
             long id,
-            Long eventId,
-            Long genomicEventGroupId,
             String eventGroupId,
             long sampleTestResultId,
             Long karyotypeId,
             String chromosome,
             long startPos,
             long stopPos,
-            String cytobandStart,
-            String cytobandEnd,
             String eventType,
             int copyNumber,
-            Double arrayScore,
+            String genomeBuild,
             String confidence,
+            Double arrayScore,
             Integer numberOfSites,
+            String rawIscn,
             String rawSegmentText,
             String annotations
     ) {

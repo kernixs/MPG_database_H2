@@ -722,6 +722,53 @@ Annotation mismatch is metadata quality, not core CNV placement. If chromosome, 
 
 The importer does not automatically correct or rewrite ISCN strings.
 
+## Assay-Specific Annotation Handling
+
+The importer stores common, frequently queried CNV fields in dedicated columns and stores assay-specific leftovers in the generic annotation pair.
+
+Dedicated fields are not duplicated into annotations. Current dedicated fields include:
+
+```text
+chromosome
+start_pos
+stop_pos
+event_type
+copy_number
+genome_build
+confidence
+array_score
+number_of_sites
+event_group_id
+raw_iscn
+```
+
+All remaining assay-specific fields are preserved in:
+
+```text
+sample_test_results.annotation_names
+genomic_segments.annotations
+```
+
+Both fields use pipe-delimited positional values. For example:
+
+```text
+annotation_names = Gene|Clinical|Lumpy|CNVNATOR
+annotations      = FCGR3A|CDP2|1|1
+```
+
+Blank values are kept as empty positions so every segment in the same result can share the same annotation definition:
+
+```text
+annotation_names = Gene|Clinical|Lumpy|CNVNATOR
+annotations      = SHH||1|0
+```
+
+NGS-derived CNV/SV files keep caller- and population-resource fields as annotations, such as `Gene`, `Clinical`, `Lumpy`, `CNVNATOR`, `Gnomad_Length`, `Gnomad_Percent_Overlap`, `DGV_Pop_Percent`, `Exclude_Length`, `Stitched`, and `gnomAD_version`.
+
+Array-derived CNV files keep platform- and assay-specific fields as annotations, such as `log2_ratio`, `baf_pattern`, `lrr_value`, `snp_count`, `roh_status`, `gene_count`, `array_platform`, `array_design`, and `call_algorithm`. Fields that map to dedicated columns, such as `ProbeCount`/`NumProbes`, `ArrayScore`, and `Confidence`, are stored in `number_of_sites`, `array_score`, and `confidence` instead of being duplicated in annotations.
+
+If an input file provides explicit `annotation_names` and `annotations`, the importer still filters out names that map to dedicated fields and preserves the remaining name/value pairs in order, including blank placeholders.
+
 ## File-Type Detection
 
 Phase 2.5 detects calling method in this order:

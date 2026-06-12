@@ -22,7 +22,6 @@ public class SearchService {
     public String search(Map<String, String> filters) throws SQLException {
         StringBuilder sql = new StringBuilder("""
                 SELECT
-                    gs.event_id,
                     gs.event_group_id,
                     gs.segment_id,
                     sa.accession_identifier AS sample_accession_id,
@@ -31,9 +30,12 @@ public class SearchService {
                     gs.stop_pos,
                     gs.event_type,
                     gs.copy_number,
-                    str.calling_method,
-                    str.genome_build,
+                    gs.genome_build,
                     gs.confidence,
+                    gs.array_score,
+                    gs.number_of_sites,
+                    gs.raw_iscn,
+                    str.calling_method,
                     sf.file_name AS source_file,
                     str.annotation_names,
                     gs.annotations
@@ -46,12 +48,11 @@ public class SearchService {
                 """);
         List<Object> params = new ArrayList<>();
         addValues(sql, params, filters, "sample", "sa.accession_identifier");
-        addValues(sql, params, filters, "event-id", "gs.event_id");
         addValues(sql, params, filters, "event-group", "gs.event_group_id");
         addValues(sql, params, filters, "event-type", "gs.event_type");
         addValues(sql, params, filters, "chromosome", "gs.chromosome");
         addValues(sql, params, filters, "calling-method", "str.calling_method");
-        addValues(sql, params, filters, "genome-build", "str.genome_build");
+        addValues(sql, params, filters, "genome-build", "gs.genome_build");
         addValues(sql, params, filters, "confidence", "gs.confidence");
         if (filters.containsKey("start") || filters.containsKey("stop") || filters.containsKey("end")) {
             long start = parseLong(filters.getOrDefault("start", "0"));
@@ -193,7 +194,8 @@ public class SearchService {
         if (value == null || value.isEmpty()) {
             return new String[0];
         }
-        return value.split(";", -1);
+        String delimiter = value.contains("|") ? "\\|" : ";";
+        return value.split(delimiter, -1);
     }
 
     private List<String> splitValues(String value) {
@@ -212,7 +214,6 @@ public class SearchService {
             while (rs.next()) {
                 rows.add(new SearchRow(
                         rs.getLong("segment_id"),
-                        nullableLong(rs, "event_id"),
                         rs.getString("event_group_id"),
                         rs.getString("sample_accession_id"),
                         rs.getString("chromosome"),
@@ -220,9 +221,12 @@ public class SearchService {
                         rs.getLong("stop_pos"),
                         rs.getString("event_type"),
                         rs.getInt("copy_number"),
-                        rs.getString("calling_method"),
                         rs.getString("genome_build"),
                         rs.getString("confidence"),
+                        rs.getString("array_score"),
+                        rs.getString("number_of_sites"),
+                        rs.getString("raw_iscn"),
+                        rs.getString("calling_method"),
                         rs.getString("source_file"),
                         rs.getString("annotation_names"),
                         rs.getString("annotations")
@@ -234,10 +238,9 @@ public class SearchService {
 
     private String table(List<SearchRow> rows) {
         StringBuilder sb = new StringBuilder();
-        sb.append("EVENT_ID\tEVENT_GROUP_ID\tSEGMENT_ID\tSAMPLE_ACCESSION_ID\tCHROMOSOME\tSTART_POS\tSTOP_POS\tEVENT_TYPE\tCOPY_NUMBER\tCALLING_METHOD\tGENOME_BUILD\tCONFIDENCE\tSOURCE_FILE\tANNOTATION_NAMES\tANNOTATIONS\tMATCHED_ANNOTATIONS\n");
+        sb.append("EVENT_GROUP_ID\tSEGMENT_ID\tSAMPLE_ACCESSION_ID\tCHROMOSOME\tSTART_POS\tSTOP_POS\tEVENT_TYPE\tCOPY_NUMBER\tGENOME_BUILD\tCONFIDENCE\tARRAY_SCORE\tNUMBER_OF_SITES\tRAW_ISCN\tCALLING_METHOD\tSOURCE_FILE\tANNOTATION_NAMES\tANNOTATIONS\tMATCHED_ANNOTATIONS\n");
         for (SearchRow row : rows) {
-            sb.append(row.eventId() == null ? "" : row.eventId()).append('\t')
-                    .append(nullToEmpty(row.eventGroupId())).append('\t')
+            sb.append(nullToEmpty(row.eventGroupId())).append('\t')
                     .append(row.segmentId()).append('\t')
                     .append(nullToEmpty(row.sampleAccessionId())).append('\t')
                     .append(nullToEmpty(row.chromosome())).append('\t')
@@ -245,9 +248,12 @@ public class SearchService {
                     .append(row.stopPos()).append('\t')
                     .append(nullToEmpty(row.eventType())).append('\t')
                     .append(row.copyNumber()).append('\t')
-                    .append(nullToEmpty(row.callingMethod())).append('\t')
                     .append(nullToEmpty(row.genomeBuild())).append('\t')
                     .append(nullToEmpty(row.confidence())).append('\t')
+                    .append(nullToEmpty(row.arrayScore())).append('\t')
+                    .append(nullToEmpty(row.numberOfSites())).append('\t')
+                    .append(nullToEmpty(row.rawIscn())).append('\t')
+                    .append(nullToEmpty(row.callingMethod())).append('\t')
                     .append(nullToEmpty(row.sourceFile())).append('\t')
                     .append(nullToEmpty(row.annotationNames())).append('\t')
                     .append(nullToEmpty(row.annotations())).append('\t')
@@ -283,17 +289,11 @@ public class SearchService {
         return value.toLowerCase(Locale.ROOT).startsWith("chr") ? value : "chr" + value;
     }
 
-    private Long nullableLong(ResultSet rs, String column) throws SQLException {
-        long value = rs.getLong(column);
-        return rs.wasNull() ? null : value;
-    }
-
     private record AnnotationFilter(String key, List<String> values) {
     }
 
     private record SearchRow(
             long segmentId,
-            Long eventId,
             String eventGroupId,
             String sampleAccessionId,
             String chromosome,
@@ -301,9 +301,12 @@ public class SearchService {
             long stopPos,
             String eventType,
             int copyNumber,
-            String callingMethod,
             String genomeBuild,
             String confidence,
+            String arrayScore,
+            String numberOfSites,
+            String rawIscn,
+            String callingMethod,
             String sourceFile,
             String annotationNames,
             String annotations

@@ -94,14 +94,8 @@ class Phase2WorkflowTest {
                     JOIN genomic_segments gs ON gs.sample_test_result_id = str.sample_test_result_id
                     WHERE str.line_number IS NULL
                     """));
-            assertEquals(3, count(connection, """
-                    SELECT COUNT(*) FROM genomic_segments
-                    WHERE event_id IS NULL
-                    """));
-            assertEquals(3, count(connection, """
-                    SELECT COUNT(*) FROM genomic_segments
-                    WHERE genomic_event_group_id IS NULL
-                    """));
+            assertFalse(columnExists(connection, "GENOMIC_SEGMENTS", "EVENT_ID"));
+            assertFalse(columnExists(connection, "GENOMIC_SEGMENTS", "GENOMIC_EVENT_GROUP_ID"));
         }
     }
 
@@ -118,7 +112,7 @@ class Phase2WorkflowTest {
             assertEquals(452, wgs.segmentsInserted());
             assertEquals(0, count(connection, "SELECT COUNT(*) FROM genomic_events"));
             assertEquals(0, count(connection, "SELECT COUNT(*) FROM genomic_event_groups"));
-            assertEquals(452, count(connection, "SELECT COUNT(*) FROM genomic_segments WHERE event_id IS NULL"));
+            assertFalse(columnExists(connection, "GENOMIC_SEGMENTS", "EVENT_ID"));
             assertEquals(1, count(connection, "SELECT COUNT(*) FROM source_files"));
             assertEquals(1, count(connection, """
                     SELECT COUNT(*) FROM source_files
@@ -198,7 +192,7 @@ class Phase2WorkflowTest {
 
             try (PreparedStatement ps = connection.prepareStatement("""
                     UPDATE genomic_segments
-                    SET annotations = annotations || ';extra'
+                    SET annotations = annotations || '|extra'
                     WHERE segment_id = 1
                     """)) {
                 ps.executeUpdate();
@@ -227,9 +221,7 @@ class Phase2WorkflowTest {
             assertTrue(singleSearch.contains("DEL"), singleSearch);
             assertFalse(singleSearch.contains("SIM002"), singleSearch);
 
-            String eventSearch = new SearchService(connection).search(Map.of("event-id", "1"));
-            assertTrue(eventSearch.contains("EVENT_ID"), eventSearch);
-            assertTrue(eventSearch.contains("Rows: 0"), eventSearch);
+            assertFalse(new SearchService(connection).search(Map.of("event-group", "NO_SUCH_GROUP")).isBlank());
         }
     }
 
@@ -255,7 +247,7 @@ class Phase2WorkflowTest {
     }
 
     @Test
-    void importsAcghArrayCnvCallsWithStructuredFieldsAndAnnotations() throws Exception {
+    void importsAcghArrayCnvCallsWithArrayMeasurementsAsAnnotations() throws Exception {
         Path input = Files.createTempFile("acgh-array-cnv", ".cnv");
         Files.writeString(input, """
                 Sample\tChr\tStart\tEnd\tAberration\tCopyNumber\tBuild\tProbeCount\tMeanLogRatio\tGene\tClassification
@@ -279,15 +271,16 @@ class Phase2WorkflowTest {
                       AND gs.copy_number = 1
                       AND gs.number_of_sites = 42
                       AND str.genome_build = 'GRCh38'
+                      AND gs.genome_build = 'GRCh38'
                       AND str.calling_method = 'Array-derived'
-                      AND str.annotation_names = 'MeanLogRatio;Gene;Classification'
-                      AND gs.annotations = '-0.58;MEF2C;Pathogenic'
+                      AND str.annotation_names = 'MeanLogRatio|Gene|Classification'
+                      AND gs.annotations = '-0.58|MEF2C|Pathogenic'
                     """));
         }
     }
 
     @Test
-    void importsSnpArrayCnvCallsWithStructuredFieldsAndAnnotations() throws Exception {
+    void importsSnpArrayCnvCallsWithArrayMeasurementsAsAnnotations() throws Exception {
         Path input = Files.createTempFile("snp-array-cnv", ".cnv");
         Files.writeString(input, """
                 SampleID\tChromosome\tBP1\tBP2\tCNV_Type\tCN\tGenomeBuild\tNumProbes\tConfidence\tMeanBAF\tMeanLRR\tLOHScore\tGene
@@ -312,10 +305,113 @@ class Phase2WorkflowTest {
                       AND gs.number_of_sites = 88
                       AND gs.confidence = 'HIGH'
                       AND str.genome_build = 'GRCh37'
+                      AND gs.genome_build = 'GRCh37'
                       AND str.calling_method = 'SNP-array-derived'
-                      AND str.annotation_names = 'MeanBAF;MeanLRR;LOHScore;Gene'
-                      AND gs.annotations = '0.61;0.35;0.02;SHH'
+                      AND str.annotation_names = 'MeanBAF|MeanLRR|LOHScore|Gene'
+                      AND gs.annotations = '0.61|0.35|0.02|SHH'
                     """));
+        }
+    }
+
+    @Test
+    void keepsBlankAnnotationPlaceholdersForSharedResultHeader() throws Exception {
+        Path input = Files.createTempFile("blank-annotation-placeholders", ".cnv");
+        Files.writeString(input, """
+                Sample\tChr\tStart\tEnd\tAberration\tCopyNumber\tBuild\tGene\tClinical\tLumpy\tCNVNATOR
+                ANN001\t7\t51109096\t63573985\tDEL\t1\thg38\tFCGR3A\tCDP2\t1\t1
+                ANN001\t7\t70000000\t71000000\tDUP\t3\thg38\tSHH\t\t1\t
+                """);
+        try (Connection connection = Database.connect("jdbc:h2:mem:annotation_placeholders;DB_CLOSE_DELAY=-1")) {
+            Database.initialize(connection);
+            CnvImportService importer = new CnvImportService(connection, new CnvParserFactory());
+            var result = importer.importFile(input, null);
+
+            assertTrue(result.success());
+            assertEquals(2, result.segmentsInserted());
+            assertEquals(2, count(connection, """
+                    SELECT COUNT(*)
+                    FROM genomic_segments gs
+                    JOIN sample_test_results str ON str.sample_test_result_id = gs.sample_test_result_id
+                    WHERE str.annotation_names = 'Gene|Clinical|Lumpy|CNVNATOR'
+                    """));
+            assertEquals(1, count(connection, """
+                    SELECT COUNT(*)
+                    FROM genomic_segments
+                    WHERE annotations = 'SHH||1|'
+                    """));
+            assertAnnotationAlignment(connection);
+        }
+    }
+
+    @Test
+    void bundledNgsFileMapsCoreFieldsAndPreservesNgsAnnotations() throws Exception {
+        try (Connection connection = Database.connect("jdbc:h2:mem:ngs_annotations_acceptance;DB_CLOSE_DELAY=-1")) {
+            Database.initialize(connection);
+            CnvImportService importer = new CnvImportService(connection, new CnvParserFactory());
+            var result = importer.importFile(
+                    Path.of("data/25-54321WGS_05Nov2025_SWGS111_SV_DEL_DUP_Classify_Result.txt"),
+                    null);
+
+            assertTrue(result.success());
+            assertEquals(452, result.segmentsInserted());
+            assertEquals(452, count(connection, """
+                    SELECT COUNT(*)
+                    FROM genomic_segments gs
+                    JOIN sample_test_results str ON str.sample_test_result_id = gs.sample_test_result_id
+                    WHERE gs.chromosome IS NOT NULL
+                      AND gs.start_pos IS NOT NULL
+                      AND gs.stop_pos IS NOT NULL
+                      AND gs.event_type IN ('DEL', 'DUP')
+                      AND gs.copy_number IN (1, 3)
+                      AND gs.genome_build = 'GRCh37'
+                      AND str.calling_method = 'NGS-derived'
+                    """));
+            assertEquals(452, count(connection, """
+                    SELECT COUNT(*)
+                    FROM genomic_segments gs
+                    JOIN sample_test_results str ON str.sample_test_result_id = gs.sample_test_result_id
+                    WHERE str.annotation_names LIKE '%Gene%'
+                      AND str.annotation_names LIKE '%Clinical%'
+                      AND str.annotation_names LIKE '%Lumpy%'
+                      AND str.annotation_names LIKE '%CNVNATOR%'
+                      AND str.annotation_names LIKE '%gnomAD_version%'
+                    """));
+            assertNoDedicatedAnnotationNames(connection);
+            assertAnnotationAlignment(connection);
+        }
+    }
+
+    @Test
+    void bundledArrayFileMapsCoreFieldsAndPreservesArrayAnnotations() throws Exception {
+        try (Connection connection = Database.connect("jdbc:h2:mem:array_annotations_acceptance;DB_CLOSE_DELAY=-1")) {
+            Database.initialize(connection);
+            CnvImportService importer = new CnvImportService(connection, new CnvParserFactory());
+            var result = importer.importFile(Path.of("data/array_derived_100.cnv"), null);
+
+            assertTrue(result.success());
+            assertEquals(100, result.segmentsInserted());
+            assertEquals(100, count(connection, """
+                    SELECT COUNT(*)
+                    FROM genomic_segments gs
+                    JOIN sample_test_results str ON str.sample_test_result_id = gs.sample_test_result_id
+                    WHERE gs.genome_build IN ('GRCh37', 'GRCh38')
+                      AND gs.array_score IS NOT NULL
+                      AND gs.number_of_sites IS NOT NULL
+                      AND gs.raw_iscn IS NULL
+                      AND str.calling_method = 'Array-derived'
+                    """));
+            assertTrue(count(connection, """
+                    SELECT COUNT(*)
+                    FROM genomic_segments
+                    WHERE confidence IS NOT NULL
+                    """) > 0);
+            assertTrue(count(connection, """
+                    SELECT COUNT(*)
+                    FROM sample_test_results
+                    WHERE annotation_names = 'Gene'
+                    """) > 0);
+            assertNoDedicatedAnnotationNames(connection);
+            assertAnnotationAlignment(connection);
         }
     }
 
@@ -521,10 +617,7 @@ class Phase2WorkflowTest {
                     SELECT COUNT(*) FROM genomic_links
                     WHERE event_group_id IS NOT NULL
                     """));
-            assertEquals(0, count(connection, """
-                    SELECT COUNT(*) FROM genomic_segments
-                    WHERE event_id IS NOT NULL
-                    """));
+            assertFalse(columnExists(connection, "GENOMIC_SEGMENTS", "EVENT_ID"));
             assertEquals(0, count(connection, """
                     SELECT COUNT(*) FROM genomic_links
                     WHERE event_id IS NOT NULL
@@ -852,6 +945,67 @@ class Phase2WorkflowTest {
                 return rs.next() ? rs.getLong(1) : 0;
             }
         }
+    }
+
+    private boolean columnExists(Connection connection, String table, String column) throws Exception {
+        try (PreparedStatement ps = connection.prepareStatement("""
+                SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+                WHERE TABLE_SCHEMA = 'PUBLIC' AND TABLE_NAME = ? AND COLUMN_NAME = ?
+                """)) {
+            ps.setString(1, table);
+            ps.setString(2, column);
+            try (var rs = ps.executeQuery()) {
+                return rs.next() && rs.getLong(1) > 0;
+            }
+        }
+    }
+
+    private void assertNoDedicatedAnnotationNames(Connection connection) throws Exception {
+        assertEquals(0, count(connection, """
+                SELECT COUNT(*)
+                FROM sample_test_results
+                WHERE annotation_names LIKE '%chromosome%'
+                   OR annotation_names LIKE '%Chr%'
+                   OR annotation_names LIKE '%Start%'
+                   OR annotation_names LIKE '%End%'
+                   OR annotation_names LIKE '%SV_Type%'
+                   OR annotation_names LIKE '%copy_number%'
+                   OR annotation_names LIKE '%CopyNumber%'
+                   OR annotation_names LIKE '%GenomeBuild%'
+                   OR annotation_names LIKE '%hg_version%'
+                   OR annotation_names LIKE '%Confidence%'
+                   OR annotation_names LIKE '%ArrayScore%'
+                   OR annotation_names LIKE '%ProbeCount%'
+                   OR annotation_names LIKE '%NumProbes%'
+                """));
+    }
+
+    private void assertAnnotationAlignment(Connection connection) throws Exception {
+        try (PreparedStatement ps = connection.prepareStatement("""
+                SELECT str.annotation_names, gs.annotations
+                FROM genomic_segments gs
+                JOIN sample_test_results str ON str.sample_test_result_id = gs.sample_test_result_id
+                WHERE COALESCE(str.annotation_names, '') <> ''
+                   OR COALESCE(gs.annotations, '') <> ''
+                """)) {
+            try (var rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    String names = rs.getString("annotation_names");
+                    String values = rs.getString("annotations");
+                    int nameCount = splitAnnotationParts(names).length;
+                    int valueCount = splitAnnotationParts(values).length;
+                    assertEquals(nameCount, valueCount, "annotation_names and annotations must align");
+                }
+            }
+        }
+    }
+
+    private String[] splitAnnotationParts(String value) {
+        if (value == null || value.isEmpty()) {
+            return new String[0];
+        }
+        String delimiter = value.contains("|") ? "\\|" : ";";
+        return value.split(delimiter, -1);
     }
 
     private SegmentContext firstSegmentContext(Connection connection) throws Exception {

@@ -30,7 +30,6 @@ public class App {
             "class",
             "confidence",
             "end",
-            "event-id",
             "event-group",
             "event-type",
             "gene",

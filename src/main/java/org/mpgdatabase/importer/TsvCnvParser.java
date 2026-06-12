@@ -22,8 +22,8 @@ public class TsvCnvParser implements CnvParser {
         "sv_type",
         "type",
         "copy_number",
-        "array_score",
         "confidence",
+        "array_score",
         "number_of_sites",
         "genome_build",
         "hg_version",
@@ -308,16 +308,9 @@ public class TsvCnvParser implements CnvParser {
         if (copyNumber == null && "UNKNOWN".equals(eventType)) {
             copyNumber = 2;
         }
-        String annotationNames = firstNonBlank(
-            fields.get("annotation_names"),
-            annotationNames(header, originalHeader)
-        );
-        String annotations = annotations(
-            header,
-            originalHeader,
-            originalFields,
-            fields
-        );
+        AnnotationPair annotationPair = annotationPair(header, originalHeader, originalFields, fields);
+        String annotationNames = annotationPair.names();
+        String annotations = annotationPair.values();
 
         String validation = null;
         String issueType = null;
@@ -537,9 +530,45 @@ public class TsvCnvParser implements CnvParser {
         return null;
     }
 
+    private AnnotationPair annotationPair(
+        List<String> header,
+        List<String> originalHeader,
+        Map<String, String> originalFields,
+        Map<String, String> fields
+    ) {
+        String explicitNames = fields.get("annotation_names");
+        String explicitValues = fields.get("annotations");
+        if (explicitNames != null && explicitValues != null) {
+            return explicitAnnotationPair(explicitNames, explicitValues);
+        }
+        return new AnnotationPair(
+                annotationNames(header, originalHeader, originalFields),
+                annotations(header, originalHeader, originalFields));
+    }
+
+    private AnnotationPair explicitAnnotationPair(String rawNames, String rawValues) {
+        String[] names = annotationParts(rawNames);
+        String[] values = annotationParts(rawValues);
+        List<String> keptNames = new ArrayList<>();
+        List<String> keptValues = new ArrayList<>();
+        for (int i = 0; i < names.length; i++) {
+            String name = names[i].trim();
+            String value = i < values.length ? values[i].trim() : "";
+            if (name.isBlank() || CORE_COLUMNS.contains(normalizeColumnName(name))) {
+                continue;
+            }
+            keptNames.add(name);
+            keptValues.add(value);
+        }
+        return new AnnotationPair(
+                keptNames.isEmpty() ? null : String.join("|", keptNames),
+                keptValues.isEmpty() ? null : String.join("|", keptValues));
+    }
+
     private String annotationNames(
         List<String> header,
-        List<String> originalHeader
+        List<String> originalHeader,
+        Map<String, String> originalFields
     ) {
         List<String> names = new ArrayList<>();
         for (int i = 0; i < header.size(); i++) {
@@ -547,34 +576,44 @@ public class TsvCnvParser implements CnvParser {
                 names.add(originalHeader.get(i));
             }
         }
-        return String.join(";", names);
+        return String.join("|", names);
     }
 
     private String annotations(
         List<String> header,
         List<String> originalHeader,
-        Map<String, String> originalFields,
-        Map<String, String> fields
+        Map<String, String> originalFields
     ) {
-        if (fields.get("annotations") != null) {
-            return fields.get("annotations");
-        }
         List<String> values = new ArrayList<>();
         for (int i = 0; i < header.size(); i++) {
+            String value = nullToEmpty(originalFields.get(originalHeader.get(i)));
             if (!CORE_COLUMNS.contains(header.get(i))) {
-                values.add(
-                    nullToEmpty(originalFields.get(originalHeader.get(i)))
-                );
+                values.add(value);
             }
         }
-        return String.join(";", values);
+        return String.join("|", values);
     }
 
     private int countParts(String value) {
         if (value == null || value.isEmpty()) {
             return 0;
         }
-        return value.split(";", -1).length;
+        return annotationParts(value).length;
+    }
+
+    private String normalizeAnnotationList(String value) {
+        if (value == null || value.isBlank()) {
+            return null;
+        }
+        return String.join("|", annotationParts(value));
+    }
+
+    private String[] annotationParts(String value) {
+        String delimiter = value.contains("|") ? "\\|" : ";";
+        return value.split(delimiter, -1);
+    }
+
+    private record AnnotationPair(String names, String values) {
     }
 
     private String firstNonBlank(String... values) {

@@ -109,21 +109,19 @@ public class CnvImportService {
                 String eventGroupId = groupState == null ? null : groupState.eventGroupLabel();
                 long segmentId = segmentDao.create(new GenomicSegment(
                         0,
-                        null,
-                        null,
                         eventGroupId,
                         resultContext.resultId(),
                         resultContext.karyotypeId(),
                         record.chromosome(),
                         record.startPos(),
                         record.stopPos(),
-                        null,
-                        null,
                         record.eventType(),
                         record.copyNumber(),
-                        record.arrayScore(),
+                        genomeBuild,
                         record.confidence(),
+                        record.arrayScore(),
                         record.numberOfSites(),
+                        record.rawIscn(),
                         rawSegmentText(record),
                         record.annotations()
                 ));
