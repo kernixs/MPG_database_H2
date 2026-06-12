@@ -67,8 +67,6 @@ public class CnvDatabaseGui extends JFrame {
             "copy_number",
             "genome_build",
             "confidence",
-            "array_score",
-            "number_of_sites",
             "raw_iscn",
             "annotation_names",
             "annotations"
@@ -545,8 +543,6 @@ public class CnvDatabaseGui extends JFrame {
         Long start = parseLong(value(values, "start_pos"));
         Long stop = parseLong(value(values, "stop_pos"));
         Integer copyNumber = resolveCopyNumber(value(values, "copy_number"), eventType);
-        Double arrayScore = parseDouble(value(values, "array_score"));
-        Integer sites = parseInt(value(values, "number_of_sites"));
         String confidence = value(values, "confidence");
         String rawIscn = value(values, "raw_iscn");
         AnnotationPair annotationPair = resolveAnnotationPair(values);
@@ -588,7 +584,7 @@ public class CnvDatabaseGui extends JFrame {
             return null;
         }
         return new CnvRow(lineNumber, sample, eventGroupId, chromosome, start, stop, eventType, copyNumber,
-                genomeBuild, confidence, arrayScore, sites, rawIscn, annotationNames, annotations);
+                genomeBuild, confidence, rawIscn, annotationNames, annotations);
     }
 
     private int insertRows(Path path, List<CnvRow> rows, LocalDateTime attemptedAt) throws SQLException {
@@ -828,8 +824,6 @@ public class CnvDatabaseGui extends JFrame {
         addColumnIfMissing(conn, "GENOMIC_SEGMENTS", "EVENT_GROUP_ID", "VARCHAR(128)");
         addColumnIfMissing(conn, "GENOMIC_SEGMENTS", "GENOME_BUILD", "VARCHAR(64)");
         addColumnIfMissing(conn, "GENOMIC_SEGMENTS", "CONFIDENCE", "VARCHAR(64)");
-        addColumnIfMissing(conn, "GENOMIC_SEGMENTS", "ARRAY_SCORE", "DOUBLE PRECISION");
-        addColumnIfMissing(conn, "GENOMIC_SEGMENTS", "NUMBER_OF_SITES", "INTEGER");
         addColumnIfMissing(conn, "GENOMIC_SEGMENTS", "RAW_ISCN", "VARCHAR(4096)");
         addColumnIfMissing(conn, "GENOMIC_SEGMENTS", "RAW_SEGMENT_TEXT", "VARCHAR(2000)");
         addColumnIfMissing(conn, "GENOMIC_EVENT_GROUPS", "EVENT_GROUP_TYPE", "VARCHAR(64)");
@@ -838,6 +832,7 @@ public class CnvDatabaseGui extends JFrame {
         addColumnIfMissing(conn, "GENOMIC_EVENTS", "EVENT_GROUP_ID", "VARCHAR(128)");
         backfillDirectEventGroupIds(conn);
         backfillSegmentResultFields(conn);
+        migrateSegmentAssayColumnsToAnnotations(conn);
         migrateGenomicSegmentLegacyColumns(conn);
         try (Statement stmt = conn.createStatement()) {
             stmt.execute("""
@@ -853,10 +848,62 @@ public class CnvDatabaseGui extends JFrame {
 
     private void migrateGenomicSegmentLegacyColumns(Connection conn) throws SQLException {
         try (Statement stmt = conn.createStatement()) {
+            stmt.execute("ALTER TABLE GENOMIC_SEGMENTS DROP COLUMN IF EXISTS ARRAY_SCORE");
+            stmt.execute("ALTER TABLE GENOMIC_SEGMENTS DROP COLUMN IF EXISTS NUMBER_OF_SITES");
             stmt.execute("ALTER TABLE GENOMIC_SEGMENTS DROP COLUMN IF EXISTS EVENT_ID");
             stmt.execute("ALTER TABLE GENOMIC_SEGMENTS DROP COLUMN IF EXISTS GENOMIC_EVENT_GROUP_ID");
             stmt.execute("ALTER TABLE GENOMIC_SEGMENTS DROP COLUMN IF EXISTS CYTOBAND_START");
             stmt.execute("ALTER TABLE GENOMIC_SEGMENTS DROP COLUMN IF EXISTS CYTOBAND_END");
+        }
+    }
+
+    private void migrateSegmentAssayColumnsToAnnotations(Connection conn) throws SQLException {
+        Map<String, String> legacyColumns = new LinkedHashMap<>();
+        legacyColumns.put("ARRAY_SCORE", "ArrayScore");
+        legacyColumns.put("NUMBER_OF_SITES", "NumberOfSites");
+
+        List<String> existingColumns = new ArrayList<>();
+        for (String column : legacyColumns.keySet()) {
+            if (columnExists(conn, "GENOMIC_SEGMENTS", column)) {
+                existingColumns.add(column);
+            }
+        }
+        if (existingColumns.isEmpty()) {
+            return;
+        }
+
+        StringBuilder sql = new StringBuilder("""
+                SELECT gs.segment_id, gs.sample_test_result_id, str.annotation_names, gs.annotations
+                """);
+        for (String column : existingColumns) {
+            sql.append(", gs.").append(column).append(" AS ").append(column).append('\n');
+        }
+        sql.append("""
+                FROM genomic_segments gs
+                JOIN sample_test_results str ON str.sample_test_result_id = gs.sample_test_result_id
+                ORDER BY gs.segment_id
+                """);
+
+        Map<Long, String> resultAnnotationNames = new LinkedHashMap<>();
+        try (PreparedStatement read = conn.prepareStatement(sql.toString());
+             ResultSet rs = read.executeQuery()) {
+            while (rs.next()) {
+                long resultId = rs.getLong("sample_test_result_id");
+                String annotationNames = resultAnnotationNames.getOrDefault(resultId, rs.getString("annotation_names"));
+                String annotations = rs.getString("annotations");
+                for (String column : existingColumns) {
+                    String label = legacyColumns.get(column);
+                    if (!containsAnnotationName(annotationNames, label)) {
+                        annotationNames = appendPart(annotationNames, label);
+                    }
+                    annotations = appendPart(annotations, nullToEmpty(rs.getString(column)));
+                }
+                resultAnnotationNames.put(resultId, annotationNames);
+                updateSegmentAnnotations(conn, rs.getLong("segment_id"), annotations);
+            }
+        }
+        for (Map.Entry<Long, String> entry : resultAnnotationNames.entrySet()) {
+            updateResultAnnotationNames(conn, entry.getKey(), entry.getValue());
         }
     }
 
@@ -934,9 +981,9 @@ public class CnvDatabaseGui extends JFrame {
 
     private String appendPart(String existing, String value) {
         if (existing == null || existing.isEmpty()) {
-            return value;
+            return value == null ? "" : value;
         }
-        return existing + ";" + value;
+        return existing + "|" + (value == null ? "" : value);
     }
 
     private void backfillDirectEventGroupIds(Connection conn) throws SQLException {
@@ -1156,8 +1203,6 @@ public class CnvDatabaseGui extends JFrame {
                     copy_number INTEGER NOT NULL,
                     genome_build VARCHAR(64),
                     confidence VARCHAR(64),
-                    array_score DOUBLE PRECISION,
-                    number_of_sites INTEGER,
                     raw_iscn VARCHAR(4096),
                     raw_segment_text VARCHAR(2000),
                     annotations VARCHAR(8192),
@@ -1320,8 +1365,8 @@ public class CnvDatabaseGui extends JFrame {
         try (PreparedStatement ps = connection.prepareStatement("""
                 INSERT INTO genomic_segments
                     (event_group_id, sample_test_result_id, chromosome, start_pos, stop_pos, event_type, copy_number,
-                     genome_build, confidence, array_score, number_of_sites, raw_iscn, raw_segment_text, annotations)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                     genome_build, confidence, raw_iscn, raw_segment_text, annotations)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """, Statement.RETURN_GENERATED_KEYS)) {
             ps.setString(1, eventGroupId);
             ps.setLong(2, resultId);
@@ -1332,19 +1377,9 @@ public class CnvDatabaseGui extends JFrame {
             ps.setInt(7, row.copyNumber());
             ps.setString(8, row.genomeBuild());
             ps.setString(9, row.confidence());
-            if (row.arrayScore() == null) {
-                ps.setNull(10, java.sql.Types.DOUBLE);
-            } else {
-                ps.setDouble(10, row.arrayScore());
-            }
-            if (row.numberOfSites() == null) {
-                ps.setNull(11, java.sql.Types.INTEGER);
-            } else {
-                ps.setInt(11, row.numberOfSites());
-            }
-            ps.setString(12, row.rawIscn());
-            ps.setString(13, rawEventText(row));
-            ps.setString(14, row.annotations());
+            ps.setString(10, row.rawIscn());
+            ps.setString(11, rawEventText(row));
+            ps.setString(12, row.annotations());
             ps.executeUpdate();
             return generatedId(ps);
         }
@@ -1807,8 +1842,6 @@ public class CnvDatabaseGui extends JFrame {
                     gs.copy_number,
                     gs.genome_build,
                     gs.confidence,
-                    gs.array_score,
-                    gs.number_of_sites,
                     gs.raw_iscn,
                     gs.annotations,
                     (gs.stop_pos - gs.start_pos + 1) AS length_bp,
@@ -1854,8 +1887,6 @@ public class CnvDatabaseGui extends JFrame {
             int copyNumber,
             String genomeBuild,
             String confidence,
-            Double arrayScore,
-            Integer numberOfSites,
             String rawIscn,
             String annotationNames,
             String annotations

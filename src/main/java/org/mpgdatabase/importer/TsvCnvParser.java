@@ -23,8 +23,6 @@ public class TsvCnvParser implements CnvParser {
         "type",
         "copy_number",
         "confidence",
-        "array_score",
-        "number_of_sites",
         "genome_build",
         "hg_version",
         "raw_iscn",

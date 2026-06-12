@@ -32,8 +32,6 @@ public class SearchService {
                     gs.copy_number,
                     gs.genome_build,
                     gs.confidence,
-                    gs.array_score,
-                    gs.number_of_sites,
                     gs.raw_iscn,
                     str.calling_method,
                     sf.file_name AS source_file,
@@ -223,8 +221,6 @@ public class SearchService {
                         rs.getInt("copy_number"),
                         rs.getString("genome_build"),
                         rs.getString("confidence"),
-                        rs.getString("array_score"),
-                        rs.getString("number_of_sites"),
                         rs.getString("raw_iscn"),
                         rs.getString("calling_method"),
                         rs.getString("source_file"),
@@ -238,7 +234,7 @@ public class SearchService {
 
     private String table(List<SearchRow> rows) {
         StringBuilder sb = new StringBuilder();
-        sb.append("EVENT_GROUP_ID\tSEGMENT_ID\tSAMPLE_ACCESSION_ID\tCHROMOSOME\tSTART_POS\tSTOP_POS\tEVENT_TYPE\tCOPY_NUMBER\tGENOME_BUILD\tCONFIDENCE\tARRAY_SCORE\tNUMBER_OF_SITES\tRAW_ISCN\tCALLING_METHOD\tSOURCE_FILE\tANNOTATION_NAMES\tANNOTATIONS\tMATCHED_ANNOTATIONS\n");
+        sb.append("EVENT_GROUP_ID\tSEGMENT_ID\tSAMPLE_ACCESSION_ID\tCHROMOSOME\tSTART_POS\tSTOP_POS\tEVENT_TYPE\tCOPY_NUMBER\tGENOME_BUILD\tCONFIDENCE\tRAW_ISCN\tCALLING_METHOD\tSOURCE_FILE\tANNOTATION_NAMES\tANNOTATIONS\tMATCHED_ANNOTATIONS\n");
         for (SearchRow row : rows) {
             sb.append(nullToEmpty(row.eventGroupId())).append('\t')
                     .append(row.segmentId()).append('\t')
@@ -250,8 +246,6 @@ public class SearchService {
                     .append(row.copyNumber()).append('\t')
                     .append(nullToEmpty(row.genomeBuild())).append('\t')
                     .append(nullToEmpty(row.confidence())).append('\t')
-                    .append(nullToEmpty(row.arrayScore())).append('\t')
-                    .append(nullToEmpty(row.numberOfSites())).append('\t')
                     .append(nullToEmpty(row.rawIscn())).append('\t')
                     .append(nullToEmpty(row.callingMethod())).append('\t')
                     .append(nullToEmpty(row.sourceFile())).append('\t')
@@ -303,8 +297,6 @@ public class SearchService {
             int copyNumber,
             String genomeBuild,
             String confidence,
-            String arrayScore,
-            String numberOfSites,
             String rawIscn,
             String callingMethod,
             String sourceFile,

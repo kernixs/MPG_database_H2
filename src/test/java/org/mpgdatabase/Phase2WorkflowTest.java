@@ -269,12 +269,11 @@ class Phase2WorkflowTest {
                       AND gs.stop_pos = 71000000
                       AND gs.event_type = 'LOSS'
                       AND gs.copy_number = 1
-                      AND gs.number_of_sites = 42
                       AND str.genome_build = 'GRCh38'
                       AND gs.genome_build = 'GRCh38'
                       AND str.calling_method = 'Array-derived'
-                      AND str.annotation_names = 'MeanLogRatio|Gene|Classification'
-                      AND gs.annotations = '-0.58|MEF2C|Pathogenic'
+                      AND str.annotation_names = 'ProbeCount|MeanLogRatio|Gene|Classification'
+                      AND gs.annotations = '42|-0.58|MEF2C|Pathogenic'
                     """));
         }
     }
@@ -302,13 +301,12 @@ class Phase2WorkflowTest {
                       AND gs.stop_pos = 56000000
                       AND gs.event_type = 'DUP'
                       AND gs.copy_number = 3
-                      AND gs.number_of_sites = 88
                       AND gs.confidence = 'HIGH'
                       AND str.genome_build = 'GRCh37'
                       AND gs.genome_build = 'GRCh37'
                       AND str.calling_method = 'SNP-array-derived'
-                      AND str.annotation_names = 'MeanBAF|MeanLRR|LOHScore|Gene'
-                      AND gs.annotations = '0.61|0.35|0.02|SHH'
+                      AND str.annotation_names = 'NumProbes|MeanBAF|MeanLRR|LOHScore|Gene'
+                      AND gs.annotations = '88|0.61|0.35|0.02|SHH'
                     """));
         }
     }
@@ -395,21 +393,12 @@ class Phase2WorkflowTest {
                     FROM genomic_segments gs
                     JOIN sample_test_results str ON str.sample_test_result_id = gs.sample_test_result_id
                     WHERE gs.genome_build IN ('GRCh37', 'GRCh38')
-                      AND gs.array_score IS NOT NULL
-                      AND gs.number_of_sites IS NOT NULL
                       AND gs.raw_iscn IS NULL
                       AND str.calling_method = 'Array-derived'
                     """));
-            assertTrue(count(connection, """
-                    SELECT COUNT(*)
-                    FROM genomic_segments
-                    WHERE confidence IS NOT NULL
-                    """) > 0);
-            assertTrue(count(connection, """
-                    SELECT COUNT(*)
-                    FROM sample_test_results
-                    WHERE annotation_names = 'Gene'
-                    """) > 0);
+            assertFalse(columnExists(connection, "GENOMIC_SEGMENTS", "ARRAY_SCORE"));
+            assertFalse(columnExists(connection, "GENOMIC_SEGMENTS", "NUMBER_OF_SITES"));
+            assertTrue(columnExists(connection, "GENOMIC_SEGMENTS", "CONFIDENCE"));
             assertNoDedicatedAnnotationNames(connection);
             assertAnnotationAlignment(connection);
         }
@@ -974,9 +963,6 @@ class Phase2WorkflowTest {
                    OR annotation_names LIKE '%GenomeBuild%'
                    OR annotation_names LIKE '%hg_version%'
                    OR annotation_names LIKE '%Confidence%'
-                   OR annotation_names LIKE '%ArrayScore%'
-                   OR annotation_names LIKE '%ProbeCount%'
-                   OR annotation_names LIKE '%NumProbes%'
                 """));
     }
 

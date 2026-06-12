@@ -53,8 +53,6 @@ public final class Models {
             int copyNumber,
             String genomeBuild,
             String confidence,
-            Double arrayScore,
-            Integer numberOfSites,
             String rawIscn,
             String rawSegmentText,
             String annotations

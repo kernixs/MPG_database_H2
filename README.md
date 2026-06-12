@@ -736,8 +736,6 @@ event_type
 copy_number
 genome_build
 confidence
-array_score
-number_of_sites
 event_group_id
 raw_iscn
 ```
@@ -765,7 +763,7 @@ annotations      = SHH||1|0
 
 NGS-derived CNV/SV files keep caller- and population-resource fields as annotations, such as `Gene`, `Clinical`, `Lumpy`, `CNVNATOR`, `Gnomad_Length`, `Gnomad_Percent_Overlap`, `DGV_Pop_Percent`, `Exclude_Length`, `Stitched`, and `gnomAD_version`.
 
-Array-derived CNV files keep platform- and assay-specific fields as annotations, such as `log2_ratio`, `baf_pattern`, `lrr_value`, `snp_count`, `roh_status`, `gene_count`, `array_platform`, `array_design`, and `call_algorithm`. Fields that map to dedicated columns, such as `ProbeCount`/`NumProbes`, `ArrayScore`, and `Confidence`, are stored in `number_of_sites`, `array_score`, and `confidence` instead of being duplicated in annotations.
+Array-derived CNV files keep platform- and assay-specific fields as annotations, such as `ProbeCount`/`NumProbes`, `ArrayScore`, `log2_ratio`, `baf_pattern`, `lrr_value`, `snp_count`, `roh_status`, `gene_count`, `array_platform`, `array_design`, and `call_algorithm`. Confidence is stored in the dedicated `genomic_segments.confidence` column.
 
 If an input file provides explicit `annotation_names` and `annotations`, the importer still filters out names that map to dedicated fields and preserves the remaining name/value pairs in order, including blank placeholders.
 
@@ -833,15 +831,13 @@ Optional columns:
 
 ```text
 copy_number
-array_score
-number_of_sites
 raw_iscn
 dna_source
 ```
 
 Final called aCGH and SNP-array CNV interval files are supported. This phase does not import raw array probe, manifest, or evidence rows as CNV segments.
 
-Common aCGH/SNP-array aliases are mapped into structured fields:
+Common aCGH/SNP-array aliases are mapped into structured fields or annotations:
 
 ```text
 Sample / SampleID / sample_id -> sample_accession_id
@@ -851,9 +847,9 @@ End / Stop / BP2 / End_Position -> stop_pos
 Type / CNV_Type / Aberration / EventType -> event_type
 CopyNumber / Copy_Number / CN -> copy_number
 GenomeBuild / Genome_Build / Build / Assembly / hg_version -> genome_build
-ProbeCount / NumProbes / NumberOfProbes / NumberOfSites -> number_of_sites
-ArrayScore / Array_Score / Score / CNVScore -> array_score
 Confidence / ConfidenceScore / CallConfidence -> confidence
+ProbeCount / NumProbes / NumberOfProbes / NumberOfSites -> annotation
+ArrayScore / Array_Score / Score / CNVScore -> annotation
 ```
 
 aCGH-style fields such as `LogRatio` or `MeanLogRatio` help detect `Array-derived` files. SNP-array-style fields such as `MeanBAF`, `MeanLRR`, `LOHScore`, or `ROHScore` help detect `SNP-array-derived` files. Extra columns such as `Gene`, `Cytoband`, `Classification`, `Clinical`, `DGV`, `QCFlag`, `MeanBAF`, and `MeanLRR` are preserved in `annotation_names` and `annotations`.

@@ -46,8 +46,6 @@ public final class Database {
         addColumnIfMissing(connection, "GENOMIC_SEGMENTS", "EVENT_GROUP_ID", "VARCHAR(128)");
         addColumnIfMissing(connection, "GENOMIC_SEGMENTS", "GENOME_BUILD", "VARCHAR(64)");
         addColumnIfMissing(connection, "GENOMIC_SEGMENTS", "CONFIDENCE", "VARCHAR(64)");
-        addColumnIfMissing(connection, "GENOMIC_SEGMENTS", "ARRAY_SCORE", "DOUBLE PRECISION");
-        addColumnIfMissing(connection, "GENOMIC_SEGMENTS", "NUMBER_OF_SITES", "INTEGER");
         addColumnIfMissing(connection, "GENOMIC_SEGMENTS", "RAW_ISCN", "VARCHAR(4096)");
         addColumnIfMissing(connection, "GENOMIC_SEGMENTS", "RAW_SEGMENT_TEXT", "VARCHAR(2000)");
         addColumnIfMissing(connection, "GENOMIC_SEGMENTS", "ANNOTATIONS", "VARCHAR(8192)");
@@ -58,17 +56,119 @@ public final class Database {
         addColumnIfMissing(connection, "VALIDATION_ISSUES", "SAMPLE_ACCESSION_ID", "VARCHAR(128)");
         backfillDirectEventGroupIds(connection);
         backfillSegmentResultFields(connection);
+        migrateSegmentAssayColumnsToAnnotations(connection);
         migrateGenomicSegmentLegacyColumns(connection);
         createDirectEventGroupIndexes(connection);
     }
 
+    private static void migrateSegmentAssayColumnsToAnnotations(Connection connection) throws SQLException {
+        Map<String, String> legacyColumns = new LinkedHashMap<>();
+        legacyColumns.put("ARRAY_SCORE", "ArrayScore");
+        legacyColumns.put("NUMBER_OF_SITES", "NumberOfSites");
+
+        List<String> existingColumns = new ArrayList<>();
+        for (String column : legacyColumns.keySet()) {
+            if (columnExists(connection, "GENOMIC_SEGMENTS", column)) {
+                existingColumns.add(column);
+            }
+        }
+        if (existingColumns.isEmpty()) {
+            return;
+        }
+
+        StringBuilder sql = new StringBuilder("""
+                SELECT gs.segment_id, gs.sample_test_result_id, str.annotation_names, gs.annotations
+                """);
+        for (String column : existingColumns) {
+            sql.append(", gs.").append(column).append(" AS ").append(column).append('\n');
+        }
+        sql.append("""
+                FROM genomic_segments gs
+                JOIN sample_test_results str ON str.sample_test_result_id = gs.sample_test_result_id
+                ORDER BY gs.segment_id
+                """);
+
+        Map<Long, String> resultAnnotationNames = new LinkedHashMap<>();
+        try (PreparedStatement read = connection.prepareStatement(sql.toString());
+             ResultSet rs = read.executeQuery()) {
+            while (rs.next()) {
+                long resultId = rs.getLong("sample_test_result_id");
+                String annotationNames = resultAnnotationNames.getOrDefault(resultId, rs.getString("annotation_names"));
+                String annotations = rs.getString("annotations");
+                for (String column : existingColumns) {
+                    String label = legacyColumns.get(column);
+                    if (!containsAnnotationName(annotationNames, label)) {
+                        annotationNames = appendPart(annotationNames, label);
+                    }
+                    annotations = appendPart(annotations, nullToEmpty(rs.getString(column)));
+                }
+                resultAnnotationNames.put(resultId, annotationNames);
+                updateSegmentAnnotations(connection, rs.getLong("segment_id"), annotations);
+            }
+        }
+        for (Map.Entry<Long, String> entry : resultAnnotationNames.entrySet()) {
+            updateResultAnnotationNames(connection, entry.getKey(), entry.getValue());
+        }
+    }
+
     private static void migrateGenomicSegmentLegacyColumns(Connection connection) throws SQLException {
         try (Statement stmt = connection.createStatement()) {
+            stmt.execute("ALTER TABLE GENOMIC_SEGMENTS DROP COLUMN IF EXISTS ARRAY_SCORE");
+            stmt.execute("ALTER TABLE GENOMIC_SEGMENTS DROP COLUMN IF EXISTS NUMBER_OF_SITES");
             stmt.execute("ALTER TABLE GENOMIC_SEGMENTS DROP COLUMN IF EXISTS EVENT_ID");
             stmt.execute("ALTER TABLE GENOMIC_SEGMENTS DROP COLUMN IF EXISTS GENOMIC_EVENT_GROUP_ID");
             stmt.execute("ALTER TABLE GENOMIC_SEGMENTS DROP COLUMN IF EXISTS CYTOBAND_START");
             stmt.execute("ALTER TABLE GENOMIC_SEGMENTS DROP COLUMN IF EXISTS CYTOBAND_END");
         }
+    }
+
+    private static void updateSegmentAnnotations(Connection connection, long segmentId, String annotations)
+            throws SQLException {
+        try (PreparedStatement ps = connection.prepareStatement("""
+                UPDATE genomic_segments
+                SET annotations = ?
+                WHERE segment_id = ?
+                """)) {
+            ps.setString(1, annotations);
+            ps.setLong(2, segmentId);
+            ps.executeUpdate();
+        }
+    }
+
+    private static void updateResultAnnotationNames(Connection connection, long resultId, String annotationNames)
+            throws SQLException {
+        try (PreparedStatement ps = connection.prepareStatement("""
+                UPDATE sample_test_results
+                SET annotation_names = ?
+                WHERE sample_test_result_id = ?
+                """)) {
+            ps.setString(1, annotationNames);
+            ps.setLong(2, resultId);
+            ps.executeUpdate();
+        }
+    }
+
+    private static boolean containsAnnotationName(String annotationNames, String label) {
+        if (annotationNames == null || annotationNames.isBlank()) {
+            return false;
+        }
+        for (String name : annotationNames.split("[|;]", -1)) {
+            if (name.trim().equalsIgnoreCase(label)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static String appendPart(String existing, String value) {
+        if (existing == null || existing.isEmpty()) {
+            return value == null ? "" : value;
+        }
+        return existing + "|" + (value == null ? "" : value);
+    }
+
+    private static String nullToEmpty(String value) {
+        return value == null ? "" : value;
     }
 
     private static void backfillSegmentResultFields(Connection connection) throws SQLException {

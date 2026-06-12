@@ -20,9 +20,8 @@ public class GenomicSegmentDao {
         try (PreparedStatement ps = connection.prepareStatement("""
                 INSERT INTO genomic_segments
                     (event_group_id, sample_test_result_id, karyotype_id, chromosome, start_pos, stop_pos,
-                     event_type, copy_number, genome_build, confidence, array_score, number_of_sites, raw_iscn,
-                     raw_segment_text, annotations)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                     event_type, copy_number, genome_build, confidence, raw_iscn, raw_segment_text, annotations)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """, DaoSupport.returnGeneratedKeys())) {
             ps.setString(1, segment.eventGroupId());
             ps.setLong(2, segment.sampleTestResultId());
@@ -38,19 +37,9 @@ public class GenomicSegmentDao {
             ps.setInt(8, segment.copyNumber());
             ps.setString(9, segment.genomeBuild());
             ps.setString(10, segment.confidence());
-            if (segment.arrayScore() == null) {
-                ps.setNull(11, Types.DOUBLE);
-            } else {
-                ps.setDouble(11, segment.arrayScore());
-            }
-            if (segment.numberOfSites() == null) {
-                ps.setNull(12, Types.INTEGER);
-            } else {
-                ps.setInt(12, segment.numberOfSites());
-            }
-            ps.setString(13, segment.rawIscn());
-            ps.setString(14, segment.rawSegmentText());
-            ps.setString(15, segment.annotations());
+            ps.setString(11, segment.rawIscn());
+            ps.setString(12, segment.rawSegmentText());
+            ps.setString(13, segment.annotations());
             ps.executeUpdate();
             return DaoSupport.generatedId(ps);
         }
@@ -120,8 +109,6 @@ public class GenomicSegmentDao {
                         rs.getInt("copy_number"),
                         rs.getString("genome_build"),
                         rs.getString("confidence"),
-                        DaoSupport.nullableDouble(rs, "array_score"),
-                        DaoSupport.nullableInt(rs, "number_of_sites"),
                         rs.getString("raw_iscn"),
                         rs.getString("raw_segment_text"),
                         rs.getString("annotations")

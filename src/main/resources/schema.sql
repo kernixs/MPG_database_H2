@@ -125,8 +125,6 @@ CREATE TABLE IF NOT EXISTS genomic_segments (
     copy_number INTEGER NOT NULL,
     genome_build VARCHAR(64),
     confidence VARCHAR(64),
-    array_score DOUBLE PRECISION,
-    number_of_sites INTEGER,
     raw_iscn VARCHAR(4096),
     raw_segment_text VARCHAR(2000),
     annotations VARCHAR(8192),

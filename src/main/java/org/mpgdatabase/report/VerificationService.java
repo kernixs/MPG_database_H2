@@ -315,8 +315,7 @@ public class VerificationService {
                 runLogText(tableCounts, importResults, clinicalImportResults));
         Files.writeString(outputDir.resolve("segments.tsv"), queryText("""
                 SELECT segment_id, event_group_id, sample_test_result_id, karyotype_id, chromosome, start_pos, stop_pos,
-                       event_type, copy_number, genome_build, confidence, array_score, number_of_sites, raw_iscn,
-                       raw_segment_text, annotations
+                       event_type, copy_number, genome_build, confidence, raw_iscn, raw_segment_text, annotations
                 FROM genomic_segments ORDER BY segment_id
                 """));
         Files.writeString(outputDir.resolve("event_groups.tsv"), queryText("""

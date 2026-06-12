@@ -119,8 +119,6 @@ public class CnvImportService {
                         record.copyNumber(),
                         genomeBuild,
                         record.confidence(),
-                        record.arrayScore(),
-                        record.numberOfSites(),
                         record.rawIscn(),
                         rawSegmentText(record),
                         record.annotations()
