@@ -2071,7 +2071,6 @@ public class CnvDatabaseGui extends JFrame {
                     gs.genome_build,
                     gs.confidence,
                     gs.raw_iscn,
-                    gs.annotations,
                     (
                         SELECT LISTAGG(sa.annotation_name || '=' ||
                             COALESCE(sa.text_value,
@@ -2088,7 +2087,6 @@ public class CnvDatabaseGui extends JFrame {
                     ) AS segment_annotations,
                     (gs.stop_pos - gs.start_pos + 1) AS length_bp,
                     str.calling_method,
-                    str.annotation_names,
                     sf.file_name AS source_file
                 FROM genomic_segments gs
                 JOIN sample_test_results str ON str.sample_test_result_id = gs.sample_test_result_id

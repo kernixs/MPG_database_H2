@@ -126,7 +126,7 @@ This keeps joins stable and efficient while preserving meaningful identifiers fo
 
 ## Current Table Inventory
 
-The current schema has 16 tables.
+The current schema has 20 tables.
 
 | # | Table | What it represents | Main fields |
 |---|---|---|---|
@@ -147,6 +147,9 @@ The current schema has 16 tables.
 | 15 | `variant_classifications` | Classification assertions for observed genomic segments. | `classification_id`, `segment_id`, `classification_label`, `guideline_system`, `guideline_version`, `evidence_score`, `evidence_summary`, `review_status`, `is_current` |
 | 16 | `signed_out_calls` | Case-level clinical conclusion and report/sign-out decision for a classified segment. | `signed_out_call_id`, `segment_id`, `classification_id`, `individual_id`, `sample_test_result_id`, `clinical_significance`, `interpretation_text`, `signed_out_status`, `report_text` |
 | 17 | `notes` | Typed human notes attached to segments, classifications, or signed-out calls. | `note_id`, `target_table`, `target_id`, `note_type`, `note_text`, `author`, `created_at` |
+| 18 | `small_variants` | Normalized SNV/indel variant identities imported from VCF files. | `small_variant_id`, `chromosome`, `position`, `variant_id`, `ref_allele`, `alt_allele`, `variant_type`, `genome_build`, `normalized_key` |
+| 19 | `small_variant_sample_calls` | Per-sample genotype/call details for each imported VCF variant. | `small_variant_call_id`, `small_variant_id`, `sample_test_result_id`, `qual`, `filter_status`, `genotype`, `ref_depth`, `alt_depth`, `total_depth`, `allele_balance`, `format_keys`, `sample_values` |
+| 20 | `small_variant_annotations` | Parsed functional/population/clinical annotations for small variants when present in VCF INFO fields. | `small_variant_annotation_id`, `small_variant_id`, `gene`, `transcript`, `consequence`, `impact`, `hgvs_c`, `hgvs_p`, `annotation_source`, `annotation_version` |
 
 The schema also includes indexes for common lookups:
 
@@ -762,7 +765,7 @@ The importer does not automatically correct or rewrite ISCN strings.
 
 ## Assay-Specific Annotation Handling
 
-The importer stores common, frequently queried CNV fields in dedicated columns and stores assay-specific leftovers in the generic annotation pair.
+The CNV/SV importer stores common, frequently queried fields in dedicated `genomic_segments` columns and stores assay-specific leftovers in `segment_annotations`.
 
 Dedicated fields are not duplicated into annotations. Current dedicated fields include:
 
@@ -778,32 +781,113 @@ event_group_id
 raw_iscn
 ```
 
-All remaining assay-specific fields are preserved in:
+All remaining assay-specific fields are inserted as queryable child rows in:
+
+```text
+segment_annotations
+```
+
+For example:
+
+```text
+segment_id | annotation_name | text_value | numeric_value | boolean_value
+101        | Gene            | FCGR3A     | NULL          | NULL
+101        | Clinical        | CDP2       | NULL          | NULL
+101        | Lumpy           | NULL       | 1             | NULL
+101        | CNVNATOR        | NULL       | 1             | NULL
+```
+
+Blank annotation values are skipped in `segment_annotations` because matching no longer depends on positional pipe parsing.
+
+The older compatibility fields remain in place:
 
 ```text
 sample_test_results.annotation_names
 genomic_segments.annotations
 ```
 
-Both fields use pipe-delimited positional values. For example:
-
-```text
-annotation_names = Gene|Clinical|Lumpy|CNVNATOR
-annotations      = FCGR3A|CDP2|1|1
-```
-
-Blank values are kept as empty positions so every segment in the same result can share the same annotation definition:
-
-```text
-annotation_names = Gene|Clinical|Lumpy|CNVNATOR
-annotations      = SHH||1|0
-```
+Those pipe-delimited fields preserve historical import output, but new search logic should join against `segment_annotations`.
 
 NGS-derived CNV/SV files keep caller- and population-resource fields as annotations, such as `Gene`, `Clinical`, `Lumpy`, `CNVNATOR`, `Gnomad_Length`, `Gnomad_Percent_Overlap`, `DGV_Pop_Percent`, `Exclude_Length`, `Stitched`, and `gnomAD_version`.
 
 Array-derived CNV files keep platform- and assay-specific fields as annotations, such as `ProbeCount`/`NumProbes`, `ArrayScore`, `log2_ratio`, `baf_pattern`, `lrr_value`, `snp_count`, `roh_status`, `gene_count`, `array_platform`, `array_design`, and `call_algorithm`. Confidence is stored in the dedicated `genomic_segments.confidence` column.
 
-If an input file provides explicit `annotation_names` and `annotations`, the importer still filters out names that map to dedicated fields and preserves the remaining name/value pairs in order, including blank placeholders.
+If an input file provides explicit `annotation_names` and `annotations`, the importer still filters out names that map to dedicated fields and preserves the remaining name/value pairs in compatibility output while also inserting nonblank values into `segment_annotations`.
+
+## VCF Small Variants
+
+VCF/SNV/indel import uses a separate branch of the schema and does not write to `genomic_segments`, `segment_annotations`, or `genomic_links`.
+
+The CLI directory import auto-detects VCF files by `.vcf`, `.vcf.txt`, `##fileformat=VCF`, or `#CHROM`, then routes them to `VcfImportService`. GUI VCF import is intentionally not enabled yet.
+
+VCF data is stored like this:
+
+```text
+small_variants
+small_variant_sample_calls
+small_variant_annotations
+```
+
+`small_variants` stores one row per normalized REF/ALT variant. Multi-ALT VCF rows are split into separate variant rows. `small_variant_sample_calls` stores one row per sample per split variant, including genotype, phasing, QUAL/FILTER, depth fields, allele balance, raw FORMAT keys, raw sample values, raw INFO, and the original VCF line. `small_variant_annotations` stores parsed annotation records from supported INFO annotations such as SnpEff `ANN`, `LOF`, and `NMD`.
+
+Genome build detection is required. The importer checks, in order:
+
+```text
+1. ##reference=
+2. ##assembly=
+3. VCF metadata and command-line reference filenames
+4. user/default import parameter
+5. otherwise reject the rows with Missing Genome Build
+```
+
+Known aliases are normalized, including:
+
+```text
+hg19 / build37 / GRCh37 -> GRCh37
+hg38 / assembly38 / Homo_sapiens_assembly38.fasta / GRCh38 -> GRCh38
+```
+
+Example query:
+
+```sql
+SELECT sv.*, svc.genotype, svc.alt_depth
+FROM small_variants sv
+JOIN small_variant_sample_calls svc
+  ON svc.small_variant_id = sv.small_variant_id
+JOIN small_variant_annotations sva
+  ON sva.small_variant_id = sv.small_variant_id
+WHERE sva.gene = 'TP53'
+  AND sv.genome_build = 'GRCh38';
+```
+
+Terminal VCF search is available through:
+
+```bash
+java -cp target/classes:/path/to/h2.jar org.mpgdatabase.App vcf-search --jdbc-url jdbc:h2:file:./output/mpg_database_h2 --gene OR4F5
+```
+
+Supported `vcf-search` filters:
+
+```text
+--sample
+--chromosome
+--start
+--stop / --end
+--variant-id
+--variant-type
+--genome-build
+--genotype
+--filter-status
+--gene
+--consequence
+--impact
+--min-alt-depth / --alt-depth-min
+--max-alt-depth / --alt-depth-max
+--min-total-depth / --total-depth-min
+--max-total-depth / --total-depth-max
+--min-allele-balance / --allele-balance-min
+--max-allele-balance / --allele-balance-max
+```
 
 ## File-Type Detection
 

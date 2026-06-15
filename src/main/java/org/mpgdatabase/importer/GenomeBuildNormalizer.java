@@ -2,11 +2,11 @@ package org.mpgdatabase.importer;
 
 import java.util.Locale;
 
-final class GenomeBuildNormalizer {
+public final class GenomeBuildNormalizer {
     private GenomeBuildNormalizer() {
     }
 
-    static String normalize(String build) {
+    public static String normalize(String build) {
         if (build == null || build.isBlank()) {
             return null;
         }
@@ -14,6 +14,19 @@ final class GenomeBuildNormalizer {
                 .toLowerCase(Locale.ROOT)
                 .replaceAll("[_\\-]+", " ")
                 .replaceAll("\\s+", " ");
+        if (normalized.contains("homo sapiens assembly38")
+                || normalized.contains("assembly38")
+                || normalized.contains("grch38")
+                || normalized.contains("hg38")) {
+            return "GRCh38";
+        }
+        if (normalized.contains("homo sapiens assembly37")
+                || normalized.contains("assembly37")
+                || normalized.contains("grch37")
+                || normalized.contains("hg19")
+                || normalized.contains("build37")) {
+            return "GRCh37";
+        }
 
         return switch (normalized) {
             case "grch37", "hg19", "build 37", "b37", "genome build 37", "human genome build 37" -> "GRCh37";

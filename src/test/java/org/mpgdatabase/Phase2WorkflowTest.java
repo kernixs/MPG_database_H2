@@ -6,6 +6,7 @@ import org.mpgdatabase.db.Database;
 import org.mpgdatabase.importer.ClinicalDecisionImportService;
 import org.mpgdatabase.importer.CnvImportService;
 import org.mpgdatabase.importer.CnvParserFactory;
+import org.mpgdatabase.importer.VcfImportService;
 import org.mpgdatabase.model.Models.Note;
 import org.mpgdatabase.model.Models.SignedOutCall;
 import org.mpgdatabase.model.Models.VariantClassification;
@@ -27,6 +28,117 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class Phase2WorkflowTest {
+    @Test
+    void importsVcfSmallVariantsWithMultiSampleMultiAltAndAnnotations() throws Exception {
+        Path input = Files.createTempFile("small-variants", ".vcf");
+        Files.writeString(input, """
+                ##fileformat=VCFv4.2
+                ##GATKCommandLine=<ID=CNNScoreVariants,CommandLine="--reference Homo_sapiens_assembly38.fasta --intervals exome.targets.hg38.sorted.bed">
+                ##INFO=<ID=ANN,Number=.,Type=String,Description="Functional annotations: 'Allele | Annotation | Annotation_Impact | Gene_Name | Gene_ID | Feature_Type | Feature_ID | Transcript_BioType | Rank | HGVS.c | HGVS.p'">
+                ##SnpEffVersion="SnpEff 5.1"
+                #CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\tSAMPLE_A\tSAMPLE_B
+                1\t69270\trs1\tA\tG\t99\tPASS\tANN=G|missense_variant|MODERATE|TP53|GENE1|transcript|NM_000546.6|protein_coding|1/1|c.215C>G|p.Arg72Pro\tGT:AD:DP:GQ\t0/1:10,12:22:60\t1|1:0,30:30:99
+                2\t100\t.\tA\tC,T\t50\tPASS\tANN=C|synonymous_variant|LOW|BRCA1|GENE2|transcript|NM_007294.4|protein_coding|1/1|c.1A>C|p.=,T|stop_gained|HIGH|RUNX1|GENE3|transcript|NM_001754.5|protein_coding|1/1|c.2A>T|p.Lys1*\tGT:AD:DP:GQ\t0/1:5,5,0:10:20\t0/2:3,0,7:10:21
+                """);
+        try (Connection connection = Database.connect("jdbc:h2:mem:vcf_small_variants;DB_CLOSE_DELAY=-1")) {
+            Database.initialize(connection);
+            var result = new VcfImportService(connection).importFile(input, null);
+
+            assertTrue(result.success());
+            assertEquals(2, result.recordsSeen());
+            assertEquals(3, count(connection, "SELECT COUNT(*) FROM small_variants"));
+            assertEquals(6, count(connection, "SELECT COUNT(*) FROM small_variant_sample_calls"));
+            assertEquals(2, count(connection, "SELECT COUNT(*) FROM sample_test_results WHERE calling_method = 'VCF-small-variant'"));
+            assertEquals(3, count(connection, "SELECT COUNT(*) FROM small_variants WHERE genome_build = 'GRCh38'"));
+            assertEquals(1, count(connection, "SELECT COUNT(*) FROM small_variants WHERE variant_type = 'SNV' AND ref_allele = 'A' AND alt_allele = 'G'"));
+            assertEquals(2, count(connection, "SELECT COUNT(*) FROM small_variants WHERE position = 100 AND alt_allele IN ('C', 'T')"));
+            assertEquals(1, count(connection, """
+                    SELECT COUNT(*)
+                    FROM small_variant_sample_calls svc
+                    JOIN sample_test_results str ON str.sample_test_result_id = svc.sample_test_result_id
+                    JOIN sample_tests st ON st.sample_test_id = str.sample_test_id
+                    JOIN sample_accessions sa ON sa.sample_accession_id = st.sample_accession_id
+                    WHERE sa.accession_identifier = 'SAMPLE_B'
+                      AND svc.genotype = '1|1'
+                      AND svc.phased = TRUE
+                      AND svc.ref_depth = 0
+                      AND svc.alt_depth = 30
+                      AND svc.total_depth = 30
+                      AND svc.allele_balance = 1.0
+                    """));
+            assertEquals(1, count(connection, """
+                    SELECT COUNT(*)
+                    FROM small_variant_sample_calls svc
+                    JOIN small_variants sv ON sv.small_variant_id = svc.small_variant_id
+                    JOIN sample_test_results str ON str.sample_test_result_id = svc.sample_test_result_id
+                    JOIN sample_tests st ON st.sample_test_id = str.sample_test_id
+                    JOIN sample_accessions sa ON sa.sample_accession_id = st.sample_accession_id
+                    WHERE sa.accession_identifier = 'SAMPLE_B'
+                      AND sv.position = 100
+                      AND sv.alt_allele = 'T'
+                      AND svc.genotype = '0/2'
+                      AND svc.alt_depth = 7
+                      AND svc.allele_balance = 0.7
+                    """));
+            assertEquals(1, count(connection, """
+                    SELECT COUNT(*)
+                    FROM small_variant_annotations
+                    WHERE gene = 'TP53'
+                      AND transcript = 'NM_000546.6'
+                      AND consequence = 'missense_variant'
+                      AND impact = 'MODERATE'
+                      AND annotation_source = 'SnpEff'
+                    """));
+        }
+    }
+
+    @Test
+    void classifiesVcfSnvInsertionDeletionAndIndelTypes() throws Exception {
+        Path input = Files.createTempFile("small-variant-types", ".vcf");
+        Files.writeString(input, """
+                ##fileformat=VCFv4.2
+                ##reference=GRCh38
+                #CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\tSAMPLE_ONE
+                1\t10\t.\tA\tG\t.\tPASS\t.\tGT:AD:DP:GQ\t0/1:4,6:10:20
+                1\t20\t.\tA\tATG\t.\tPASS\t.\tGT:AD:DP:GQ\t0/1:4,6:10:20
+                1\t30\t.\tATG\tA\t.\tPASS\t.\tGT:AD:DP:GQ\t0/1:4,6:10:20
+                1\t40\t.\tATG\tGCA\t.\tPASS\t.\tGT:AD:DP:GQ\t0/1:4,6:10:20
+                """);
+        try (Connection connection = Database.connect("jdbc:h2:mem:vcf_variant_types;DB_CLOSE_DELAY=-1")) {
+            Database.initialize(connection);
+            var result = new VcfImportService(connection).importFile(input, null);
+
+            assertTrue(result.success());
+            assertEquals(4, count(connection, "SELECT COUNT(*) FROM small_variants"));
+            assertEquals(4, count(connection, "SELECT COUNT(*) FROM small_variant_sample_calls"));
+            assertEquals(1, count(connection, "SELECT COUNT(*) FROM small_variants WHERE variant_type = 'SNV' AND position = 10"));
+            assertEquals(1, count(connection, "SELECT COUNT(*) FROM small_variants WHERE variant_type = 'INSERTION' AND position = 20"));
+            assertEquals(1, count(connection, "SELECT COUNT(*) FROM small_variants WHERE variant_type = 'DELETION' AND position = 30"));
+            assertEquals(1, count(connection, "SELECT COUNT(*) FROM small_variants WHERE variant_type = 'INDEL' AND position = 40"));
+            assertEquals(0, count(connection, "SELECT COUNT(*) FROM genomic_segments"));
+        }
+    }
+
+    @Test
+    void rejectsVcfRowsWhenGenomeBuildIsUnknown() throws Exception {
+        Path input = Files.createTempFile("small-variant-no-build", ".vcf");
+        Files.writeString(input, """
+                ##fileformat=VCFv4.2
+                #CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\tSAMPLE_ONE
+                1\t10\t.\tA\tG\t.\tPASS\t.\tGT\t0/1
+                """);
+        try (Connection connection = Database.connect("jdbc:h2:mem:vcf_missing_build;DB_CLOSE_DELAY=-1")) {
+            Database.initialize(connection);
+            var result = new VcfImportService(connection).importFile(input, null);
+
+            assertTrue(result.success());
+            assertEquals(1, result.recordsSeen());
+            assertEquals(0, count(connection, "SELECT COUNT(*) FROM small_variants"));
+            assertEquals(0, count(connection, "SELECT COUNT(*) FROM small_variant_sample_calls"));
+            assertEquals(1, issueCount(connection, "Missing Genome Build", "ERROR"));
+        }
+    }
+
     @Test
     void importsCnvFilesAndPassesVerification() throws Exception {
         try (Connection connection = Database.connect("jdbc:h2:mem:phase2;DB_CLOSE_DELAY=-1")) {

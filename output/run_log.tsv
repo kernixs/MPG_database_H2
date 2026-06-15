@@ -1,13 +1,14 @@
 timestamp	step	file_name	status	records_seen	segments_inserted	classifications_inserted	signed_out_calls_inserted	notes_inserted	issues_inserted	message
-2026-06-11T00:09:32.713967Z	genomic_import	25-54321WGS_05Nov2025_SWGS111_SV_DEL_DUP_Classify_Result.txt	PASS	452	452				0	Imported genomic segments
-2026-06-11T00:09:32.713967Z	genomic_import	array_derived_100.cnv	PASS	100	100				0	Imported genomic segments
-2026-06-11T00:09:32.713967Z	genomic_import	example.cnv	PASS	3	3				0	Imported genomic segments
-2026-06-11T00:09:32.713967Z	genomic_import	iscn_derived_100.cnv	PASS	100	100				30	Imported genomic segments
-2026-06-11T00:09:32.713967Z	genomic_import	ngs_derived_100.txt	PASS	100	100				0	Imported genomic segments
-2026-06-11T00:09:32.713967Z	genomic_import	phase27_finding_model.cnv	FAIL	10	10				1	Imported genomic segments
-2026-06-11T00:09:32.713967Z	genomic_import	realistic_cnv_mixed_events_import.cnv	FAIL	6	6				1	Imported genomic segments
-2026-06-11T00:09:32.713967Z	genomic_import	test.cnv	PASS	3	0				3	No genomic segments inserted
-2026-06-11T00:09:32.713967Z	genomic_import	test_v2.cnv	PASS	23	0				23	No genomic segments inserted
-2026-06-11T00:09:32.713967Z	genomic_import	translocation_pair.cnv	FAIL	2	2				1	Imported genomic segments
-2026-06-11T00:09:32.713967Z	clinical_decision_import	phase26_clinical_decisions.tsv	PASS	100		100	100	100		Imported classifications, sign-out calls, and notes
-2026-06-11T00:09:32.713967Z	verification		PASS		2722	400	400	400	187	Generated verification reports
+2026-06-15T18:08:03.471736Z	genomic_import	25-54321WGS_05Nov2025_SWGS111_SV_DEL_DUP_Classify_Result.txt	PASS	452	452				1	Imported genomic segments
+2026-06-15T18:08:03.471736Z	genomic_import	array_derived_100.cnv	PASS	100	100				1	Imported genomic segments
+2026-06-15T18:08:03.471736Z	genomic_import	example.cnv	PASS	3	3				1	Imported genomic segments
+2026-06-15T18:08:03.471736Z	genomic_import	iscn_derived_100.cnv	PASS	100	100				31	Imported genomic segments
+2026-06-15T18:08:03.471736Z	genomic_import	ngs_derived_100.txt	PASS	100	100				1	Imported genomic segments
+2026-06-15T18:08:03.471736Z	genomic_import	phase27_finding_model.cnv	PASS	22	22				0	Imported genomic segments
+2026-06-15T18:08:03.471736Z	genomic_import	realistic_cnv_mixed_events_import.cnv	PASS	12	12				1	Imported genomic segments
+2026-06-15T18:08:03.471736Z	genomic_import	test.cnv	PASS	3	0				4	No genomic segments inserted
+2026-06-15T18:08:03.471736Z	genomic_import	test_v2.cnv	PASS	23	0				24	No genomic segments inserted
+2026-06-15T18:08:03.471736Z	genomic_import	translocation_pair.cnv	PASS	100	100				0	Imported genomic segments
+2026-06-15T18:08:03.471736Z	vcf_import	small_example.filtered_snpEff.ann.vcf	PASS	15					0	variants=15; sample_calls=15; annotations=21
+2026-06-15T18:08:03.471736Z	clinical_decision_import	phase26_clinical_decisions.tsv	PASS	100		100	100	100		Imported classifications, sign-out calls, and notes
+2026-06-15T18:08:03.471736Z	verification		PASS		1656	176	176	176	99	Generated verification reports

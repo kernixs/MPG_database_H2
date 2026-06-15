@@ -6,42 +6,15 @@ SOURCE_FILE_ID	FILE_NAME	FILE_PATH	PIPELINE_NAME	IMPORTED_AT	IMPORT_STATUS	ROW_C
 5	ngs_derived_100.txt	/Users/aminsuliman/Downloads/MPG_database_H2/data/ngs_derived_100.txt	NGS SV Caller	2026-06-08 12:19:44.802605	SUCCESS	100	
 6	test.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/test.cnv	ISCN Parser	2026-06-08 12:19:44.831751	FAILED	3	
 7	test_v2.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/test_v2.cnv	ISCN Parser	2026-06-08 12:19:44.833691	FAILED	23	
-8	mixed_event_types.tsv	/Users/aminsuliman/Downloads/MPG_database_H2/gui/sample-data/mixed_event_types.tsv	GUI CNV Importer	2026-06-08 13:00:41.78737	SUCCESS	4	Imported by Swing GUI
-9	valid_cnv.tsv	/Users/aminsuliman/Downloads/MPG_database_H2/gui/sample-data/valid_cnv.tsv	GUI CNV Importer	2026-06-08 13:00:50.384842	SUCCESS	3	Imported by Swing GUI
-10	interesting_chr5_overlap.tsv	/Users/aminsuliman/Downloads/MPG_database_H2/gui/sample-data/interesting_chr5_overlap.tsv	GUI CNV Importer	2026-06-08 13:01:39.351369	SUCCESS	4	Imported by Swing GUI
-11	array_derived_100.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/array_derived_100.cnv	GUI CNV Importer	2026-06-08 13:01:52.575883	SUCCESS	100	Imported by Swing GUI
-12	iscn_derived_100.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/iscn_derived_100.cnv	GUI CNV Importer	2026-06-08 13:02:34.206312	SUCCESS	100	Imported by Swing GUI
-13	array_derived_100.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/array_derived_100.cnv	GUI CNV Importer	2026-06-08 15:18:05.628883	SUCCESS	100	Imported by Swing GUI
-14	translocation_pair.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/translocation_pair.cnv	GUI CNV Importer	2026-06-08 16:20:40.80421	SUCCESS	1	Imported by Swing GUI
-15	translocation_pair.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/translocation_pair.cnv	GUI CNV Importer	2026-06-08 16:59:39.945773	SUCCESS	100	Imported by Swing GUI
-16	realistic_cnv_mixed_events_import.cnv	/Users/aminsuliman/Downloads/realistic_cnv_mixed_events_import.cnv	GUI CNV Importer	2026-06-09 11:51:26.476388	SUCCESS	10	Imported by Swing GUI
-17	25-54321WGS_05Nov2025_SWGS111_SV_DEL_DUP_Classify_Result.txt	/Users/aminsuliman/Downloads/MPG_database_H2/data/25-54321WGS_05Nov2025_SWGS111_SV_DEL_DUP_Classify_Result.txt	NGS SV Caller	2026-06-10 19:06:40.128664	FAILED	1	
-18	array_derived_100.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/array_derived_100.cnv	ISCN Parser	2026-06-10 19:06:40.143188	FAILED	1	
-19	example.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/example.cnv	ISCN Parser	2026-06-10 19:06:40.146891	FAILED	1	
-20	iscn_derived_100.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/iscn_derived_100.cnv	ISCN Parser	2026-06-10 19:06:40.154583	FAILED	1	
-21	ngs_derived_100.txt	/Users/aminsuliman/Downloads/MPG_database_H2/data/ngs_derived_100.txt	NGS SV Caller	2026-06-10 19:06:40.162618	FAILED	1	
-22	phase27_finding_model.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/phase27_finding_model.cnv	ISCN Parser	2026-06-10 19:06:40.166578	FAILED	1	
-23	realistic_cnv_mixed_events_import.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/realistic_cnv_mixed_events_import.cnv	ISCN Parser	2026-06-10 19:06:40.170893	FAILED	1	
-24	test.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/test.cnv	ISCN Parser	2026-06-10 19:06:40.174533	FAILED	3	
-25	test_v2.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/test_v2.cnv	ISCN Parser	2026-06-10 19:06:40.176602	FAILED	23	
-26	translocation_pair.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/translocation_pair.cnv	ISCN Parser	2026-06-10 19:06:40.183565	FAILED	1	
-27	25-54321WGS_05Nov2025_SWGS111_SV_DEL_DUP_Classify_Result.txt	/Users/aminsuliman/Downloads/MPG_database_H2/data/25-54321WGS_05Nov2025_SWGS111_SV_DEL_DUP_Classify_Result.txt	NGS SV Caller	2026-06-10 19:07:29.722972	SUCCESS	452	
-28	array_derived_100.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/array_derived_100.cnv	ISCN Parser	2026-06-10 19:07:29.802013	SUCCESS	100	
-29	example.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/example.cnv	ISCN Parser	2026-06-10 19:07:29.823481	SUCCESS	3	
-30	iscn_derived_100.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/iscn_derived_100.cnv	ISCN Parser	2026-06-10 19:07:29.828763	PARTIAL_SUCCESS	100	
-31	ngs_derived_100.txt	/Users/aminsuliman/Downloads/MPG_database_H2/data/ngs_derived_100.txt	NGS SV Caller	2026-06-10 19:07:29.861479	SUCCESS	100	
-32	phase27_finding_model.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/phase27_finding_model.cnv	ISCN Parser	2026-06-10 19:07:29.878524	FAILED	10	
-33	realistic_cnv_mixed_events_import.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/realistic_cnv_mixed_events_import.cnv	ISCN Parser	2026-06-10 19:07:29.888745	FAILED	6	
-34	test.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/test.cnv	ISCN Parser	2026-06-10 19:07:29.89321	FAILED	3	
-35	test_v2.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/test_v2.cnv	ISCN Parser	2026-06-10 19:07:29.89446	FAILED	23	
-36	translocation_pair.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/translocation_pair.cnv	ISCN Parser	2026-06-10 19:07:29.897357	FAILED	2	
-37	25-54321WGS_05Nov2025_SWGS111_SV_DEL_DUP_Classify_Result.txt	/Users/aminsuliman/Downloads/MPG_database_H2/data/25-54321WGS_05Nov2025_SWGS111_SV_DEL_DUP_Classify_Result.txt	NGS SV Caller	2026-06-10 19:09:32.095008	SUCCESS	452	
-38	array_derived_100.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/array_derived_100.cnv	ISCN Parser	2026-06-10 19:09:32.181592	SUCCESS	100	
-39	example.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/example.cnv	ISCN Parser	2026-06-10 19:09:32.20567	SUCCESS	3	
-40	iscn_derived_100.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/iscn_derived_100.cnv	ISCN Parser	2026-06-10 19:09:32.210998	PARTIAL_SUCCESS	100	
-41	ngs_derived_100.txt	/Users/aminsuliman/Downloads/MPG_database_H2/data/ngs_derived_100.txt	NGS SV Caller	2026-06-10 19:09:32.244565	SUCCESS	100	
-42	phase27_finding_model.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/phase27_finding_model.cnv	ISCN Parser	2026-06-10 19:09:32.263826	FAILED	10	
-43	realistic_cnv_mixed_events_import.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/realistic_cnv_mixed_events_import.cnv	ISCN Parser	2026-06-10 19:09:32.269909	FAILED	6	
-44	test.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/test.cnv	ISCN Parser	2026-06-10 19:09:32.272717	FAILED	3	
-45	test_v2.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/test_v2.cnv	ISCN Parser	2026-06-10 19:09:32.273991	FAILED	23	
-46	translocation_pair.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/translocation_pair.cnv	ISCN Parser	2026-06-10 19:09:32.276758	FAILED	2	
+33	realistic_cnv_mixed_events_import.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/realistic_cnv_mixed_events_import.cnv	GUI CNV Importer	2026-06-11 16:13:22.900509	SUCCESS	12	Imported by Swing GUI
+34	25-54321WGS_05Nov2025_SWGS111_SV_DEL_DUP_Classify_Result.txt	/Users/aminsuliman/Downloads/MPG_database_H2/data/25-54321WGS_05Nov2025_SWGS111_SV_DEL_DUP_Classify_Result.txt	NGS SV Caller	2026-06-15 13:08:02.802472	PARTIAL_SUCCESS	452	WARNING: this file path was imported before
+35	array_derived_100.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/array_derived_100.cnv	ISCN Parser	2026-06-15 13:08:03.12252	PARTIAL_SUCCESS	100	WARNING: this file path was imported before
+36	example.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/example.cnv	ISCN Parser	2026-06-15 13:08:03.1381	PARTIAL_SUCCESS	3	WARNING: this file path was imported before
+37	iscn_derived_100.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/iscn_derived_100.cnv	ISCN Parser	2026-06-15 13:08:03.143638	PARTIAL_SUCCESS	100	WARNING: this file path was imported before
+38	ngs_derived_100.txt	/Users/aminsuliman/Downloads/MPG_database_H2/data/ngs_derived_100.txt	NGS SV Caller	2026-06-15 13:08:03.188868	PARTIAL_SUCCESS	100	WARNING: this file path was imported before
+39	phase27_finding_model.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/phase27_finding_model.cnv	ISCN Parser	2026-06-15 13:08:03.248581	SUCCESS	22	
+40	realistic_cnv_mixed_events_import.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/realistic_cnv_mixed_events_import.cnv	ISCN Parser	2026-06-15 13:08:03.25509	PARTIAL_SUCCESS	12	WARNING: this file path was imported before
+41	test.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/test.cnv	ISCN Parser	2026-06-15 13:08:03.258404	FAILED	3	WARNING: this file path was imported before
+42	test_v2.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/test_v2.cnv	ISCN Parser	2026-06-15 13:08:03.259045	FAILED	23	WARNING: this file path was imported before
+43	translocation_pair.cnv	/Users/aminsuliman/Downloads/MPG_database_H2/data/translocation_pair.cnv	ISCN Parser	2026-06-15 13:08:03.260781	SUCCESS	100	
+44	small_example.filtered_snpEff.ann.vcf	/Users/aminsuliman/Downloads/MPG_database_H2/data/small_example.filtered_snpEff.ann.vcf	VCF Importer	2026-06-15 13:08:03.279111	SUCCESS	15	

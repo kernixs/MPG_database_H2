@@ -3,6 +3,7 @@ package org.mpgdatabase.report;
 import org.mpgdatabase.dao.GenomicSegmentDao;
 import org.mpgdatabase.importer.ClinicalDecisionImportResult;
 import org.mpgdatabase.importer.ImportResult;
+import org.mpgdatabase.importer.VcfImportResult;
 import org.mpgdatabase.model.Models.GenomicSegment;
 
 import java.io.IOException;
@@ -30,6 +31,10 @@ public class VerificationService {
             "genomic_events",
             "genomic_event_groups",
             "genomic_segments",
+            "segment_annotations",
+            "small_variants",
+            "small_variant_sample_calls",
+            "small_variant_annotations",
             "genomic_links",
             "validation_issues",
             "variant_classifications",
@@ -53,6 +58,15 @@ public class VerificationService {
     public VerificationReport verify(
             boolean databaseInitializationPassed,
             List<ImportResult> importResults,
+            List<ClinicalDecisionImportResult> clinicalImportResults)
+            throws IOException, SQLException {
+        return verify(databaseInitializationPassed, importResults, List.of(), clinicalImportResults);
+    }
+
+    public VerificationReport verify(
+            boolean databaseInitializationPassed,
+            List<ImportResult> importResults,
+            List<VcfImportResult> vcfImportResults,
             List<ClinicalDecisionImportResult> clinicalImportResults)
             throws IOException, SQLException {
         Files.createDirectories(outputDir);
@@ -79,7 +93,7 @@ public class VerificationService {
         VerificationResult integrity = verifyDataIntegrity();
         Map<String, Long> tableCounts = tableCounts();
 
-        writeReports(tableCounts, importResults, clinicalImportResults, query);
+        writeReports(tableCounts, importResults, vcfImportResults, clinicalImportResults, query);
         return new VerificationReport(
                 databaseInitializationPassed,
                 tableCounts,
@@ -105,6 +119,10 @@ public class VerificationService {
         appendCount(sb, report.tableCounts(), "Genomic Events", "genomic_events");
         appendCount(sb, report.tableCounts(), "Genomic Event Groups", "genomic_event_groups");
         appendCount(sb, report.tableCounts(), "Genomic Segments", "genomic_segments");
+        appendCount(sb, report.tableCounts(), "Segment Annotations", "segment_annotations");
+        appendCount(sb, report.tableCounts(), "Small Variants", "small_variants");
+        appendCount(sb, report.tableCounts(), "Small Variant Sample Calls", "small_variant_sample_calls");
+        appendCount(sb, report.tableCounts(), "Small Variant Annotations", "small_variant_annotations");
         appendCount(sb, report.tableCounts(), "Genomic Links", "genomic_links");
         appendCount(sb, report.tableCounts(), "Validation Issues", "validation_issues");
         appendCount(sb, report.tableCounts(), "Variant Classifications", "variant_classifications");
@@ -282,6 +300,7 @@ public class VerificationService {
     private void writeReports(
             Map<String, Long> tableCounts,
             List<ImportResult> importResults,
+            List<VcfImportResult> vcfImportResults,
             List<ClinicalDecisionImportResult> clinicalImportResults,
             VerificationResult query)
             throws IOException, SQLException {
@@ -299,6 +318,18 @@ public class VerificationService {
                     .append("segments=").append(result.segmentsInserted()).append('\t')
                     .append("issues=").append(result.issuesInserted()).append('\n');
         }
+        if (!vcfImportResults.isEmpty()) {
+            importSummary.append("\nVCF Import Results\n");
+            for (VcfImportResult result : vcfImportResults) {
+                importSummary.append(result.fileName()).append('\t')
+                        .append(result.success() ? "PASS" : "FAIL").append('\t')
+                        .append("records=").append(result.recordsSeen()).append('\t')
+                        .append("variants=").append(result.variantsInsertedOrReused()).append('\t')
+                        .append("sample_calls=").append(result.sampleCallsInserted()).append('\t')
+                        .append("annotations=").append(result.annotationsInserted()).append('\t')
+                        .append("issues=").append(result.issuesInserted()).append('\n');
+            }
+        }
         if (!clinicalImportResults.isEmpty()) {
             importSummary.append("\nClinical Decision Import Results\n");
             for (ClinicalDecisionImportResult result : clinicalImportResults) {
@@ -312,7 +343,7 @@ public class VerificationService {
         }
         Files.writeString(outputDir.resolve("import_summary.txt"), importSummary.toString());
         Files.writeString(outputDir.resolve("run_log.tsv"),
-                runLogText(tableCounts, importResults, clinicalImportResults));
+                runLogText(tableCounts, importResults, vcfImportResults, clinicalImportResults));
         Files.writeString(outputDir.resolve("segments.tsv"), queryText("""
                 SELECT segment_id, event_group_id, sample_test_result_id, karyotype_id, chromosome, start_pos, stop_pos,
                        event_type, copy_number, genome_build, confidence, raw_iscn, raw_segment_text, annotations
@@ -423,6 +454,106 @@ public class VerificationService {
                 FROM sample_test_results str
                 LEFT JOIN source_files sf ON sf.source_file_id = str.source_file_id
                 ORDER BY str.sample_test_result_id
+                """));
+        Files.writeString(outputDir.resolve("small_variants.tsv"), queryText("""
+                SELECT
+                    small_variant_id,
+                    chromosome,
+                    position,
+                    variant_id,
+                    ref_allele,
+                    alt_allele,
+                    variant_type,
+                    genome_build,
+                    normalized_key
+                FROM small_variants
+                ORDER BY small_variant_id
+                """));
+        Files.writeString(outputDir.resolve("small_variant_sample_calls.tsv"), queryText("""
+                SELECT
+                    svc.small_variant_call_id,
+                    svc.small_variant_id,
+                    svc.sample_test_result_id,
+                    sa.accession_identifier AS sample_accession_id,
+                    svc.qual,
+                    svc.filter_status,
+                    svc.genotype,
+                    svc.phased,
+                    svc.ref_depth,
+                    svc.alt_depth,
+                    svc.total_depth,
+                    svc.genotype_quality,
+                    svc.allele_balance,
+                    svc.format_keys,
+                    svc.sample_values,
+                    svc.info_raw,
+                    svc.raw_vcf_line,
+                    svc.line_number
+                FROM small_variant_sample_calls svc
+                JOIN sample_test_results str ON str.sample_test_result_id = svc.sample_test_result_id
+                JOIN sample_tests st ON st.sample_test_id = str.sample_test_id
+                JOIN sample_accessions sa ON sa.sample_accession_id = st.sample_accession_id
+                ORDER BY svc.small_variant_call_id
+                """));
+        Files.writeString(outputDir.resolve("small_variant_annotations.tsv"), queryText("""
+                SELECT
+                    small_variant_annotation_id,
+                    small_variant_id,
+                    gene,
+                    gene_id,
+                    transcript,
+                    consequence,
+                    impact,
+                    hgvs_c,
+                    hgvs_p,
+                    clinvar_status,
+                    population_af,
+                    annotation_source,
+                    annotation_version,
+                    annotation_raw,
+                    is_primary_transcript
+                FROM small_variant_annotations
+                ORDER BY small_variant_annotation_id
+                """));
+        Files.writeString(outputDir.resolve("small_variant_results.tsv"), queryText("""
+                SELECT
+                    sv.small_variant_id,
+                    sa.accession_identifier AS sample_accession_id,
+                    sv.chromosome,
+                    sv.position,
+                    sv.variant_id,
+                    sv.ref_allele,
+                    sv.alt_allele,
+                    sv.variant_type,
+                    sv.genome_build,
+                    svc.qual,
+                    svc.filter_status,
+                    svc.genotype,
+                    svc.ref_depth,
+                    svc.alt_depth,
+                    svc.total_depth,
+                    svc.allele_balance,
+                    sf.file_name AS source_file,
+                    (
+                        SELECT LISTAGG(
+                                   COALESCE(sva.gene, '') || ':' ||
+                                   COALESCE(sva.consequence, '') || ':' ||
+                                   COALESCE(sva.impact, '') || ':' ||
+                                   COALESCE(sva.transcript, '') || ':' ||
+                                   COALESCE(sva.hgvs_c, '') || ':' ||
+                                   COALESCE(sva.hgvs_p, ''),
+                                   ' | '
+                               ) WITHIN GROUP (ORDER BY sva.small_variant_annotation_id)
+                        FROM small_variant_annotations sva
+                        WHERE sva.small_variant_id = sv.small_variant_id
+                    ) AS parsed_annotations
+                FROM small_variants sv
+                JOIN small_variant_sample_calls svc ON svc.small_variant_id = sv.small_variant_id
+                JOIN sample_test_results str ON str.sample_test_result_id = svc.sample_test_result_id
+                JOIN sample_tests st ON st.sample_test_id = str.sample_test_id
+                JOIN sample_accessions sa ON sa.sample_accession_id = st.sample_accession_id
+                LEFT JOIN source_files sf ON sf.source_file_id = str.source_file_id
+                ORDER BY sv.chromosome, sv.position, sv.small_variant_id
                 """));
         Files.writeString(outputDir.resolve("segments_by_sample.tsv"), queryText("""
                 SELECT sa.accession_identifier, gs.event_group_id,
@@ -559,6 +690,7 @@ public class VerificationService {
     private String runLogText(
             Map<String, Long> tableCounts,
             List<ImportResult> importResults,
+            List<VcfImportResult> vcfImportResults,
             List<ClinicalDecisionImportResult> clinicalImportResults) {
         String timestamp = Instant.now().toString();
         StringBuilder sb = new StringBuilder();
@@ -578,6 +710,22 @@ public class VerificationService {
                     .append(result.segmentsInserted() > 0
                             ? "Imported genomic segments"
                             : "No genomic segments inserted")
+                    .append('\n');
+        }
+        for (VcfImportResult result : vcfImportResults) {
+            sb.append(timestamp).append('\t')
+                    .append("vcf_import").append('\t')
+                    .append(result.fileName()).append('\t')
+                    .append(result.success() ? "PASS" : "FAIL").append('\t')
+                    .append(result.recordsSeen()).append('\t')
+                    .append("").append('\t')
+                    .append("").append('\t')
+                    .append("").append('\t')
+                    .append("").append('\t')
+                    .append(result.issuesInserted()).append('\t')
+                    .append("variants=").append(result.variantsInsertedOrReused())
+                    .append("; sample_calls=").append(result.sampleCallsInserted())
+                    .append("; annotations=").append(result.annotationsInserted())
                     .append('\n');
         }
         for (ClinicalDecisionImportResult result : clinicalImportResults) {

@@ -3,12 +3,13 @@ package org.mpgdatabase;
 import org.mpgdatabase.db.Database;
 import org.mpgdatabase.importer.ClinicalDecisionImportResult;
 import org.mpgdatabase.importer.ClinicalDecisionImportService;
-import org.mpgdatabase.importer.CnvImportService;
-import org.mpgdatabase.importer.CnvParserFactory;
+import org.mpgdatabase.importer.ImportManager;
 import org.mpgdatabase.importer.ImportResult;
+import org.mpgdatabase.importer.VcfImportResult;
 import org.mpgdatabase.report.VerificationReport;
 import org.mpgdatabase.report.VerificationService;
 import org.mpgdatabase.report.SearchService;
+import org.mpgdatabase.report.SmallVariantSearchService;
 import org.h2.tools.Server;
 
 import java.nio.file.Files;
@@ -43,10 +44,42 @@ public class App {
             "start",
             "stop"
     );
+    private static final Set<String> VCF_SEARCH_FILTERS = Set.of(
+            "allele-balance-max",
+            "allele-balance-min",
+            "alt-depth-max",
+            "alt-depth-min",
+            "chromosome",
+            "consequence",
+            "end",
+            "filter-status",
+            "gene",
+            "genome-build",
+            "genotype",
+            "impact",
+            "jdbc-url",
+            "max-allele-balance",
+            "max-alt-depth",
+            "max-total-depth",
+            "min-allele-balance",
+            "min-alt-depth",
+            "min-total-depth",
+            "sample",
+            "start",
+            "stop",
+            "total-depth-max",
+            "total-depth-min",
+            "variant-id",
+            "variant-type"
+    );
 
     public static void main(String[] args) throws Exception {
         if (args.length > 0 && "search".equalsIgnoreCase(args[0])) {
             runSearch(args);
+            return;
+        }
+        if (args.length > 0 && "vcf-search".equalsIgnoreCase(args[0])) {
+            runVcfSearch(args);
             return;
         }
         if (args.length > 0 && "console".equalsIgnoreCase(args[0])) {
@@ -64,6 +97,7 @@ public class App {
 
         boolean initialized = false;
         List<ImportResult> importResults = new ArrayList<>();
+        List<VcfImportResult> vcfImportResults = new ArrayList<>();
         List<ClinicalDecisionImportResult> clinicalImportResults = new ArrayList<>();
 
         try (Connection connection = Database.connect(jdbcUrl)) {
@@ -74,18 +108,19 @@ public class App {
                 System.out.println("Database initialization failed: " + e.getMessage());
             }
 
-            CnvImportService importer = new CnvImportService(connection, new CnvParserFactory(manualCallingMethod));
-            for (Path path : cnvFiles(dataDir)) {
-                importResults.add(importer.importFile(path, null));
-            }
+            ImportManager.GenomicImportResults genomicImportResults =
+                    new ImportManager(connection, manualCallingMethod).importGenomicFiles(dataDir);
+            importResults.addAll(genomicImportResults.cnvResults());
+            vcfImportResults.addAll(genomicImportResults.vcfResults());
             ClinicalDecisionImportService clinicalImporter = new ClinicalDecisionImportService(connection);
             for (Path path : clinicalDecisionFiles(dataDir)) {
                 clinicalImportResults.add(clinicalImporter.importFile(path));
             }
 
             VerificationService verification = new VerificationService(connection, outputDir);
-            VerificationReport report = verification.verify(initialized, importResults, clinicalImportResults);
+            VerificationReport report = verification.verify(initialized, importResults, vcfImportResults, clinicalImportResults);
             System.out.print(verification.terminalSummary(report));
+            printVcfImportResults(vcfImportResults);
             printClinicalImportResults(clinicalImportResults);
         }
     }
@@ -121,7 +156,7 @@ public class App {
         }
         Map<String, String> filters;
         try {
-            filters = searchFilters(args);
+            filters = searchFilters(args, SEARCH_FILTERS);
         } catch (IllegalArgumentException e) {
             System.out.println("Search argument error: " + e.getMessage());
             System.out.println("Use --annotation Key=Value, for example: --annotation Gene=CFTR");
@@ -129,6 +164,25 @@ public class App {
         }
         try (Connection connection = Database.connect(jdbcUrl)) {
             System.out.print(new SearchService(connection).search(filters));
+        }
+    }
+
+    private static void runVcfSearch(String[] args) throws Exception {
+        String jdbcUrl = optionValue(args, "--jdbc-url");
+        if (jdbcUrl == null || jdbcUrl.isBlank()) {
+            jdbcUrl = "jdbc:h2:file:./output/mpg_database_h2";
+        }
+        Map<String, String> filters;
+        try {
+            filters = searchFilters(args, VCF_SEARCH_FILTERS);
+        } catch (IllegalArgumentException e) {
+            System.out.println("VCF search argument error: " + e.getMessage());
+            System.out.println("Use --gene OR4F5, --consequence missense_variant, or --chromosome chr1 --start 69000 --stop 70000");
+            return;
+        }
+        normalizeVcfAliases(filters);
+        try (Connection connection = Database.connect(jdbcUrl)) {
+            System.out.print(new SmallVariantSearchService(connection).search(filters));
         }
     }
 
@@ -162,7 +216,7 @@ public class App {
         }
     }
 
-    private static Map<String, String> searchFilters(String[] args) {
+    private static Map<String, String> searchFilters(String[] args, Set<String> allowedFilters) {
         Map<String, String> filters = new HashMap<>();
         for (int i = 1; i < args.length; i++) {
             String option = args[i];
@@ -170,7 +224,7 @@ public class App {
                 throw new IllegalArgumentException("unexpected value '" + option + "'");
             }
             String key = option.substring(2);
-            if (!SEARCH_FILTERS.contains(key)) {
+            if (!allowedFilters.contains(key)) {
                 throw new IllegalArgumentException("unknown search option '--" + key + "'");
             }
             if (i + 1 >= args.length || args[i + 1].startsWith("--")) {
@@ -188,6 +242,22 @@ public class App {
         return filters;
     }
 
+    private static void normalizeVcfAliases(Map<String, String> filters) {
+        moveAlias(filters, "allele-balance-min", "min-allele-balance");
+        moveAlias(filters, "allele-balance-max", "max-allele-balance");
+        moveAlias(filters, "alt-depth-min", "min-alt-depth");
+        moveAlias(filters, "alt-depth-max", "max-alt-depth");
+        moveAlias(filters, "total-depth-min", "min-total-depth");
+        moveAlias(filters, "total-depth-max", "max-total-depth");
+    }
+
+    private static void moveAlias(Map<String, String> filters, String alias, String canonical) {
+        String value = filters.remove(alias);
+        if (value != null && !value.isBlank() && !filters.containsKey(canonical)) {
+            filters.put(canonical, value);
+        }
+    }
+
     private static String optionValue(String[] args, String optionName) {
         for (int i = 0; i < args.length - 1; i++) {
             if (optionName.equals(args[i])) {
@@ -195,24 +265,6 @@ public class App {
             }
         }
         return null;
-    }
-
-    private static List<Path> cnvFiles(Path dataDir) throws Exception {
-        if (Files.isRegularFile(dataDir)) {
-            return List.of(dataDir);
-        }
-        if (!Files.isDirectory(dataDir)) {
-            return List.of(
-                    dataDir.resolve("example.cnv"),
-                    dataDir.resolve("test.cnv")
-            );
-        }
-        try (Stream<Path> paths = Files.list(dataDir)) {
-            return paths
-                    .filter(App::isImportableFile)
-                    .sorted(Comparator.comparing(path -> path.getFileName().toString()))
-                    .toList();
-        }
     }
 
     private static List<Path> clinicalDecisionFiles(Path dataDir) throws Exception {
@@ -231,11 +283,6 @@ public class App {
         }
     }
 
-    private static boolean isImportableFile(Path path) {
-        String fileName = path.getFileName().toString().toLowerCase();
-        return fileName.endsWith(".cnv") || fileName.endsWith(".tsv") || fileName.endsWith(".txt");
-    }
-
     private static boolean isClinicalDecisionFile(Path path) {
         String fileName = path.getFileName().toString().toLowerCase();
         return fileName.endsWith(".tsv") || fileName.endsWith(".txt");
@@ -252,6 +299,21 @@ public class App {
                     + " classifications=" + result.classificationsInserted()
                     + " signed_out_calls=" + result.signedOutCallsInserted()
                     + " notes=" + result.notesInserted());
+        }
+    }
+
+    private static void printVcfImportResults(List<VcfImportResult> vcfImportResults) {
+        if (vcfImportResults.isEmpty()) {
+            return;
+        }
+        System.out.println("\nVCF Import Status\n-----------------");
+        for (VcfImportResult result : vcfImportResults) {
+            System.out.println(result.fileName() + " imported: " + (result.success() ? "PASS" : "FAIL"));
+            System.out.println("records=" + result.recordsSeen()
+                    + " variants=" + result.variantsInsertedOrReused()
+                    + " sample_calls=" + result.sampleCallsInserted()
+                    + " annotations=" + result.annotationsInserted()
+                    + " issues=" + result.issuesInserted());
         }
     }
 }

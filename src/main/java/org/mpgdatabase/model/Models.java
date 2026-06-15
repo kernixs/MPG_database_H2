@@ -72,6 +72,59 @@ public final class Models {
     ) {
     }
 
+    public record SmallVariant(
+            long id,
+            String chromosome,
+            long position,
+            String variantId,
+            String refAllele,
+            String altAllele,
+            String variantType,
+            String genomeBuild,
+            String normalizedKey
+    ) {
+    }
+
+    public record SmallVariantSampleCall(
+            long id,
+            long smallVariantId,
+            long sampleTestResultId,
+            Double qual,
+            String filterStatus,
+            String genotype,
+            Boolean phased,
+            Integer refDepth,
+            Integer altDepth,
+            Integer totalDepth,
+            Double genotypeQuality,
+            Double alleleBalance,
+            String formatKeys,
+            String sampleValues,
+            String infoRaw,
+            String rawVcfLine,
+            int lineNumber
+    ) {
+    }
+
+    public record SmallVariantAnnotation(
+            long id,
+            long smallVariantId,
+            String gene,
+            String geneId,
+            String transcript,
+            String consequence,
+            String impact,
+            String hgvsC,
+            String hgvsP,
+            String clinvarStatus,
+            Double populationAf,
+            String annotationSource,
+            String annotationVersion,
+            String annotationRaw,
+            Boolean isPrimaryTranscript
+    ) {
+    }
+
     public record ValidationIssue(long id, Long segmentId, String issueType, String issueMessage, String severity) {
     }
 
