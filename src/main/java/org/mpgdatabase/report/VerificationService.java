@@ -450,23 +450,6 @@ public class VerificationService {
                 JOIN genomic_segments tgt ON tgt.segment_id = gl.target_segment_id
                 ORDER BY gl.link_id
                 """));
-        Files.writeString(outputDir.resolve("circos_links.tsv"), queryText("""
-                SELECT
-                    gl.link_id,
-                    gl.event_group_id,
-                    src.chromosome AS source_chromosome,
-                    src.start_pos AS source_start,
-                    src.stop_pos AS source_stop,
-                    tgt.chromosome AS target_chromosome,
-                    tgt.start_pos AS target_start,
-                    tgt.stop_pos AS target_stop,
-                    gl.link_type,
-                    gl.evidence
-                FROM genomic_links gl
-                JOIN genomic_segments src ON src.segment_id = gl.source_segment_id
-                JOIN genomic_segments tgt ON tgt.segment_id = gl.target_segment_id
-                ORDER BY gl.link_id
-                """));
         Files.writeString(outputDir.resolve("source_files.tsv"), queryText("""
                 SELECT
                     sf.source_file_id,

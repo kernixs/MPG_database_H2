@@ -227,7 +227,6 @@ class Phase2WorkflowTest {
             assertTrue(Files.exists(outputDir.resolve("genomic_events.tsv")));
             assertTrue(Files.exists(outputDir.resolve("event_groups.tsv")));
             assertTrue(Files.exists(outputDir.resolve("genomic_links.tsv")));
-            assertTrue(Files.exists(outputDir.resolve("circos_links.tsv")));
             String resultTrace = Files.readString(outputDir.resolve("result_trace.tsv"));
             assertTrue(resultTrace.contains("EVENT_GROUP_ID"), resultTrace);
             assertTrue(resultTrace.contains("SOURCE_FILE_ID"), resultTrace);
@@ -880,15 +879,13 @@ class Phase2WorkflowTest {
                     .terminalSummary(report));
             assertTrue(report.dataIntegrity().passed(), new VerificationService(connection, outputDir)
                     .terminalSummary(report));
-            assertTrue(Files.readString(outputDir.resolve("genomic_links.tsv"))
-                    .contains("TRANSLOCATION"));
-            assertTrue(Files.readString(outputDir.resolve("genomic_links.tsv"))
-                    .contains("TXG001"));
-            String circosLinks = Files.readString(outputDir.resolve("circos_links.tsv"));
-            assertTrue(circosLinks.contains("chr22"));
-            assertTrue(circosLinks.contains("SOURCE_CHROMOSOME"), circosLinks);
-            assertTrue(circosLinks.contains("TARGET_CHROMOSOME"), circosLinks);
-            assertFalse(circosLinks.contains("EVENT_ID"), circosLinks);
+            String genomicLinks = Files.readString(outputDir.resolve("genomic_links.tsv"));
+            assertTrue(genomicLinks.contains("TRANSLOCATION"));
+            assertTrue(genomicLinks.contains("TXG001"));
+            assertTrue(genomicLinks.contains("chr22"));
+            assertTrue(genomicLinks.contains("SOURCE_CHROMOSOME"), genomicLinks);
+            assertTrue(genomicLinks.contains("TARGET_CHROMOSOME"), genomicLinks);
+            assertFalse(genomicLinks.contains("EVENT_ID"), genomicLinks);
         }
     }
 

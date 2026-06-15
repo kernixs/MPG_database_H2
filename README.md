@@ -499,7 +499,7 @@ insertion: source material linked to destination location
 derivative chromosome: multiple segments linked under one complex event
 ```
 
-`genomic_links` points directly to the two related `genomic_segments` through `source_segment_id` and `target_segment_id`. It also stores the source `event_group_id`, link type, evidence/raw ISCN text, and confidence directly. The generated `output/circos_links.tsv` report starts from `genomic_links` and outputs source and target chromosome coordinates in a shape that can be converted into a Circos link file.
+`genomic_links` points directly to the two related `genomic_segments` through `source_segment_id` and `target_segment_id`. It also stores the source `event_group_id`, link type, evidence/raw ISCN text, confidence, and source/target coordinates in the generated `output/genomic_links.tsv` report.
 
 For translocation-only Circos links, use the direct link model:
 
@@ -1149,7 +1149,6 @@ output/segments.tsv
 output/genomic_events.tsv
 output/event_groups.tsv
 output/genomic_links.tsv
-output/circos_links.tsv
 output/segments_by_sample.tsv
 output/source_files.tsv
 output/sample_test_results.tsv
