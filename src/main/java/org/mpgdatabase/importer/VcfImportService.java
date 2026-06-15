@@ -71,6 +71,19 @@ public class VcfImportService {
 
             for (VcfDataRow row : parsed.rows()) {
                 recordsSeen++;
+                if (isUnsupportedStructuralVariant(row)) {
+                    coreDao.createValidationIssue(
+                            null,
+                            sourceFileId,
+                            row.lineNumber(),
+                            null,
+                            "Unsupported VCF Structural Variant",
+                            "SV VCF records are recognized but not supported in V1 at VCF line "
+                                    + row.lineNumber() + ": " + structuralVariantDescription(row),
+                            "WARNING");
+                    issuesInserted++;
+                    continue;
+                }
                 List<String> rowIssues = rowValidationIssues(row);
                 if (!rowIssues.isEmpty()) {
                     for (String issue : rowIssues) {
@@ -309,6 +322,60 @@ public class VcfImportService {
             issues.add("Missing ALT");
         }
         return issues;
+    }
+
+    private boolean isUnsupportedStructuralVariant(VcfDataRow row) {
+        if (row.alt() != null) {
+            for (String alt : row.alt().split(",", -1)) {
+                String trimmed = alt.trim();
+                if (isSymbolicOrBreakendAlt(trimmed)) {
+                    return true;
+                }
+            }
+        }
+        String svType = structuralVariantType(row.info());
+        return svType != null && List.of(
+                "BND",
+                "CNV",
+                "CPX",
+                "CTX",
+                "DEL",
+                "DUP",
+                "INS",
+                "INV",
+                "TRA",
+                "TRANS"
+        ).contains(svType.toUpperCase(Locale.ROOT));
+    }
+
+    private boolean isSymbolicOrBreakendAlt(String alt) {
+        if (alt == null || alt.isBlank()) {
+            return false;
+        }
+        return (alt.startsWith("<") && alt.endsWith(">"))
+                || alt.contains("[")
+                || alt.contains("]");
+    }
+
+    private String structuralVariantType(String info) {
+        if (info == null || info.isBlank() || ".".equals(info)) {
+            return null;
+        }
+        Map<String, String> fields = parseInfo(info);
+        for (Map.Entry<String, String> entry : fields.entrySet()) {
+            if ("SVTYPE".equalsIgnoreCase(entry.getKey())) {
+                return entry.getValue();
+            }
+        }
+        return null;
+    }
+
+    private String structuralVariantDescription(VcfDataRow row) {
+        String svType = structuralVariantType(row.info());
+        if (svType == null || svType.isBlank()) {
+            return "ALT=" + row.alt();
+        }
+        return "SVTYPE=" + svType + "; ALT=" + row.alt();
     }
 
     private ParsedSampleCall parseSampleCall(String format, String sampleValues, int altDepthIndex) {

@@ -3,37 +3,37 @@ ERROR	Rejected row; no genomic_segments row inserted
 WARNING	Imported row; flagged for review
 
 Table Counts
-individuals	399
-sample_accessions	391
-lab_protocols	5
-sample_tests	1166
-pipelines	5
-source_files	19
-sample_test_results	1166
-karyotypes	275
+individuals	376
+sample_accessions	376
+lab_protocols	4
+sample_tests	378
+pipelines	4
+source_files	11
+sample_test_results	378
+karyotypes	174
 genomic_events	0
 genomic_event_groups	0
-genomic_segments	1656
-segment_annotations	27878
+genomic_segments	889
+segment_annotations	13900
 small_variants	15
 small_variant_sample_calls	15
 small_variant_annotations	21
-genomic_links	65
-validation_issues	99
-variant_classifications	176
-signed_out_calls	176
-notes	176
+genomic_links	61
+validation_issues	56
+variant_classifications	100
+signed_out_calls	100
+notes	100
 
 Import Results
-25-54321WGS_05Nov2025_SWGS111_SV_DEL_DUP_Classify_Result.txt	PASS	records=452	segments=452	issues=1
-array_derived_100.cnv	PASS	records=100	segments=100	issues=1
-example.cnv	PASS	records=3	segments=3	issues=1
-iscn_derived_100.cnv	PASS	records=100	segments=100	issues=31
-ngs_derived_100.txt	PASS	records=100	segments=100	issues=1
+25-54321WGS_05Nov2025_SWGS111_SV_DEL_DUP_Classify_Result.txt	PASS	records=452	segments=452	issues=0
+array_derived_100.cnv	PASS	records=100	segments=100	issues=0
+example.cnv	PASS	records=3	segments=3	issues=0
+iscn_derived_100.cnv	PASS	records=100	segments=100	issues=30
+ngs_derived_100.txt	PASS	records=100	segments=100	issues=0
 phase27_finding_model.cnv	PASS	records=22	segments=22	issues=0
-realistic_cnv_mixed_events_import.cnv	PASS	records=12	segments=12	issues=1
-test.cnv	PASS	records=3	segments=0	issues=4
-test_v2.cnv	PASS	records=23	segments=0	issues=24
+realistic_cnv_mixed_events_import.cnv	PASS	records=12	segments=12	issues=0
+test.cnv	PASS	records=3	segments=0	issues=3
+test_v2.cnv	PASS	records=23	segments=0	issues=23
 translocation_pair.cnv	PASS	records=100	segments=100	issues=0
 
 VCF Import Results

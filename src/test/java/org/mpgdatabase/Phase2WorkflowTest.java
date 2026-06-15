@@ -140,6 +140,42 @@ class Phase2WorkflowTest {
     }
 
     @Test
+    void skipsStructuralVariantVcfRowsForSmallVariantImport() throws Exception {
+        Path input = Files.createTempFile("mixed-small-and-sv", ".vcf");
+        Files.writeString(input, """
+                ##fileformat=VCFv4.2
+                ##reference=GRCh38
+                ##INFO=<ID=SVTYPE,Number=1,Type=String,Description="Type of structural variant">
+                #CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\tSAMPLE_ONE
+                1\t10\trs-small\tA\tG\t99\tPASS\t.\tGT:AD:DP:GQ\t0/1:4,6:10:20
+                1\t100\tsv-del\tN\t<DEL>\t.\tPASS\tSVTYPE=DEL;END=200\tGT:DP\t0/1:18
+                2\t300\tsv-bnd\tN\tN]chr3:400]\t.\tPASS\tSVTYPE=BND\tGT:DP\t0/1:22
+                """);
+        try (Connection connection = Database.connect("jdbc:h2:mem:vcf_skip_sv;DB_CLOSE_DELAY=-1")) {
+            Database.initialize(connection);
+            var result = new VcfImportService(connection).importFile(input, null);
+
+            assertTrue(result.success());
+            assertEquals(3, result.recordsSeen());
+            assertEquals(1, count(connection, "SELECT COUNT(*) FROM small_variants"));
+            assertEquals(1, count(connection, "SELECT COUNT(*) FROM small_variant_sample_calls"));
+            assertEquals(2, issueCount(connection, "Unsupported VCF Structural Variant", "WARNING"));
+            assertEquals(1, count(connection, """
+                    SELECT COUNT(*) FROM small_variants
+                    WHERE variant_id = 'rs-small'
+                      AND chromosome = 'chr1'
+                      AND position = 10
+                      AND ref_allele = 'A'
+                      AND alt_allele = 'G'
+                    """));
+            assertEquals(1, count(connection, """
+                    SELECT COUNT(*) FROM source_files
+                    WHERE import_status = 'PARTIAL_SUCCESS'
+                    """));
+        }
+    }
+
+    @Test
     void importsCnvFilesAndPassesVerification() throws Exception {
         try (Connection connection = Database.connect("jdbc:h2:mem:phase2;DB_CLOSE_DELAY=-1")) {
             Database.initialize(connection);

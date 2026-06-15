@@ -349,6 +349,48 @@ public class VerificationService {
                        event_type, copy_number, genome_build, confidence, raw_iscn, raw_segment_text, annotations
                 FROM genomic_segments ORDER BY segment_id
                 """));
+        Files.writeString(outputDir.resolve("segment_annotations.tsv"), queryText("""
+                SELECT
+                    annotation_id,
+                    segment_id,
+                    annotation_name,
+                    text_value,
+                    numeric_value,
+                    boolean_value,
+                    value_type,
+                    source_column,
+                    ordinal_position
+                FROM segment_annotations
+                ORDER BY segment_id, ordinal_position, annotation_id
+                """));
+        Files.writeString(outputDir.resolve("segment_annotation_results.tsv"), queryText("""
+                SELECT
+                    sa.annotation_id,
+                    sa.segment_id,
+                    acc.accession_identifier AS sample_accession_id,
+                    gs.event_group_id,
+                    gs.chromosome,
+                    gs.start_pos,
+                    gs.stop_pos,
+                    gs.event_type,
+                    gs.copy_number,
+                    gs.genome_build,
+                    sf.file_name AS source_file,
+                    sa.annotation_name,
+                    sa.text_value,
+                    sa.numeric_value,
+                    sa.boolean_value,
+                    sa.value_type,
+                    sa.source_column,
+                    sa.ordinal_position
+                FROM segment_annotations sa
+                JOIN genomic_segments gs ON gs.segment_id = sa.segment_id
+                JOIN sample_test_results str ON str.sample_test_result_id = gs.sample_test_result_id
+                JOIN sample_tests st ON st.sample_test_id = str.sample_test_id
+                JOIN sample_accessions acc ON acc.sample_accession_id = st.sample_accession_id
+                LEFT JOIN source_files sf ON sf.source_file_id = str.source_file_id
+                ORDER BY gs.segment_id, sa.ordinal_position, sa.annotation_id
+                """));
         Files.writeString(outputDir.resolve("event_groups.tsv"), queryText("""
                 SELECT
                     gs.event_group_id,
