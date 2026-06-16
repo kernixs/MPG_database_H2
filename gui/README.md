@@ -1,6 +1,6 @@
-# CNV Database GUI Prototype
+# Genomic Database GUI Prototype
 
-This folder contains a first-pass Java Swing GUI for the CNV database project. It is separate from the CLI prototype so the existing import/report workflow can stay stable while the GUI evolves.
+This folder contains a Java Swing GUI for the H2 genomic database prototype. The GUI uses the same shared schema and importer services as the CLI for CNV/SV and SNV/indel VCF imports.
 
 ## Build
 
@@ -59,8 +59,11 @@ You can also use **File -> Open/Create Database...** to select a different H2 fi
 - Connects to an H2 database.
 - Creates the schema automatically if the database is empty.
 - Shows database path, connection status, and summary counts.
-- Imports CNV TSV files through a strict all-or-nothing GUI workflow.
-- Logs successful and failed GUI import attempts in `import_history`.
+- Imports one file at a time.
+- Routes `.vcf` files to the SNV/indel VCF importer.
+- Routes `.cnv`, `.tsv`, and `.txt` files to the CNV/SV importer.
+- Stores CNV/SV rows in `genomic_segments`, `segment_annotations`, and `genomic_links`.
+- Stores SNV/indel rows in `small_variants`, `small_variant_sample_calls`, and `small_variant_annotations`.
 - Runs read-only SQL queries only.
 - Rejects write SQL such as `INSERT`, `UPDATE`, `DELETE`, `DROP`, or `ALTER`.
 - Provides query presets from the **Query Presets** menu.
@@ -69,19 +72,20 @@ You can also use **File -> Open/Create Database...** to select a different H2 fi
 
 ## GUI Import Rule
 
-The GUI import pathway is intentionally stricter than the CLI prototype:
+The GUI uses the shared importers. It imports valid records and records rejected/unsupported rows in `validation_issues`.
 
 ```text
-If any row fails validation, no CNV rows from that file are inserted.
+SNV/indel: .vcf only
+CNV/SV: .cnv, .tsv, .txt with supported CNV/SV columns
 ```
 
-Failed attempts are still recorded in:
+VCF structural-variant records such as symbolic `<DEL>` or breakend/BND records are recognized but skipped in the V1 SNV/indel importer. They are recorded as warnings:
 
 ```text
-import_history
+Unsupported VCF Structural Variant
 ```
 
-The current required fields are:
+The current CNV/SV required fields are:
 
 ```text
 sample_accession_id
@@ -167,18 +171,27 @@ translocation_pair.tsv
 
 1. Build and run the JAR.
 2. Use **File -> Open/Create Database...** and choose a database file, or accept the remembered/default database.
-3. Import:
+3. Import a CNV/SV file:
 
 ```text
 gui/sample-data/valid_cnv.tsv
 ```
 
-4. Try preset queries:
+4. Import a VCF file:
 
 ```text
-Show all CNV calls
+../data/small_example.filtered_snpEff.ann.vcf
+```
+
+5. Try preset queries:
+
+```text
+Universal genomic results
+Show all CNV/SV segments
+Show all SNV/indel variants
 Count CNV calls by source file
 CNV calls overlapping interval
+SNV/indel by gene
 ```
 
 5. Try a custom read-only SQL query:

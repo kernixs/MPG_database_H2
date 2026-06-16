@@ -1,5 +1,12 @@
 package org.mpgdatabase.gui;
 
+import org.mpgdatabase.db.Database;
+import org.mpgdatabase.importer.CnvImportService;
+import org.mpgdatabase.importer.CnvParserFactory;
+import org.mpgdatabase.importer.ImportResult;
+import org.mpgdatabase.importer.VcfImportResult;
+import org.mpgdatabase.importer.VcfImportService;
+
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
@@ -87,6 +94,7 @@ public class CnvDatabaseGui extends JFrame {
     private JLabel individualsCountLabel;
     private JLabel samplesCountLabel;
     private JLabel cnvCallsCountLabel;
+    private JLabel smallVariantsCountLabel;
     private JLabel fileSummaryLabel;
     private JLabel querySummaryLabel;
     private JLabel queryTimeLabel;
@@ -130,7 +138,7 @@ public class CnvDatabaseGui extends JFrame {
         JMenu file = new JMenu("File");
         JMenuItem open = new JMenuItem("Open/Create Database...");
         open.addActionListener(e -> openDatabase());
-        JMenuItem importFile = new JMenuItem("Import CNV File...");
+        JMenuItem importFile = new JMenuItem("Import CNV/SV or VCF File...");
         importFile.addActionListener(e -> chooseAndImport());
         JMenuItem export = new JMenuItem("Export Results as TSV...");
         export.addActionListener(e -> exportResults());
@@ -161,12 +169,15 @@ public class CnvDatabaseGui extends JFrame {
                 ORDER BY sa.sample_accession_id
                 LIMIT 100
                 """);
-        addPreset(presets, "Show all CNV calls", defaultQuery());
+        addPreset(presets, "Universal genomic results", universalQuery());
+        addPreset(presets, "Show all CNV/SV segments", defaultQuery());
+        addPreset(presets, "Show all SNV/indel variants", smallVariantQuery());
         addPreset(presets, "Show recent imports", """
-                SELECT import_history_id, file_name, import_status, num_rows_read,
-                       num_rows_with_errors, num_rows_inserted, attempted_at
-                FROM import_history
-                ORDER BY import_history_id DESC
+                SELECT sf.source_file_id, sf.file_name, sf.file_path, sf.import_status, sf.row_count,
+                       sf.imported_at, p.software_name AS importer, sf.notes
+                FROM source_files sf
+                JOIN pipelines p ON p.pipeline_id = sf.pipeline_id
+                ORDER BY sf.source_file_id DESC
                 LIMIT 100
                 """);
         addPreset(presets, "Count CNV calls by sample", """
@@ -217,6 +228,32 @@ public class CnvDatabaseGui extends JFrame {
                   AND stop_pos >= 70000000
                 LIMIT 100
                 """.formatted(defaultQueryWithoutLimit()));
+        addPreset(presets, "Universal results on chr7", """
+                SELECT *
+                FROM (
+                    %s
+                ) q
+                WHERE chromosome = 'chr7'
+                ORDER BY start_pos, stop_pos, result_type
+                LIMIT 100
+                """.formatted(universalQueryWithoutLimit()));
+        addPreset(presets, "SNV/indel by gene", """
+                SELECT *
+                FROM (
+                    %s
+                ) q
+                WHERE genes LIKE '%%OR4F5%%'
+                LIMIT 100
+                """.formatted(smallVariantQueryWithoutLimit()));
+        addPreset(presets, "SNV/indel in interval", """
+                SELECT *
+                FROM (
+                    %s
+                ) q
+                WHERE chromosome = 'chr1'
+                  AND position BETWEEN 69000 AND 70000
+                LIMIT 100
+                """.formatted(smallVariantQueryWithoutLimit()));
         addPreset(presets, "Show database tables", """
                 SELECT table_name
                 FROM information_schema.tables
@@ -309,16 +346,21 @@ public class CnvDatabaseGui extends JFrame {
         samplesCountLabel = new JLabel("0");
         panel.add(samplesCountLabel, gbc);
         gbc.gridx = 8;
-        panel.add(new JLabel("CNV Calls:"), gbc);
+        panel.add(new JLabel("CNV/SV Segments:"), gbc);
         gbc.gridx = 9;
         cnvCallsCountLabel = new JLabel("0");
         panel.add(cnvCallsCountLabel, gbc);
+        gbc.gridx = 10;
+        panel.add(new JLabel("SNV/indels:"), gbc);
+        gbc.gridx = 11;
+        smallVariantsCountLabel = new JLabel("0");
+        panel.add(smallVariantsCountLabel, gbc);
         return panel;
     }
 
     private JPanel importPanel() {
         JPanel panel = new JPanel(new GridBagLayout());
-        panel.setBorder(BorderFactory.createTitledBorder("Import CNV File"));
+        panel.setBorder(BorderFactory.createTitledBorder("Import CNV/SV or SNV/indel VCF File"));
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(6, 8, 6, 8);
         gbc.anchor = GridBagConstraints.WEST;
@@ -431,7 +473,7 @@ public class CnvDatabaseGui extends JFrame {
         }
         databasePath = stripH2Suffix(path.toAbsolutePath().normalize());
         connection = DriverManager.getConnection("jdbc:h2:file:" + databasePath);
-        createSchema(connection);
+        Database.initialize(connection);
         saveRememberedDatabase(databasePath);
         databaseLabel.setText(databasePath.toString());
         connectionStatusLabel.setText("Connected");
@@ -447,6 +489,7 @@ public class CnvDatabaseGui extends JFrame {
             individualsCountLabel.setText(format(count("individuals")));
             samplesCountLabel.setText(format(count("sample_accessions")));
             cnvCallsCountLabel.setText(format(count("genomic_segments")));
+            smallVariantsCountLabel.setText(format(count("small_variants")));
         } catch (SQLException e) {
             setStatus("STATUS ERROR: " + e.getMessage());
         }
@@ -458,8 +501,8 @@ public class CnvDatabaseGui extends JFrame {
             return;
         }
         JFileChooser chooser = new JFileChooser(Path.of(".").toAbsolutePath().normalize().toFile());
-        chooser.setDialogTitle("Import CNV TSV file");
-        chooser.setFileFilter(new FileNameExtensionFilter("CNV/TSV/TXT files", "cnv", "tsv", "txt"));
+        chooser.setDialogTitle("Import CNV/SV or VCF file");
+        chooser.setFileFilter(new FileNameExtensionFilter("CNV/SV and VCF files", "cnv", "tsv", "txt", "vcf"));
         int result = chooser.showOpenDialog(this);
         if (result != JFileChooser.APPROVE_OPTION) {
             return;
@@ -472,28 +515,63 @@ public class CnvDatabaseGui extends JFrame {
     private void importFile(Path path) {
         LocalDateTime attemptedAt = LocalDateTime.now();
         try {
-            ImportPlan plan = validateImport(path);
-            if (!plan.errors().isEmpty()) {
-                logImport(path, "Failed", plan.rowsRead(), plan.errors().size(), 0, attemptedAt);
-                fileSummaryLabel.setText(fileSummary(path, plan.rowsRead(), plan.errors().size(), "Import failed", attemptedAt));
-                setStatus("IMPORT FAILED: " + plan.errors().size() + " rows had validation errors. No CNV rows inserted.");
-                showError("Import failed", String.join("\n", plan.errors().stream().limit(10).toList()));
+            if (isVcfFile(path)) {
+                importVcfFile(path, attemptedAt);
+            } else if (isCnvLikeFile(path)) {
+                importCnvFile(path, attemptedAt);
+            } else {
+                fileSummaryLabel.setText(fileSummary(path, 0, 1, "Import rejected", attemptedAt));
+                setStatus("IMPORT REJECTED: unsupported file type. Use .vcf for SNV/indel or .cnv/.tsv/.txt for CNV/SV.");
+                showError("Unsupported file", "Use .vcf for SNV/indel imports or .cnv/.tsv/.txt for CNV/SV imports.");
                 return;
             }
-            int inserted = insertRows(path, plan.rows(), attemptedAt);
-            logImport(path, "Success", plan.rowsRead(), 0, inserted, attemptedAt);
-            fileSummaryLabel.setText(fileSummary(path, plan.rowsRead(), 0, "Import succeeded", attemptedAt));
-            setStatus("IMPORT SUCCESS: " + inserted + " rows imported.");
             refreshStatus();
         } catch (Exception e) {
-            try {
-                logImport(path, "Failed", 0, 1, 0, attemptedAt);
-            } catch (SQLException ignored) {
-            }
             fileSummaryLabel.setText(fileSummary(path, 0, 1, "Import failed", attemptedAt));
             setStatus("IMPORT FAILED: " + e.getMessage());
             showError("Import failed", e.getMessage());
         }
+    }
+
+    private void importVcfFile(Path path, LocalDateTime attemptedAt) {
+        VcfImportResult result = new VcfImportService(connection).importFile(path, null);
+        fileSummaryLabel.setText(fileSummary(path, result.recordsSeen(), result.issuesInserted(),
+                result.success() ? "VCF import finished" : "VCF import failed", attemptedAt));
+        if (result.success()) {
+            setStatus("VCF IMPORT: records=" + format(result.recordsSeen())
+                    + ", variants=" + format(result.variantsInsertedOrReused())
+                    + ", sample calls=" + format(result.sampleCallsInserted())
+                    + ", annotations=" + format(result.annotationsInserted())
+                    + ", issues=" + format(result.issuesInserted()) + ".");
+        } else {
+            setStatus("VCF IMPORT FAILED: " + result.fileName() + ". Check validation_issues/source_files.");
+        }
+        sqlEditor.setText(smallVariantQuery());
+        runQuery();
+    }
+
+    private void importCnvFile(Path path, LocalDateTime attemptedAt) {
+        ImportResult result = new CnvImportService(connection, new CnvParserFactory()).importFile(path, null);
+        fileSummaryLabel.setText(fileSummary(path, result.recordsSeen(), result.issuesInserted(),
+                result.success() ? "CNV/SV import finished" : "CNV/SV import failed", attemptedAt));
+        if (result.success()) {
+            setStatus("CNV/SV IMPORT: records=" + format(result.recordsSeen())
+                    + ", segments=" + format(result.segmentsInserted())
+                    + ", issues=" + format(result.issuesInserted()) + ".");
+        } else {
+            setStatus("CNV/SV IMPORT FAILED: " + result.fileName() + ". Check validation_issues/source_files.");
+        }
+        sqlEditor.setText(defaultQuery());
+        runQuery();
+    }
+
+    private boolean isVcfFile(Path path) {
+        return path.getFileName().toString().toLowerCase(Locale.ROOT).endsWith(".vcf");
+    }
+
+    private boolean isCnvLikeFile(Path path) {
+        String fileName = path.getFileName().toString().toLowerCase(Locale.ROOT);
+        return fileName.endsWith(".cnv") || fileName.endsWith(".tsv") || fileName.endsWith(".txt");
     }
 
     private ImportPlan validateImport(Path path) throws IOException {
@@ -2052,6 +2130,127 @@ public class CnvDatabaseGui extends JFrame {
         } catch (SQLException e) {
             return false;
         }
+    }
+
+    private String universalQuery() {
+        return universalQueryWithoutLimit() + "\nLIMIT 100";
+    }
+
+    private String universalQueryWithoutLimit() {
+        return """
+                SELECT
+                    'CNV/SV' AS result_type,
+                    gs.segment_id AS result_id,
+                    sa.accession_identifier AS sample_id,
+                    gs.chromosome,
+                    gs.start_pos,
+                    gs.stop_pos,
+                    gs.event_type AS event_or_variant_type,
+                    CAST(gs.copy_number AS VARCHAR) AS copy_or_genotype,
+                    (
+                        SELECT LISTAGG(san.annotation_name || '=' ||
+                            COALESCE(san.text_value,
+                                     CASE
+                                         WHEN san.numeric_value IS NULL THEN NULL
+                                         WHEN san.numeric_value = FLOOR(san.numeric_value) THEN CAST(CAST(san.numeric_value AS BIGINT) AS VARCHAR)
+                                         ELSE CAST(san.numeric_value AS VARCHAR)
+                                     END,
+                                     CAST(san.boolean_value AS VARCHAR),
+                                     ''), '; ')
+                               WITHIN GROUP (ORDER BY san.ordinal_position, san.annotation_id)
+                        FROM segment_annotations san
+                        WHERE san.segment_id = gs.segment_id
+                    ) AS annotations_or_genes,
+                    gs.genome_build,
+                    sf.file_name AS source_file,
+                    gs.raw_segment_text AS summary
+                FROM genomic_segments gs
+                JOIN sample_test_results str ON str.sample_test_result_id = gs.sample_test_result_id
+                JOIN sample_tests st ON st.sample_test_id = str.sample_test_id
+                JOIN sample_accessions sa ON sa.sample_accession_id = st.sample_accession_id
+                LEFT JOIN source_files sf ON sf.source_file_id = str.source_file_id
+                UNION ALL
+                SELECT
+                    'SNV/indel' AS result_type,
+                    sv.small_variant_id AS result_id,
+                    sa.accession_identifier AS sample_id,
+                    sv.chromosome,
+                    sv.position AS start_pos,
+                    sv.position AS stop_pos,
+                    sv.variant_type AS event_or_variant_type,
+                    svc.genotype AS copy_or_genotype,
+                    (
+                        SELECT LISTAGG(COALESCE(sva.gene, '') || ':' ||
+                                       COALESCE(sva.consequence, '') || ':' ||
+                                       COALESCE(sva.impact, ''),
+                                       '; ')
+                               WITHIN GROUP (ORDER BY sva.small_variant_annotation_id)
+                        FROM small_variant_annotations sva
+                        WHERE sva.small_variant_id = sv.small_variant_id
+                    ) AS annotations_or_genes,
+                    sv.genome_build,
+                    sf.file_name AS source_file,
+                    sv.ref_allele || '>' || sv.alt_allele || ' ' || COALESCE(sv.variant_id, '') AS summary
+                FROM small_variants sv
+                JOIN small_variant_sample_calls svc ON svc.small_variant_id = sv.small_variant_id
+                JOIN sample_test_results str ON str.sample_test_result_id = svc.sample_test_result_id
+                JOIN sample_tests st ON st.sample_test_id = str.sample_test_id
+                JOIN sample_accessions sa ON sa.sample_accession_id = st.sample_accession_id
+                LEFT JOIN source_files sf ON sf.source_file_id = str.source_file_id
+                ORDER BY chromosome, start_pos, stop_pos, result_type
+                """.strip();
+    }
+
+    private String smallVariantQuery() {
+        return smallVariantQueryWithoutLimit() + "\nLIMIT 100";
+    }
+
+    private String smallVariantQueryWithoutLimit() {
+        return """
+                SELECT
+                    sv.small_variant_id,
+                    sa.accession_identifier AS sample_id,
+                    sv.chromosome,
+                    sv.position,
+                    sv.variant_id,
+                    sv.ref_allele,
+                    sv.alt_allele,
+                    sv.variant_type,
+                    sv.genome_build,
+                    svc.qual,
+                    svc.filter_status,
+                    svc.genotype,
+                    svc.phased,
+                    svc.ref_depth,
+                    svc.alt_depth,
+                    svc.total_depth,
+                    svc.genotype_quality,
+                    svc.allele_balance,
+                    (
+                        SELECT LISTAGG(DISTINCT sva.gene, '; ')
+                        FROM small_variant_annotations sva
+                        WHERE sva.small_variant_id = sv.small_variant_id
+                          AND sva.gene IS NOT NULL
+                    ) AS genes,
+                    (
+                        SELECT LISTAGG(sva.consequence || ':' || sva.impact || ':' ||
+                                       COALESCE(sva.transcript, '') || ':' ||
+                                       COALESCE(sva.hgvs_c, '') || ':' ||
+                                       COALESCE(sva.hgvs_p, ''),
+                                       '; ')
+                               WITHIN GROUP (ORDER BY sva.small_variant_annotation_id)
+                        FROM small_variant_annotations sva
+                        WHERE sva.small_variant_id = sv.small_variant_id
+                    ) AS variant_annotations,
+                    sf.file_name AS source_file
+                FROM small_variants sv
+                JOIN small_variant_sample_calls svc ON svc.small_variant_id = sv.small_variant_id
+                JOIN sample_test_results str ON str.sample_test_result_id = svc.sample_test_result_id
+                JOIN sample_tests st ON st.sample_test_id = str.sample_test_id
+                JOIN sample_accessions sa ON sa.sample_accession_id = st.sample_accession_id
+                LEFT JOIN source_files sf ON sf.source_file_id = str.source_file_id
+                ORDER BY sv.small_variant_id DESC
+                """.strip();
     }
 
     private String defaultQuery() {
