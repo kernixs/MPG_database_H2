@@ -284,18 +284,19 @@ public class CircosWorkflow {
 
     private CircosConfig linkLimitConfig(int translocationCount) {
         if (translocationCount <= CircosConfig.DEFAULT_LINK_LIMIT) {
-            return config.withMaxLinks(CircosConfig.DEFAULT_LINK_LIMIT);
+            return config;
         }
+        int defaultLimit = Math.min(config.maxLinks(), CircosConfig.DEFAULT_LINK_LIMIT);
         out.println();
         out.println("This selection has " + translocationCount + " translocation event(s).");
-        out.println("The default Circos plot will show the top " + CircosConfig.DEFAULT_LINK_LIMIT
+        out.println("The default Circos plot will show the top " + defaultLimit
                 + " connection row(s) to avoid clutter.");
-        out.println("1) Plot top " + CircosConfig.DEFAULT_LINK_LIMIT + " connections");
+        out.println("1) Plot top " + defaultLimit + " connections");
         out.println("2) Plot up to " + CircosConfig.HARD_LINK_LIMIT + " connections");
         out.println("3) Cancel");
         int choice = readChoice("Select connection limit:", 3);
         if (choice == 1) {
-            return config.withMaxLinks(CircosConfig.DEFAULT_LINK_LIMIT);
+            return config.withMaxLinks(defaultLimit);
         }
         if (choice == 2) {
             return config.withMaxLinks(CircosConfig.HARD_LINK_LIMIT);
