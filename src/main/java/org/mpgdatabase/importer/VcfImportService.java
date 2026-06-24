@@ -273,7 +273,7 @@ public class VcfImportService {
 
     private long createResultForSample(CoreDao coreDao, String sampleName, Long sourceFileId, long pipelineId, String genomeBuild)
             throws SQLException {
-        long individualId = coreDao.findOrCreateIndividual("IND-" + sampleName);
+        long individualId = coreDao.findOrCreateIndividual("MRN-" + sampleName, "IND-" + sampleName);
         long sampleId = coreDao.findOrCreateSampleAccession(sampleName, individualId, null);
         long labProtocolId = coreDao.findOrCreateLabProtocol("NGS", null, "VCF small variant import");
         long sampleTestId = coreDao.createSampleTest(sampleId, labProtocolId, "VCF");

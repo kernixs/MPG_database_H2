@@ -99,7 +99,9 @@ public class CnvImportService {
                     issuesInserted++;
                     continue;
                 }
-                long individualId = coreDao.findOrCreateIndividual("IND-" + record.sampleAccessionIdentifier());
+                long individualId = coreDao.findOrCreateIndividual(
+                        mrnForRecord(record),
+                        "IND-" + record.sampleAccessionIdentifier());
                 long sampleId = coreDao.findOrCreateSampleAccession(
                         record.sampleAccessionIdentifier(),
                         individualId,
@@ -292,6 +294,13 @@ public class CnvImportService {
                 + callingMethod + "|"
                 + nullToEmpty(record.rawIscn()) + "|"
                 + nullToEmpty(record.annotationNames());
+    }
+
+    private String mrnForRecord(CnvRecord record) {
+        if (record.mrn() != null && !record.mrn().isBlank()) {
+            return record.mrn();
+        }
+        return "MRN-" + record.sampleAccessionIdentifier();
     }
 
     private String nullToEmpty(String value) {

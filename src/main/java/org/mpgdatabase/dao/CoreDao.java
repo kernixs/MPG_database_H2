@@ -12,20 +12,72 @@ public class CoreDao {
     }
 
     public long findOrCreateIndividual(String externalIdentifier) throws SQLException {
+        return findOrCreateIndividual(null, externalIdentifier);
+    }
+
+    public long findOrCreateIndividual(String mrn, String externalIdentifier) throws SQLException {
         String value = externalIdentifier == null || externalIdentifier.isBlank()
                 ? "IND-" + System.nanoTime()
                 : externalIdentifier;
         Long existing = findId("SELECT individual_id FROM individuals WHERE external_identifier = ?", value);
         if (existing != null) {
+            backfillMrnIfMissing(existing, mrn);
             return existing;
         }
+        String normalizedMrn = normalizeNullable(mrn);
+        if (normalizedMrn != null) {
+            existing = findId("SELECT individual_id FROM individuals WHERE mrn = ?", normalizedMrn);
+            if (existing != null) {
+                backfillExternalIdentifierIfMissing(existing, value);
+                return existing;
+            }
+        }
         try (PreparedStatement ps = connection.prepareStatement(
-                "INSERT INTO individuals (external_identifier) VALUES (?)",
+                "INSERT INTO individuals (mrn, external_identifier) VALUES (?, ?)",
                 DaoSupport.returnGeneratedKeys())) {
-            ps.setString(1, value);
+            ps.setString(1, normalizedMrn);
+            ps.setString(2, value);
             ps.executeUpdate();
             return DaoSupport.generatedId(ps);
         }
+    }
+
+    private void backfillMrnIfMissing(long individualId, String mrn) throws SQLException {
+        String normalizedMrn = normalizeNullable(mrn);
+        if (normalizedMrn == null) {
+            return;
+        }
+        try (PreparedStatement ps = connection.prepareStatement("""
+                UPDATE individuals
+                SET mrn = ?
+                WHERE individual_id = ?
+                  AND mrn IS NULL
+                """)) {
+            ps.setString(1, normalizedMrn);
+            ps.setLong(2, individualId);
+            ps.executeUpdate();
+        }
+    }
+
+    private void backfillExternalIdentifierIfMissing(long individualId, String externalIdentifier) throws SQLException {
+        String normalizedExternal = normalizeNullable(externalIdentifier);
+        if (normalizedExternal == null) {
+            return;
+        }
+        try (PreparedStatement ps = connection.prepareStatement("""
+                UPDATE individuals
+                SET external_identifier = ?
+                WHERE individual_id = ?
+                  AND external_identifier IS NULL
+                """)) {
+            ps.setString(1, normalizedExternal);
+            ps.setLong(2, individualId);
+            ps.executeUpdate();
+        }
+    }
+
+    private String normalizeNullable(String value) {
+        return value == null || value.isBlank() ? null : value.trim();
     }
 
     public long findOrCreateSampleAccession(String accessionIdentifier, long individualId, String dnaSource)

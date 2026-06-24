@@ -60,8 +60,76 @@ public final class Database {
         backfillSegmentResultFields(connection);
         migrateSegmentAssayColumnsToAnnotations(connection);
         migrateGenomicSegmentLegacyColumns(connection);
+        backfillIndividualMrns(connection);
         backfillSegmentAnnotations(connection);
         createDirectEventGroupIndexes(connection);
+    }
+
+    private static void backfillIndividualMrns(Connection connection) throws SQLException {
+        try (PreparedStatement read = connection.prepareStatement("""
+                SELECT i.individual_id, sa.accession_identifier, i.external_identifier
+                FROM individuals i
+                LEFT JOIN sample_accessions sa ON sa.individual_id = i.individual_id
+                WHERE i.mrn IS NULL
+                ORDER BY i.individual_id, sa.sample_accession_id
+                """);
+             ResultSet rs = read.executeQuery()) {
+            Map<Long, String> mrns = new LinkedHashMap<>();
+            Map<String, Long> usedMrns = existingMrns(connection);
+            while (rs.next()) {
+                long individualId = rs.getLong("individual_id");
+                if (mrns.containsKey(individualId)) {
+                    continue;
+                }
+                String accession = rs.getString("accession_identifier");
+                String externalIdentifier = rs.getString("external_identifier");
+                String source = accession != null && !accession.isBlank()
+                        ? accession
+                        : externalIdentifier;
+                if (source != null && !source.isBlank()) {
+                    String baseMrn = "MRN-" + source.replaceFirst("^IND-", "");
+                    String uniqueMrn = uniquePlaceholderMrn(baseMrn, individualId, usedMrns);
+                    usedMrns.put(uniqueMrn, individualId);
+                    mrns.put(individualId, uniqueMrn);
+                }
+            }
+            try (PreparedStatement update = connection.prepareStatement("""
+                    UPDATE individuals
+                    SET mrn = ?
+                    WHERE individual_id = ?
+                      AND mrn IS NULL
+                    """)) {
+                for (Map.Entry<Long, String> entry : mrns.entrySet()) {
+                    update.setString(1, entry.getValue());
+                    update.setLong(2, entry.getKey());
+                    update.addBatch();
+                }
+                update.executeBatch();
+            }
+        }
+    }
+
+    private static Map<String, Long> existingMrns(Connection connection) throws SQLException {
+        Map<String, Long> mrns = new LinkedHashMap<>();
+        try (PreparedStatement ps = connection.prepareStatement("""
+                SELECT individual_id, mrn
+                FROM individuals
+                WHERE mrn IS NOT NULL
+                """);
+             ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                mrns.put(rs.getString("mrn"), rs.getLong("individual_id"));
+            }
+        }
+        return mrns;
+    }
+
+    private static String uniquePlaceholderMrn(String baseMrn, long individualId, Map<String, Long> usedMrns) {
+        Long owner = usedMrns.get(baseMrn);
+        if (owner == null || owner == individualId) {
+            return baseMrn;
+        }
+        return baseMrn + "-" + individualId;
     }
 
     private static void backfillSegmentAnnotations(Connection connection) throws SQLException {

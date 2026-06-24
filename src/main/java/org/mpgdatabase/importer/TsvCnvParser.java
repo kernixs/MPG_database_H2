@@ -169,6 +169,7 @@ public class TsvCnvParser implements CnvParser {
                 "accession",
                 "accession_id",
                 "fid" -> "sample_accession_id";
+            case "mrn", "medical_record_number", "medical_record_no", "patient_mrn" -> "mrn";
             case "group_id", "event_id", "variant_id", "pair_id", "link_id", "breakend_id" -> "event_group_id";
             case "iscn", "iid" -> "raw_iscn";
             case "chr" -> "chromosome";
@@ -359,6 +360,7 @@ public class TsvCnvParser implements CnvParser {
         return new CnvRecord(
             lineNumber,
             sample,
+            fields.get("mrn"),
             eventGroupId,
             chromosome,
             start,
@@ -386,6 +388,7 @@ public class TsvCnvParser implements CnvParser {
     ) {
         return new CnvRecord(
             lineNumber,
+            null,
             null,
             null,
             null,

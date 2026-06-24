@@ -10,6 +10,9 @@ import org.mpgdatabase.report.VerificationReport;
 import org.mpgdatabase.report.VerificationService;
 import org.mpgdatabase.report.SearchService;
 import org.mpgdatabase.report.SmallVariantSearchService;
+import org.mpgdatabase.visualization.circos.CircosConfig;
+import org.mpgdatabase.visualization.circos.CircosDemoDataSeeder;
+import org.mpgdatabase.visualization.circos.CircosWorkflow;
 import org.h2.tools.Server;
 
 import java.nio.file.Files;
@@ -20,6 +23,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Scanner;
 import java.util.Set;
 import java.util.stream.Stream;
 
@@ -88,6 +92,14 @@ public class App {
         }
         if (args.length > 0 && "clinical-import".equalsIgnoreCase(args[0])) {
             runClinicalImport(args);
+            return;
+        }
+        if (args.length > 0 && "circos".equalsIgnoreCase(args[0])) {
+            runCircos(args);
+            return;
+        }
+        if (args.length > 0 && "circos-demo-seed".equalsIgnoreCase(args[0])) {
+            runCircosDemoSeed(args);
             return;
         }
         Path dataDir = Path.of(args.length > 0 ? args[0] : "data");
@@ -216,6 +228,42 @@ public class App {
         }
     }
 
+    private static void runCircos(String[] args) throws Exception {
+        String jdbcUrl = optionValue(args, "--jdbc-url");
+        if (jdbcUrl == null || jdbcUrl.isBlank()) {
+            jdbcUrl = "jdbc:h2:file:./output/mpg_database_h2";
+        }
+        try (Connection connection = Database.connect(jdbcUrl);
+             Scanner scanner = new Scanner(System.in)) {
+            Database.initialize(connection);
+            CircosConfig config = CircosConfig.defaults().withCleanupTemporaryFiles(hasFlag(args, "--cleanup"));
+            new CircosWorkflow(connection, config, scanner, System.out).run();
+        }
+    }
+
+    private static void runCircosDemoSeed(String[] args) throws Exception {
+        String jdbcUrl = optionValue(args, "--jdbc-url");
+        if (jdbcUrl == null || jdbcUrl.isBlank()) {
+            jdbcUrl = "jdbc:h2:file:./output/mpg_database_h2";
+        }
+        try (Connection connection = Database.connect(jdbcUrl)) {
+            Database.initialize(connection);
+            CircosDemoDataSeeder.SeedSummary summary = new CircosDemoDataSeeder(connection).seed();
+            System.out.println("Synthetic Circos demo data ready.");
+            System.out.println("MRNs=" + summary.individuals());
+            System.out.println("sample_accessions=" + summary.accessions());
+            System.out.println("tests=" + summary.tests());
+            System.out.println("sample_test_results=" + summary.results());
+            System.out.println("new_segments=" + summary.segments());
+            System.out.println("new_translocation_links=" + summary.links());
+            System.out.println();
+            System.out.println("Example MRNs:");
+            for (String mrn : summary.mrns()) {
+                System.out.println(mrn);
+            }
+        }
+    }
+
     private static Map<String, String> searchFilters(String[] args, Set<String> allowedFilters) {
         Map<String, String> filters = new HashMap<>();
         for (int i = 1; i < args.length; i++) {
@@ -265,6 +313,15 @@ public class App {
             }
         }
         return null;
+    }
+
+    private static boolean hasFlag(String[] args, String optionName) {
+        for (String arg : args) {
+            if (optionName.equals(arg)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private static List<Path> clinicalDecisionFiles(Path dataDir) throws Exception {

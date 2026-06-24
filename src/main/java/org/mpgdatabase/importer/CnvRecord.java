@@ -6,6 +6,7 @@ import java.util.Map;
 public record CnvRecord(
         int lineNumber,
         String sampleAccessionIdentifier,
+        String mrn,
         String eventGroupId,
         String chromosome,
         Long startPos,
