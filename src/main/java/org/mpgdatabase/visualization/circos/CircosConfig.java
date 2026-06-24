@@ -10,6 +10,9 @@ public record CircosConfig(
         int maxLinks,
         boolean cleanupTemporaryFiles
 ) {
+    public static final int DEFAULT_LINK_LIMIT = 50;
+    public static final int HARD_LINK_LIMIT = 100;
+
     public static CircosConfig defaults() {
         Path root = Path.of("circos");
         return new CircosConfig(
@@ -17,11 +20,16 @@ public record CircosConfig(
                 root.resolve("output"),
                 root.resolve("templates"),
                 root.resolve("logs"),
-                100,
+                DEFAULT_LINK_LIMIT,
                 false);
     }
 
     public CircosConfig withCleanupTemporaryFiles(boolean cleanup) {
         return new CircosConfig(exportDir, outputDir, templateDir, logDir, maxLinks, cleanup);
+    }
+
+    public CircosConfig withMaxLinks(int limit) {
+        int bounded = Math.max(1, Math.min(limit, HARD_LINK_LIMIT));
+        return new CircosConfig(exportDir, outputDir, templateDir, logDir, bounded, cleanupTemporaryFiles);
     }
 }
