@@ -241,9 +241,14 @@ public class CircosWorkflow {
             }
             return;
         }
+        CircosConfig plotConfig = linkLimitConfig(readiness.translocationCount());
+        if (plotConfig == null) {
+            out.println("Circos generation cancelled.");
+            return;
+        }
 
         out.println("[3/5] Exporting TSV files");
-        CircosExportResult export = new CircosExportService(connection, config).export(ids);
+        CircosExportResult export = new CircosExportService(connection, plotConfig).export(ids);
         if (!export.hasPlotReadyEvents()) {
             out.println("No plot-ready events found.");
             return;
@@ -251,7 +256,7 @@ public class CircosWorkflow {
 
         out.println("[4/5] Running R/circlize and writing SVG");
         try {
-            new CircosRRunner(config).render(export);
+            new CircosRRunner(plotConfig).render(export);
         } catch (IllegalStateException e) {
             out.println("Circos TSV export completed, but SVG rendering did not finish.");
             out.println(e.getMessage());
@@ -260,9 +265,9 @@ public class CircosWorkflow {
             return;
         }
 
-        out.println("[5/5] " + (config.cleanupTemporaryFiles() ? "Cleaning temporary files" : "Keeping TSV/R temporary files"));
-        if (config.cleanupTemporaryFiles()) {
-            new CircosCleanupService(config).cleanupTemporaryFiles(export);
+        out.println("[5/5] " + (plotConfig.cleanupTemporaryFiles() ? "Cleaning temporary files" : "Keeping TSV/R temporary files"));
+        if (plotConfig.cleanupTemporaryFiles()) {
+            new CircosCleanupService(plotConfig).cleanupTemporaryFiles(export);
         }
         out.println();
         out.println("Done.");
@@ -273,7 +278,29 @@ public class CircosWorkflow {
         printExports(export);
         out.println("Counts: gains=" + export.gainCount()
                 + ", losses=" + export.lossCount()
-                + ", translocations=" + export.translocationCount());
+                + ", plotted/translocation events represented=" + export.translocationCount()
+                + ", plotted connection rows capped at=" + plotConfig.maxLinks());
+    }
+
+    private CircosConfig linkLimitConfig(int translocationCount) {
+        if (translocationCount <= CircosConfig.DEFAULT_LINK_LIMIT) {
+            return config.withMaxLinks(CircosConfig.DEFAULT_LINK_LIMIT);
+        }
+        out.println();
+        out.println("This selection has " + translocationCount + " translocation event(s).");
+        out.println("The default Circos plot will show the top " + CircosConfig.DEFAULT_LINK_LIMIT
+                + " connection row(s) to avoid clutter.");
+        out.println("1) Plot top " + CircosConfig.DEFAULT_LINK_LIMIT + " connections");
+        out.println("2) Plot up to " + CircosConfig.HARD_LINK_LIMIT + " connections");
+        out.println("3) Cancel");
+        int choice = readChoice("Select connection limit:", 3);
+        if (choice == 1) {
+            return config.withMaxLinks(CircosConfig.DEFAULT_LINK_LIMIT);
+        }
+        if (choice == 2) {
+            return config.withMaxLinks(CircosConfig.HARD_LINK_LIMIT);
+        }
+        return null;
     }
 
     private List<SearchResultRow> selectedRows(List<SearchResultRow> rows, String selection) {

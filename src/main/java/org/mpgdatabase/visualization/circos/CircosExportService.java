@@ -52,11 +52,9 @@ public class CircosExportService {
                 "GAIN", "DUP", "DUPLICATION", "AMP", "AMPLIFICATION"));
         List<CircosSegmentRecord> losses = segments(selectedIds, List.of(
                 "LOSS", "DEL", "DELETION"));
-        List<CircosLinkRecord> links = translocationLinks(selectedIds);
-        if (links.size() > config.maxLinks()) {
-            throw new IllegalStateException("More than " + config.maxLinks()
-                    + " translocation connections found. Narrow the selected results before generating the plot.");
-        }
+        List<CircosLinkRecord> links = translocationLinks(selectedIds).stream()
+                .limit(config.maxLinks())
+                .toList();
 
         String label = plotLabel(selectedIds);
         Path resultExportDir = config.exportDir().resolve(label);
@@ -260,7 +258,6 @@ public class CircosExportService {
                         .thenComparingInt(CircosLinkRecord::eventCount).reversed()
                         .thenComparingInt(record -> chromosomeRank(record.chr1()))
                         .thenComparingInt(record -> chromosomeRank(record.chr2())))
-                .limit(config.maxLinks())
                 .toList();
     }
 
