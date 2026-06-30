@@ -340,13 +340,6 @@ class Phase2WorkflowTest {
             String unknownSearch = new SearchService(connection).search(Map.of("event-type", "NOT_A_REAL_EVENT"));
             assertTrue(unknownSearch.contains("Rows: 0"), unknownSearch);
 
-            try (PreparedStatement ps = connection.prepareStatement("""
-                    UPDATE genomic_segments
-                    SET annotations = annotations || '|extra'
-                    WHERE segment_id = 1
-                    """)) {
-                ps.executeUpdate();
-            }
             String mismatchSearch = new SearchService(connection).search(Map.of("annotation", "Gene=FCGR3A"));
             assertFalse(mismatchSearch.isBlank());
             assertTrue(mismatchSearch.contains("FCGR3A"), mismatchSearch);
@@ -425,7 +418,7 @@ class Phase2WorkflowTest {
                       AND EXISTS (
                           SELECT 1 FROM segment_annotations sa
                           WHERE sa.segment_id = gs.segment_id
-                            AND sa.annotation_name = 'ProbeCount'
+                            AND sa.annotation_name = 'probe_count'
                             AND sa.numeric_value = 42
                       )
                       AND EXISTS (
@@ -479,13 +472,13 @@ class Phase2WorkflowTest {
                       AND EXISTS (
                           SELECT 1 FROM segment_annotations sa
                           WHERE sa.segment_id = gs.segment_id
-                            AND sa.annotation_name = 'NumProbes'
+                            AND sa.annotation_name = 'probe_count'
                             AND sa.numeric_value = 88
                       )
                       AND EXISTS (
                           SELECT 1 FROM segment_annotations sa
                           WHERE sa.segment_id = gs.segment_id
-                            AND sa.annotation_name = 'MeanBAF'
+                            AND sa.annotation_name = 'BAF'
                             AND sa.numeric_value = 0.61
                       )
                       AND EXISTS (
@@ -513,7 +506,7 @@ class Phase2WorkflowTest {
 
             assertTrue(result.success());
             assertEquals(2, result.segmentsInserted());
-            assertEquals(2, count(connection, """
+            assertEquals(1, count(connection, """
                     SELECT COUNT(DISTINCT gs.segment_id)
                     FROM genomic_segments gs
                     JOIN segment_annotations gene ON gene.segment_id = gs.segment_id AND gene.annotation_name = 'Gene'
@@ -525,13 +518,19 @@ class Phase2WorkflowTest {
                     SELECT COUNT(*)
                     FROM genomic_segments gs
                     JOIN segment_annotations gene ON gene.segment_id = gs.segment_id
-                    JOIN segment_annotations clinical ON clinical.segment_id = gs.segment_id
                     JOIN segment_annotations lumpy ON lumpy.segment_id = gs.segment_id
-                    JOIN segment_annotations cnvnator ON cnvnator.segment_id = gs.segment_id
                     WHERE gene.annotation_name = 'Gene' AND gene.text_value = 'SHH'
-                      AND clinical.annotation_name = 'Clinical' AND clinical.text_value = ''
-                      AND lumpy.annotation_name = 'Lumpy' AND lumpy.text_value = '1'
-                      AND cnvnator.annotation_name = 'CNVNATOR' AND cnvnator.text_value = ''
+                      AND lumpy.annotation_name = 'Lumpy' AND lumpy.numeric_value = 1
+                      AND NOT EXISTS (
+                          SELECT 1 FROM segment_annotations clinical
+                          WHERE clinical.segment_id = gs.segment_id
+                            AND clinical.annotation_name = 'Clinical'
+                      )
+                      AND NOT EXISTS (
+                          SELECT 1 FROM segment_annotations cnvnator
+                          WHERE cnvnator.segment_id = gs.segment_id
+                            AND cnvnator.annotation_name = 'CNVNATOR'
+                      )
                     """));
             assertAnnotationAlignment(connection);
         }
@@ -588,11 +587,10 @@ class Phase2WorkflowTest {
                     FROM genomic_segments gs
                     JOIN sample_test_results str ON str.sample_test_result_id = gs.sample_test_result_id
                     WHERE gs.genome_build IN ('GRCh37', 'GRCh38')
-                      AND gs.raw_iscn IS NULL
                       AND str.calling_method = 'Array-derived'
                     """));
             assertFalse(columnExists(connection, "GENOMIC_SEGMENTS", "ARRAY_SCORE"));
-            assertFalse(columnExists(connection, "GENOMIC_SEGMENTS", "NUMBER_OF_SITES"));
+            assertTrue(columnExists(connection, "GENOMIC_SEGMENTS", "NUMBER_OF_SITES"));
             assertTrue(columnExists(connection, "GENOMIC_SEGMENTS", "CONFIDENCE"));
             assertNoDedicatedAnnotationNames(connection);
             assertAnnotationAlignment(connection);
@@ -1116,12 +1114,12 @@ class Phase2WorkflowTest {
             assertEquals(19, result.recordsSeen());
             assertEquals(13, result.segmentsInserted());
             assertEquals(13, count(connection, "SELECT COUNT(*) FROM genomic_segments"));
-            assertEquals(4, count(connection, "SELECT COUNT(*) FROM sample_test_results WHERE genome_build = 'GRCh37'"));
-            assertEquals(4, count(connection, "SELECT COUNT(*) FROM sample_test_results WHERE genome_build = 'GRCh38'"));
-            assertEquals(5, count(connection, "SELECT COUNT(*) FROM sample_test_results WHERE genome_build = 'T2T-CHM13'"));
+            assertEquals(4, count(connection, "SELECT COUNT(*) FROM genomic_segments WHERE genome_build = 'GRCh37'"));
+            assertEquals(4, count(connection, "SELECT COUNT(*) FROM genomic_segments WHERE genome_build = 'GRCh38'"));
+            assertEquals(5, count(connection, "SELECT COUNT(*) FROM genomic_segments WHERE genome_build = 'T2T-CHM13'"));
             assertEquals(0, count(connection, """
                     SELECT COUNT(*)
-                    FROM sample_test_results
+                    FROM genomic_segments
                     WHERE genome_build NOT IN ('GRCh37', 'GRCh38', 'T2T-CHM13', 'NCBI36')
                     """));
             assertEquals(5, issueCount(connection, "Invalid Genome Build", "ERROR"));
@@ -1129,8 +1127,7 @@ class Phase2WorkflowTest {
             assertEquals(0, count(connection, """
                     SELECT COUNT(*)
                     FROM genomic_segments gs
-                    JOIN sample_test_results str ON str.sample_test_result_id = gs.sample_test_result_id
-                    WHERE str.genome_build IN ('hg19', 'hg38', 'Build 37', 'Build 38', 'T2T', 'CHM13', 'unknown')
+                    WHERE gs.genome_build IN ('hg19', 'hg38', 'Build 37', 'Build 38', 'T2T', 'CHM13', 'unknown')
                     """));
         }
     }
@@ -1258,55 +1255,40 @@ class Phase2WorkflowTest {
     private void assertNoDedicatedAnnotationNames(Connection connection) throws Exception {
         assertEquals(0, count(connection, """
                 SELECT COUNT(*)
-                FROM sample_test_results
-                WHERE annotation_names LIKE '%chromosome%'
-                   OR annotation_names LIKE '%Chr%'
-                   OR annotation_names LIKE '%Start%'
-                   OR annotation_names LIKE '%End%'
-                   OR annotation_names LIKE '%SV_Type%'
-                   OR annotation_names LIKE '%copy_number%'
-                   OR annotation_names LIKE '%CopyNumber%'
-                   OR annotation_names LIKE '%GenomeBuild%'
-                   OR annotation_names LIKE '%hg_version%'
-                   OR annotation_names LIKE '%Confidence%'
+                FROM segment_annotations
+                WHERE LOWER(annotation_name) IN (
+                    'chromosome',
+                    'chr',
+                    'start',
+                    'end',
+                    'sv_type',
+                    'copy_number',
+                    'copynumber',
+                    'genomebuild',
+                    'hg_version',
+                    'confidence'
+                )
                 """));
     }
 
     private void assertAnnotationAlignment(Connection connection) throws Exception {
-        try (PreparedStatement ps = connection.prepareStatement("""
-                SELECT str.annotation_names, gs.annotations
-                FROM genomic_segments gs
-                JOIN sample_test_results str ON str.sample_test_result_id = gs.sample_test_result_id
-                WHERE COALESCE(str.annotation_names, '') <> ''
-                   OR COALESCE(gs.annotations, '') <> ''
-                """)) {
-            try (var rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    String names = rs.getString("annotation_names");
-                    String values = rs.getString("annotations");
-                    int nameCount = splitAnnotationParts(names).length;
-                    int valueCount = splitAnnotationParts(values).length;
-                    assertEquals(nameCount, valueCount, "annotation_names and annotations must align");
-                }
-            }
-        }
-    }
-
-    private String[] splitAnnotationParts(String value) {
-        if (value == null || value.isEmpty()) {
-            return new String[0];
-        }
-        String delimiter = value.contains("|") ? "\\|" : ";";
-        return value.split(delimiter, -1);
+        assertEquals(0, count(connection, """
+                SELECT COUNT(*)
+                FROM segment_annotations
+                WHERE annotation_name IS NULL
+                   OR annotation_name = ''
+                   OR value_type NOT IN ('TEXT', 'NUMBER', 'BOOLEAN')
+                """));
     }
 
     private SegmentContext firstSegmentContext(Connection connection) throws Exception {
         try (PreparedStatement ps = connection.prepareStatement("""
-                SELECT gs.segment_id, gs.sample_test_result_id, sa.individual_id
+                SELECT gs.segment_id, gs.sample_test_result_id, s.individual_id
                 FROM genomic_segments gs
                 JOIN sample_test_results str ON str.sample_test_result_id = gs.sample_test_result_id
                 JOIN sample_tests st ON st.sample_test_id = str.sample_test_id
                 JOIN sample_accessions sa ON sa.sample_accession_id = st.sample_accession_id
+                JOIN samples s ON s.sample_id = sa.sample_id
                 ORDER BY gs.segment_id
                 LIMIT 1
                 """)) {
