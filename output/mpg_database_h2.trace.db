@@ -2234,3 +2234,108 @@ Caused by: org.h2.mvstore.MVStoreException: The file is locked: /Users/aminsulim
 	at org.h2.mvstore.SingleFileStore.open(SingleFileStore.java:81)
 	at org.h2.mvstore.MVStore.<init>(MVStore.java:286)
 	... 12 more
+2026-06-30 16:40:18.485321-05:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Column "INTERPRETED_CALL_ID" not found; SQL statement:
+INSERT INTO variant_classifications
+    (interpreted_call_id, classification_label, classification_source, guideline_system, guideline_version,
+     evidence_score, evidence_summary, classified_by, review_status,
+     is_current, supersedes_classification_id)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+ [42122-224]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:514)
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:489)
+	at org.h2.message.DbException.get(DbException.java:223)
+	at org.h2.message.DbException.get(DbException.java:199)
+	at org.h2.table.Table.getColumn(Table.java:759)
+	at org.h2.command.Parser.parseColumn(Parser.java:1190)
+	at org.h2.command.Parser.parseColumnList(Parser.java:1175)
+	at org.h2.command.Parser.parseInsert(Parser.java:1549)
+	at org.h2.command.Parser.parsePrepared(Parser.java:719)
+	at org.h2.command.Parser.parse(Parser.java:592)
+	at org.h2.command.Parser.parse(Parser.java:564)
+	at org.h2.command.Parser.prepareCommand(Parser.java:483)
+	at org.h2.engine.SessionLocal.prepareLocal(SessionLocal.java:639)
+	at org.h2.engine.SessionLocal.prepareCommand(SessionLocal.java:559)
+	at org.h2.jdbc.JdbcConnection.prepareCommand(JdbcConnection.java:1166)
+	at org.h2.jdbc.JdbcPreparedStatement.<init>(JdbcPreparedStatement.java:93)
+	at org.h2.jdbc.JdbcConnection.prepareStatement(JdbcConnection.java:1094)
+	at org.mpgdatabase.dao.ClinicalDecisionDao.createVariantClassification(ClinicalDecisionDao.java:23)
+	at org.mpgdatabase.importer.ClinicalDecisionImportService.importFile(ClinicalDecisionImportService.java:55)
+	at org.mpgdatabase.App.main(App.java:129)
+	at org.codehaus.mojo.exec.ExecJavaMojo.doMain(ExecJavaMojo.java:385)
+	at org.codehaus.mojo.exec.ExecJavaMojo.doExec(ExecJavaMojo.java:374)
+	at org.codehaus.mojo.exec.ExecJavaMojo.lambda$execute$0(ExecJavaMojo.java:296)
+	at java.base/java.lang.Thread.run(Thread.java:1474)
+2026-06-30 16:43:13.770061-05:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Column "INTERPRETED_CALL_ID" not found; SQL statement:
+INSERT INTO variant_classifications
+    (interpreted_call_id, classification_label, classification_source, guideline_system, guideline_version,
+     evidence_score, evidence_summary, classified_by, review_status,
+     is_current, supersedes_classification_id)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+ [42122-224]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:514)
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:489)
+	at org.h2.message.DbException.get(DbException.java:223)
+	at org.h2.message.DbException.get(DbException.java:199)
+	at org.h2.table.Table.getColumn(Table.java:759)
+	at org.h2.command.Parser.parseColumn(Parser.java:1190)
+	at org.h2.command.Parser.parseColumnList(Parser.java:1175)
+	at org.h2.command.Parser.parseInsert(Parser.java:1549)
+	at org.h2.command.Parser.parsePrepared(Parser.java:719)
+	at org.h2.command.Parser.parse(Parser.java:592)
+	at org.h2.command.Parser.parse(Parser.java:564)
+	at org.h2.command.Parser.prepareCommand(Parser.java:483)
+	at org.h2.engine.SessionLocal.prepareLocal(SessionLocal.java:639)
+	at org.h2.engine.SessionLocal.prepareCommand(SessionLocal.java:559)
+	at org.h2.jdbc.JdbcConnection.prepareCommand(JdbcConnection.java:1166)
+	at org.h2.jdbc.JdbcPreparedStatement.<init>(JdbcPreparedStatement.java:93)
+	at org.h2.jdbc.JdbcConnection.prepareStatement(JdbcConnection.java:1094)
+	at org.mpgdatabase.dao.ClinicalDecisionDao.createVariantClassification(ClinicalDecisionDao.java:23)
+	at org.mpgdatabase.importer.ClinicalDecisionImportService.importFile(ClinicalDecisionImportService.java:55)
+	at org.mpgdatabase.App.main(App.java:129)
+	at org.codehaus.mojo.exec.ExecJavaMojo.doMain(ExecJavaMojo.java:385)
+	at org.codehaus.mojo.exec.ExecJavaMojo.doExec(ExecJavaMojo.java:374)
+	at org.codehaus.mojo.exec.ExecJavaMojo.lambda$execute$0(ExecJavaMojo.java:296)
+	at java.base/java.lang.Thread.run(Thread.java:1474)
+2026-06-30 16:43:35.459516-05:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLDataException: Scalar subquery contains more than one row; SQL statement:
+UPDATE variant_classifications vc
+SET interpreted_call_id = (
+    SELECT ic.interpreted_call_id
+    FROM interpreted_calls ic
+    JOIN genomic_segments gs ON gs.segment_id = vc.segment_id
+    JOIN sample_test_results str ON str.sample_test_result_id = gs.sample_test_result_id
+    JOIN sample_tests st ON st.sample_test_id = str.sample_test_id
+    JOIN sample_accessions sa ON sa.sample_accession_id = st.sample_accession_id
+    JOIN samples s ON s.sample_id = sa.sample_id
+    WHERE ic.finding_type = 'genomic_segments'
+      AND ic.finding_id = vc.segment_id
+      AND ic.sample_test_result_id = gs.sample_test_result_id
+      AND ic.individual_id = s.individual_id
+)
+WHERE vc.interpreted_call_id IS NULL
+  AND vc.segment_id IS NOT NULL [90053-224]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:658)
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:489)
+	at org.h2.message.DbException.get(DbException.java:223)
+	at org.h2.message.DbException.get(DbException.java:199)
+	at org.h2.message.DbException.get(DbException.java:188)
+	at org.h2.expression.Subquery.getValue(Subquery.java:53)
+	at org.h2.command.dml.SetClauseList$SetSimple.update(SetClauseList.java:394)
+	at org.h2.command.dml.SetClauseList$SetAction.update(SetClauseList.java:337)
+	at org.h2.command.dml.SetClauseList.prepareUpdate(SetClauseList.java:138)
+	at org.h2.command.dml.Update.update(Update.java:82)
+	at org.h2.command.dml.DataChangeStatement.update(DataChangeStatement.java:74)
+	at org.h2.command.CommandContainer.update(CommandContainer.java:169)
+	at org.h2.command.Command.executeUpdate(Command.java:256)
+	at org.h2.jdbc.JdbcStatement.executeInternal(JdbcStatement.java:262)
+	at org.h2.jdbc.JdbcStatement.execute(JdbcStatement.java:231)
+	at org.mpgdatabase.db.Database.backfillInterpretedCallsFromSegments(Database.java:201)
+	at org.mpgdatabase.db.Database.migrateLegacyClinicalDecisionTables(Database.java:166)
+	at org.mpgdatabase.db.Database.initialize(Database.java:63)
+	at org.mpgdatabase.App.main(App.java:117)
+	at org.codehaus.mojo.exec.ExecJavaMojo.doMain(ExecJavaMojo.java:385)
+	at org.codehaus.mojo.exec.ExecJavaMojo.doExec(ExecJavaMojo.java:374)
+	at org.codehaus.mojo.exec.ExecJavaMojo.lambda$execute$0(ExecJavaMojo.java:296)
+	at java.base/java.lang.Thread.run(Thread.java:1474)

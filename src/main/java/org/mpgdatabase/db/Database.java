@@ -28,6 +28,8 @@ public final class Database {
                 String normalized = trimmed.toLowerCase();
                 if (normalized.contains("idx_segments_event_group_label")
                         || normalized.contains("idx_segments_genome_build")
+                        || normalized.contains("idx_classifications_segment")
+                        || normalized.contains("idx_signed_out_segment")
                         || normalized.contains("idx_links_event_group_label")) {
                     continue;
                 }
@@ -58,6 +60,7 @@ public final class Database {
         addColumnIfMissing(connection, "VALIDATION_ISSUES", "SAMPLE_ACCESSION_ID", "VARCHAR(128)");
         migrateLegacySampleAccessions(connection);
         migrateLegacySampleTestResultColumns(connection);
+        migrateLegacyClinicalDecisionTables(connection);
         backfillDirectEventGroupIds(connection);
         backfillIndividualMrns(connection);
         createDirectEventGroupIndexes(connection);
@@ -138,6 +141,124 @@ public final class Database {
         dropColumnIfExists(connection, "SAMPLE_TEST_RESULTS", "LINE_NUMBER");
     }
 
+    private static void migrateLegacyClinicalDecisionTables(Connection connection) throws SQLException {
+        if (tableExists(connection, "VARIANT_CLASSIFICATIONS")) {
+            addColumnIfMissing(connection, "VARIANT_CLASSIFICATIONS", "INTERPRETED_CALL_ID", "BIGINT");
+            addColumnIfMissing(connection, "VARIANT_CLASSIFICATIONS", "CLASSIFICATION_SOURCE", "VARCHAR(256)");
+        }
+        if (tableExists(connection, "SIGNED_OUT_CALLS")) {
+            addColumnIfMissing(connection, "SIGNED_OUT_CALLS", "INTERPRETED_CALL_ID", "BIGINT");
+            addColumnIfMissing(connection, "SIGNED_OUT_CALLS", "REPORTABILITY_STATUS", "VARCHAR(128)");
+        }
+        if (tableExists(connection, "NOTES")) {
+            addColumnIfMissing(connection, "NOTES", "CREATED_BY", "VARCHAR(128)");
+            if (columnExists(connection, "NOTES", "AUTHOR")) {
+                try (Statement stmt = connection.createStatement()) {
+                    stmt.execute("""
+                            UPDATE notes
+                            SET created_by = author
+                            WHERE created_by IS NULL
+                              AND author IS NOT NULL
+                            """);
+                }
+            }
+        }
+        backfillInterpretedCallsFromSegments(connection);
+        relaxLegacyClinicalSegmentColumns(connection);
+    }
+
+    private static void backfillInterpretedCallsFromSegments(Connection connection) throws SQLException {
+        if (!columnExists(connection, "VARIANT_CLASSIFICATIONS", "SEGMENT_ID")
+                && !columnExists(connection, "SIGNED_OUT_CALLS", "SEGMENT_ID")) {
+            return;
+        }
+        try (Statement stmt = connection.createStatement()) {
+            if (columnExists(connection, "VARIANT_CLASSIFICATIONS", "SEGMENT_ID")) {
+                stmt.execute("""
+                        INSERT INTO interpreted_calls (finding_type, finding_id, sample_test_result_id, individual_id)
+                        SELECT DISTINCT
+                            'genomic_segments',
+                            vc.segment_id,
+                            gs.sample_test_result_id,
+                            s.individual_id
+                        FROM variant_classifications vc
+                        JOIN genomic_segments gs ON gs.segment_id = vc.segment_id
+                        JOIN sample_test_results str ON str.sample_test_result_id = gs.sample_test_result_id
+                        JOIN sample_tests st ON st.sample_test_id = str.sample_test_id
+                        JOIN sample_accessions sa ON sa.sample_accession_id = st.sample_accession_id
+                        JOIN samples s ON s.sample_id = sa.sample_id
+                        WHERE vc.segment_id IS NOT NULL
+                          AND vc.interpreted_call_id IS NULL
+                          AND NOT EXISTS (
+                              SELECT 1
+                              FROM interpreted_calls ic
+                              WHERE ic.finding_type = 'genomic_segments'
+                                AND ic.finding_id = vc.segment_id
+                                AND ic.sample_test_result_id = gs.sample_test_result_id
+                                AND ic.individual_id = s.individual_id
+                          )
+                        """);
+                stmt.execute("""
+                        UPDATE variant_classifications vc
+                        SET interpreted_call_id = (
+                            SELECT MIN(ic.interpreted_call_id)
+                            FROM interpreted_calls ic
+                            JOIN genomic_segments gs ON gs.segment_id = vc.segment_id
+                            JOIN sample_test_results str ON str.sample_test_result_id = gs.sample_test_result_id
+                            JOIN sample_tests st ON st.sample_test_id = str.sample_test_id
+                            JOIN sample_accessions sa ON sa.sample_accession_id = st.sample_accession_id
+                            JOIN samples s ON s.sample_id = sa.sample_id
+                            WHERE ic.finding_type = 'genomic_segments'
+                              AND ic.finding_id = vc.segment_id
+                              AND ic.sample_test_result_id = gs.sample_test_result_id
+                              AND ic.individual_id = s.individual_id
+                        )
+                        WHERE vc.interpreted_call_id IS NULL
+                          AND vc.segment_id IS NOT NULL
+                        """);
+            }
+            if (columnExists(connection, "SIGNED_OUT_CALLS", "SEGMENT_ID")) {
+                stmt.execute("""
+                        INSERT INTO interpreted_calls (finding_type, finding_id, sample_test_result_id, individual_id)
+                        SELECT DISTINCT
+                            'genomic_segments',
+                            soc.segment_id,
+                            soc.sample_test_result_id,
+                            soc.individual_id
+                        FROM signed_out_calls soc
+                        WHERE soc.segment_id IS NOT NULL
+                          AND soc.interpreted_call_id IS NULL
+                          AND NOT EXISTS (
+                              SELECT 1
+                              FROM interpreted_calls ic
+                              WHERE ic.finding_type = 'genomic_segments'
+                                AND ic.finding_id = soc.segment_id
+                                AND ic.sample_test_result_id = soc.sample_test_result_id
+                                AND ic.individual_id = soc.individual_id
+                          )
+                        """);
+                stmt.execute("""
+                        UPDATE signed_out_calls soc
+                        SET interpreted_call_id = (
+                            SELECT MIN(ic.interpreted_call_id)
+                            FROM interpreted_calls ic
+                            WHERE ic.finding_type = 'genomic_segments'
+                              AND ic.finding_id = soc.segment_id
+                              AND ic.sample_test_result_id = soc.sample_test_result_id
+                              AND ic.individual_id = soc.individual_id
+                        )
+                        WHERE soc.interpreted_call_id IS NULL
+                          AND soc.segment_id IS NOT NULL
+                        """);
+            }
+        }
+    }
+
+    private static void relaxLegacyClinicalSegmentColumns(Connection connection) throws SQLException {
+        dropNotNullIfColumnExists(connection, "VARIANT_CLASSIFICATIONS", "SEGMENT_ID");
+        dropNotNullIfColumnExists(connection, "SIGNED_OUT_CALLS", "SEGMENT_ID");
+    }
+
     private static void backfillIndividualMrns(Connection connection) throws SQLException {
         try (PreparedStatement read = connection.prepareStatement("""
                 SELECT i.individual_id, sa.accession_identifier, i.external_identifier
@@ -208,6 +329,14 @@ public final class Database {
 
     private static void createDirectEventGroupIndexes(Connection connection) throws SQLException {
         try (Statement stmt = connection.createStatement()) {
+            stmt.execute("""
+                    CREATE INDEX IF NOT EXISTS idx_classifications_segment
+                        ON variant_classifications(interpreted_call_id, is_current)
+                    """);
+            stmt.execute("""
+                    CREATE INDEX IF NOT EXISTS idx_signed_out_segment
+                        ON signed_out_calls(interpreted_call_id, individual_id)
+                    """);
             stmt.execute("""
                     CREATE INDEX IF NOT EXISTS idx_segments_genome_build
                         ON genomic_segments(genome_build)
@@ -325,6 +454,27 @@ public final class Database {
         }
         try (Statement stmt = connection.createStatement()) {
             stmt.execute("ALTER TABLE " + table + " DROP COLUMN " + column);
+        }
+    }
+
+    private static void dropNotNullIfColumnExists(Connection connection, String table, String column) throws SQLException {
+        if (!columnExists(connection, table, column)) {
+            return;
+        }
+        try (Statement stmt = connection.createStatement()) {
+            stmt.execute("ALTER TABLE " + table + " ALTER COLUMN " + column + " DROP NOT NULL");
+        }
+    }
+
+    private static boolean tableExists(Connection connection, String table) throws SQLException {
+        try (var ps = connection.prepareStatement("""
+                SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLES
+                WHERE TABLE_SCHEMA = 'PUBLIC' AND TABLE_NAME = ?
+                """)) {
+            ps.setString(1, table.toUpperCase(Locale.ROOT));
+            try (var rs = ps.executeQuery()) {
+                return rs.next() && rs.getLong(1) > 0;
+            }
         }
     }
 
