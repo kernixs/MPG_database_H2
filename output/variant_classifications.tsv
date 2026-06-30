@@ -275,3 +275,103 @@ CLASSIFICATION_ID	INTERPRETED_CALL_ID	CLASSIFICATION_LABEL	CLASSIFICATION_SOURCE
 295	103	Likely Benign		ACMG/ClinGen CNV	2020	-0.45	Phase 2.6 demo evidence summary 98 for segment 2.	reviewer3	2026-06-30 16:43:59.495304	Draft	TRUE	
 296	104	Pathogenic		ACMG/ClinGen CNV	2020	1.0	Phase 2.6 demo evidence summary 99 for segment 3.	reviewer4	2026-06-30 16:43:59.498954	In review	TRUE	
 297	105	Benign		ACMG/ClinGen CNV	2020	-0.9	Phase 2.6 demo evidence summary 100 for segment 1.	reviewer1	2026-06-30 16:43:59.502613	Signed out	TRUE	
+298	106	Likely Pathogenic		ACMG/ClinGen CNV	2020	0.95	Phase 2.6 demo evidence summary 1 for segment 1.	reviewer2	2026-06-30 16:51:26.404801	Ready for sign-out	TRUE	
+299	107	VUS		ACMG/ClinGen CNV	2020	0.1	Phase 2.6 demo evidence summary 2 for segment 2.	reviewer3	2026-06-30 16:51:26.418154	Needs more evidence	TRUE	
+300	108	Likely Benign		ACMG/ClinGen CNV	2020	-0.45	Phase 2.6 demo evidence summary 3 for segment 3.	reviewer4	2026-06-30 16:51:26.430924	Draft	TRUE	
+301	109	Pathogenic		ACMG/ClinGen CNV	2020	1.0	Phase 2.6 demo evidence summary 4 for segment 1.	reviewer1	2026-06-30 16:51:26.443526	In review	TRUE	
+302	110	Benign		ACMG/ClinGen CNV	2020	-0.9	Phase 2.6 demo evidence summary 5 for segment 2.	reviewer2	2026-06-30 16:51:26.455901	Signed out	TRUE	
+303	111	Likely Pathogenic		ACMG/ClinGen CNV	2020	0.95	Phase 2.6 demo evidence summary 6 for segment 3.	reviewer3	2026-06-30 16:51:26.468382	Ready for sign-out	TRUE	
+304	112	VUS		ACMG/ClinGen CNV	2020	0.1	Phase 2.6 demo evidence summary 7 for segment 1.	reviewer4	2026-06-30 16:51:26.480996	Needs more evidence	TRUE	
+305	113	Likely Benign		ACMG/ClinGen CNV	2020	-0.45	Phase 2.6 demo evidence summary 8 for segment 2.	reviewer1	2026-06-30 16:51:26.493484	Draft	TRUE	
+306	114	Pathogenic		ACMG/ClinGen CNV	2020	1.0	Phase 2.6 demo evidence summary 9 for segment 3.	reviewer2	2026-06-30 16:51:26.505843	In review	TRUE	
+307	115	Benign		ACMG/ClinGen CNV	2020	-0.9	Phase 2.6 demo evidence summary 10 for segment 1.	reviewer3	2026-06-30 16:51:26.518351	Signed out	TRUE	
+308	116	Likely Pathogenic		ACMG/ClinGen CNV	2020	0.95	Phase 2.6 demo evidence summary 11 for segment 2.	reviewer4	2026-06-30 16:51:26.530917	Ready for sign-out	TRUE	
+309	117	VUS		ACMG/ClinGen CNV	2020	0.1	Phase 2.6 demo evidence summary 12 for segment 3.	reviewer1	2026-06-30 16:51:26.543478	Needs more evidence	TRUE	
+310	118	Likely Benign		ACMG/ClinGen CNV	2020	-0.45	Phase 2.6 demo evidence summary 13 for segment 1.	reviewer2	2026-06-30 16:51:26.558715	Draft	TRUE	
+311	119	Pathogenic		ACMG/ClinGen CNV	2020	1.0	Phase 2.6 demo evidence summary 14 for segment 2.	reviewer3	2026-06-30 16:51:26.57138	In review	TRUE	
+312	120	Benign		ACMG/ClinGen CNV	2020	-0.9	Phase 2.6 demo evidence summary 15 for segment 3.	reviewer4	2026-06-30 16:51:26.584046	Signed out	TRUE	
+313	121	Likely Pathogenic		ACMG/ClinGen CNV	2020	0.95	Phase 2.6 demo evidence summary 16 for segment 1.	reviewer1	2026-06-30 16:51:26.596705	Ready for sign-out	TRUE	
+314	122	VUS		ACMG/ClinGen CNV	2020	0.1	Phase 2.6 demo evidence summary 17 for segment 2.	reviewer2	2026-06-30 16:51:26.609112	Needs more evidence	TRUE	
+315	123	Likely Benign		ACMG/ClinGen CNV	2020	-0.45	Phase 2.6 demo evidence summary 18 for segment 3.	reviewer3	2026-06-30 16:51:26.621705	Draft	TRUE	
+316	124	Pathogenic		ACMG/ClinGen CNV	2020	1.0	Phase 2.6 demo evidence summary 19 for segment 1.	reviewer4	2026-06-30 16:51:26.634183	In review	TRUE	
+317	125	Benign		ACMG/ClinGen CNV	2020	-0.9	Phase 2.6 demo evidence summary 20 for segment 2.	reviewer1	2026-06-30 16:51:26.646759	Signed out	TRUE	
+318	126	Likely Pathogenic		ACMG/ClinGen CNV	2020	0.95	Phase 2.6 demo evidence summary 21 for segment 3.	reviewer2	2026-06-30 16:51:26.65938	Ready for sign-out	TRUE	
+319	127	VUS		ACMG/ClinGen CNV	2020	0.1	Phase 2.6 demo evidence summary 22 for segment 1.	reviewer3	2026-06-30 16:51:26.674555	Needs more evidence	TRUE	
+320	128	Likely Benign		ACMG/ClinGen CNV	2020	-0.45	Phase 2.6 demo evidence summary 23 for segment 2.	reviewer4	2026-06-30 16:51:26.689482	Draft	TRUE	
+321	129	Pathogenic		ACMG/ClinGen CNV	2020	1.0	Phase 2.6 demo evidence summary 24 for segment 3.	reviewer1	2026-06-30 16:51:26.708703	In review	TRUE	
+322	130	Benign		ACMG/ClinGen CNV	2020	-0.9	Phase 2.6 demo evidence summary 25 for segment 1.	reviewer2	2026-06-30 16:51:26.725548	Signed out	TRUE	
+323	131	Likely Pathogenic		ACMG/ClinGen CNV	2020	0.95	Phase 2.6 demo evidence summary 26 for segment 2.	reviewer3	2026-06-30 16:51:26.741599	Ready for sign-out	TRUE	
+324	132	VUS		ACMG/ClinGen CNV	2020	0.1	Phase 2.6 demo evidence summary 27 for segment 3.	reviewer4	2026-06-30 16:51:26.758084	Needs more evidence	TRUE	
+325	133	Likely Benign		ACMG/ClinGen CNV	2020	-0.45	Phase 2.6 demo evidence summary 28 for segment 1.	reviewer1	2026-06-30 16:51:26.774316	Draft	TRUE	
+326	134	Pathogenic		ACMG/ClinGen CNV	2020	1.0	Phase 2.6 demo evidence summary 29 for segment 2.	reviewer2	2026-06-30 16:51:26.789853	In review	TRUE	
+327	135	Benign		ACMG/ClinGen CNV	2020	-0.9	Phase 2.6 demo evidence summary 30 for segment 3.	reviewer3	2026-06-30 16:51:26.805806	Signed out	TRUE	
+328	136	Likely Pathogenic		ACMG/ClinGen CNV	2020	0.95	Phase 2.6 demo evidence summary 31 for segment 1.	reviewer4	2026-06-30 16:51:26.826887	Ready for sign-out	TRUE	
+329	137	VUS		ACMG/ClinGen CNV	2020	0.1	Phase 2.6 demo evidence summary 32 for segment 2.	reviewer1	2026-06-30 16:51:26.843161	Needs more evidence	TRUE	
+330	138	Likely Benign		ACMG/ClinGen CNV	2020	-0.45	Phase 2.6 demo evidence summary 33 for segment 3.	reviewer2	2026-06-30 16:51:26.859522	Draft	TRUE	
+331	139	Pathogenic		ACMG/ClinGen CNV	2020	1.0	Phase 2.6 demo evidence summary 34 for segment 1.	reviewer3	2026-06-30 16:51:26.875793	In review	TRUE	
+332	140	Benign		ACMG/ClinGen CNV	2020	-0.9	Phase 2.6 demo evidence summary 35 for segment 2.	reviewer4	2026-06-30 16:51:26.891917	Signed out	TRUE	
+333	141	Likely Pathogenic		ACMG/ClinGen CNV	2020	0.95	Phase 2.6 demo evidence summary 36 for segment 3.	reviewer1	2026-06-30 16:51:26.907189	Ready for sign-out	TRUE	
+334	142	VUS		ACMG/ClinGen CNV	2020	0.1	Phase 2.6 demo evidence summary 37 for segment 1.	reviewer2	2026-06-30 16:51:26.920301	Needs more evidence	TRUE	
+335	143	Likely Benign		ACMG/ClinGen CNV	2020	-0.45	Phase 2.6 demo evidence summary 38 for segment 2.	reviewer3	2026-06-30 16:51:26.93311	Draft	TRUE	
+336	144	Pathogenic		ACMG/ClinGen CNV	2020	1.0	Phase 2.6 demo evidence summary 39 for segment 3.	reviewer4	2026-06-30 16:51:26.945601	In review	TRUE	
+337	145	Benign		ACMG/ClinGen CNV	2020	-0.9	Phase 2.6 demo evidence summary 40 for segment 1.	reviewer1	2026-06-30 16:51:26.9578	Signed out	TRUE	
+338	146	Likely Pathogenic		ACMG/ClinGen CNV	2020	0.95	Phase 2.6 demo evidence summary 41 for segment 2.	reviewer2	2026-06-30 16:51:26.970182	Ready for sign-out	TRUE	
+339	147	VUS		ACMG/ClinGen CNV	2020	0.1	Phase 2.6 demo evidence summary 42 for segment 3.	reviewer3	2026-06-30 16:51:26.983184	Needs more evidence	TRUE	
+340	148	Likely Benign		ACMG/ClinGen CNV	2020	-0.45	Phase 2.6 demo evidence summary 43 for segment 1.	reviewer4	2026-06-30 16:51:26.995826	Draft	TRUE	
+341	149	Pathogenic		ACMG/ClinGen CNV	2020	1.0	Phase 2.6 demo evidence summary 44 for segment 2.	reviewer1	2026-06-30 16:51:27.008136	In review	TRUE	
+342	150	Benign		ACMG/ClinGen CNV	2020	-0.9	Phase 2.6 demo evidence summary 45 for segment 3.	reviewer2	2026-06-30 16:51:27.020592	Signed out	TRUE	
+343	151	Likely Pathogenic		ACMG/ClinGen CNV	2020	0.95	Phase 2.6 demo evidence summary 46 for segment 1.	reviewer3	2026-06-30 16:51:27.032992	Ready for sign-out	TRUE	
+344	152	VUS		ACMG/ClinGen CNV	2020	0.1	Phase 2.6 demo evidence summary 47 for segment 2.	reviewer4	2026-06-30 16:51:27.045537	Needs more evidence	TRUE	
+345	153	Likely Benign		ACMG/ClinGen CNV	2020	-0.45	Phase 2.6 demo evidence summary 48 for segment 3.	reviewer1	2026-06-30 16:51:27.060142	Draft	TRUE	
+346	154	Pathogenic		ACMG/ClinGen CNV	2020	1.0	Phase 2.6 demo evidence summary 49 for segment 1.	reviewer2	2026-06-30 16:51:27.071798	In review	TRUE	
+347	155	Benign		ACMG/ClinGen CNV	2020	-0.9	Phase 2.6 demo evidence summary 50 for segment 2.	reviewer3	2026-06-30 16:51:27.082834	Signed out	TRUE	
+348	156	Likely Pathogenic		ACMG/ClinGen CNV	2020	0.95	Phase 2.6 demo evidence summary 51 for segment 3.	reviewer4	2026-06-30 16:51:27.093381	Ready for sign-out	TRUE	
+349	157	VUS		ACMG/ClinGen CNV	2020	0.1	Phase 2.6 demo evidence summary 52 for segment 1.	reviewer1	2026-06-30 16:51:27.102857	Needs more evidence	TRUE	
+350	158	Likely Benign		ACMG/ClinGen CNV	2020	-0.45	Phase 2.6 demo evidence summary 53 for segment 2.	reviewer2	2026-06-30 16:51:27.108506	Draft	TRUE	
+351	159	Pathogenic		ACMG/ClinGen CNV	2020	1.0	Phase 2.6 demo evidence summary 54 for segment 3.	reviewer3	2026-06-30 16:51:27.11379	In review	TRUE	
+352	160	Benign		ACMG/ClinGen CNV	2020	-0.9	Phase 2.6 demo evidence summary 55 for segment 1.	reviewer4	2026-06-30 16:51:27.118847	Signed out	TRUE	
+353	161	Likely Pathogenic		ACMG/ClinGen CNV	2020	0.95	Phase 2.6 demo evidence summary 56 for segment 2.	reviewer1	2026-06-30 16:51:27.123651	Ready for sign-out	TRUE	
+354	162	VUS		ACMG/ClinGen CNV	2020	0.1	Phase 2.6 demo evidence summary 57 for segment 3.	reviewer2	2026-06-30 16:51:27.128506	Needs more evidence	TRUE	
+355	163	Likely Benign		ACMG/ClinGen CNV	2020	-0.45	Phase 2.6 demo evidence summary 58 for segment 1.	reviewer3	2026-06-30 16:51:27.133219	Draft	TRUE	
+356	164	Pathogenic		ACMG/ClinGen CNV	2020	1.0	Phase 2.6 demo evidence summary 59 for segment 2.	reviewer4	2026-06-30 16:51:27.137907	In review	TRUE	
+357	165	Benign		ACMG/ClinGen CNV	2020	-0.9	Phase 2.6 demo evidence summary 60 for segment 3.	reviewer1	2026-06-30 16:51:27.142562	Signed out	TRUE	
+358	166	Likely Pathogenic		ACMG/ClinGen CNV	2020	0.95	Phase 2.6 demo evidence summary 61 for segment 1.	reviewer2	2026-06-30 16:51:27.147458	Ready for sign-out	TRUE	
+359	167	VUS		ACMG/ClinGen CNV	2020	0.1	Phase 2.6 demo evidence summary 62 for segment 2.	reviewer3	2026-06-30 16:51:27.152213	Needs more evidence	TRUE	
+360	168	Likely Benign		ACMG/ClinGen CNV	2020	-0.45	Phase 2.6 demo evidence summary 63 for segment 3.	reviewer4	2026-06-30 16:51:27.156901	Draft	TRUE	
+361	169	Pathogenic		ACMG/ClinGen CNV	2020	1.0	Phase 2.6 demo evidence summary 64 for segment 1.	reviewer1	2026-06-30 16:51:27.161752	In review	TRUE	
+362	170	Benign		ACMG/ClinGen CNV	2020	-0.9	Phase 2.6 demo evidence summary 65 for segment 2.	reviewer2	2026-06-30 16:51:27.166438	Signed out	TRUE	
+363	171	Likely Pathogenic		ACMG/ClinGen CNV	2020	0.95	Phase 2.6 demo evidence summary 66 for segment 3.	reviewer3	2026-06-30 16:51:27.171096	Ready for sign-out	TRUE	
+364	172	VUS		ACMG/ClinGen CNV	2020	0.1	Phase 2.6 demo evidence summary 67 for segment 1.	reviewer4	2026-06-30 16:51:27.178054	Needs more evidence	TRUE	
+365	173	Likely Benign		ACMG/ClinGen CNV	2020	-0.45	Phase 2.6 demo evidence summary 68 for segment 2.	reviewer1	2026-06-30 16:51:27.182739	Draft	TRUE	
+366	174	Pathogenic		ACMG/ClinGen CNV	2020	1.0	Phase 2.6 demo evidence summary 69 for segment 3.	reviewer2	2026-06-30 16:51:27.187441	In review	TRUE	
+367	175	Benign		ACMG/ClinGen CNV	2020	-0.9	Phase 2.6 demo evidence summary 70 for segment 1.	reviewer3	2026-06-30 16:51:27.192127	Signed out	TRUE	
+368	176	Likely Pathogenic		ACMG/ClinGen CNV	2020	0.95	Phase 2.6 demo evidence summary 71 for segment 2.	reviewer4	2026-06-30 16:51:27.196971	Ready for sign-out	TRUE	
+369	177	VUS		ACMG/ClinGen CNV	2020	0.1	Phase 2.6 demo evidence summary 72 for segment 3.	reviewer1	2026-06-30 16:51:27.201657	Needs more evidence	TRUE	
+370	178	Likely Benign		ACMG/ClinGen CNV	2020	-0.45	Phase 2.6 demo evidence summary 73 for segment 1.	reviewer2	2026-06-30 16:51:27.206579	Draft	TRUE	
+371	179	Pathogenic		ACMG/ClinGen CNV	2020	1.0	Phase 2.6 demo evidence summary 74 for segment 2.	reviewer3	2026-06-30 16:51:27.211416	In review	TRUE	
+372	180	Benign		ACMG/ClinGen CNV	2020	-0.9	Phase 2.6 demo evidence summary 75 for segment 3.	reviewer4	2026-06-30 16:51:27.216061	Signed out	TRUE	
+373	181	Likely Pathogenic		ACMG/ClinGen CNV	2020	0.95	Phase 2.6 demo evidence summary 76 for segment 1.	reviewer1	2026-06-30 16:51:27.220825	Ready for sign-out	TRUE	
+374	182	VUS		ACMG/ClinGen CNV	2020	0.1	Phase 2.6 demo evidence summary 77 for segment 2.	reviewer2	2026-06-30 16:51:27.225477	Needs more evidence	TRUE	
+375	183	Likely Benign		ACMG/ClinGen CNV	2020	-0.45	Phase 2.6 demo evidence summary 78 for segment 3.	reviewer3	2026-06-30 16:51:27.230314	Draft	TRUE	
+376	184	Pathogenic		ACMG/ClinGen CNV	2020	1.0	Phase 2.6 demo evidence summary 79 for segment 1.	reviewer4	2026-06-30 16:51:27.235027	In review	TRUE	
+377	185	Benign		ACMG/ClinGen CNV	2020	-0.9	Phase 2.6 demo evidence summary 80 for segment 2.	reviewer1	2026-06-30 16:51:27.239799	Signed out	TRUE	
+378	186	Likely Pathogenic		ACMG/ClinGen CNV	2020	0.95	Phase 2.6 demo evidence summary 81 for segment 3.	reviewer2	2026-06-30 16:51:27.24468	Ready for sign-out	TRUE	
+379	187	VUS		ACMG/ClinGen CNV	2020	0.1	Phase 2.6 demo evidence summary 82 for segment 1.	reviewer3	2026-06-30 16:51:27.249361	Needs more evidence	TRUE	
+380	188	Likely Benign		ACMG/ClinGen CNV	2020	-0.45	Phase 2.6 demo evidence summary 83 for segment 2.	reviewer4	2026-06-30 16:51:27.254117	Draft	TRUE	
+381	189	Pathogenic		ACMG/ClinGen CNV	2020	1.0	Phase 2.6 demo evidence summary 84 for segment 3.	reviewer1	2026-06-30 16:51:27.258868	In review	TRUE	
+382	190	Benign		ACMG/ClinGen CNV	2020	-0.9	Phase 2.6 demo evidence summary 85 for segment 1.	reviewer2	2026-06-30 16:51:27.263813	Signed out	TRUE	
+383	191	Likely Pathogenic		ACMG/ClinGen CNV	2020	0.95	Phase 2.6 demo evidence summary 86 for segment 2.	reviewer3	2026-06-30 16:51:27.270719	Ready for sign-out	TRUE	
+384	192	VUS		ACMG/ClinGen CNV	2020	0.1	Phase 2.6 demo evidence summary 87 for segment 3.	reviewer4	2026-06-30 16:51:27.275522	Needs more evidence	TRUE	
+385	193	Likely Benign		ACMG/ClinGen CNV	2020	-0.45	Phase 2.6 demo evidence summary 88 for segment 1.	reviewer1	2026-06-30 16:51:27.280468	Draft	TRUE	
+386	194	Pathogenic		ACMG/ClinGen CNV	2020	1.0	Phase 2.6 demo evidence summary 89 for segment 2.	reviewer2	2026-06-30 16:51:27.285188	In review	TRUE	
+387	195	Benign		ACMG/ClinGen CNV	2020	-0.9	Phase 2.6 demo evidence summary 90 for segment 3.	reviewer3	2026-06-30 16:51:27.289926	Signed out	TRUE	
+388	196	Likely Pathogenic		ACMG/ClinGen CNV	2020	0.95	Phase 2.6 demo evidence summary 91 for segment 1.	reviewer4	2026-06-30 16:51:27.294828	Ready for sign-out	TRUE	
+389	197	VUS		ACMG/ClinGen CNV	2020	0.1	Phase 2.6 demo evidence summary 92 for segment 2.	reviewer1	2026-06-30 16:51:27.29958	Needs more evidence	TRUE	
+390	198	Likely Benign		ACMG/ClinGen CNV	2020	-0.45	Phase 2.6 demo evidence summary 93 for segment 3.	reviewer2	2026-06-30 16:51:27.304327	Draft	TRUE	
+391	199	Pathogenic		ACMG/ClinGen CNV	2020	1.0	Phase 2.6 demo evidence summary 94 for segment 1.	reviewer3	2026-06-30 16:51:27.308999	In review	TRUE	
+392	200	Benign		ACMG/ClinGen CNV	2020	-0.9	Phase 2.6 demo evidence summary 95 for segment 2.	reviewer4	2026-06-30 16:51:27.3138	Signed out	TRUE	
+393	201	Likely Pathogenic		ACMG/ClinGen CNV	2020	0.95	Phase 2.6 demo evidence summary 96 for segment 3.	reviewer1	2026-06-30 16:51:27.318504	Ready for sign-out	TRUE	
+394	202	VUS		ACMG/ClinGen CNV	2020	0.1	Phase 2.6 demo evidence summary 97 for segment 1.	reviewer2	2026-06-30 16:51:27.323272	Needs more evidence	TRUE	
+395	203	Likely Benign		ACMG/ClinGen CNV	2020	-0.45	Phase 2.6 demo evidence summary 98 for segment 2.	reviewer3	2026-06-30 16:51:27.328348	Draft	TRUE	
+396	204	Pathogenic		ACMG/ClinGen CNV	2020	1.0	Phase 2.6 demo evidence summary 99 for segment 3.	reviewer4	2026-06-30 16:51:27.333121	In review	TRUE	
+397	205	Benign		ACMG/ClinGen CNV	2020	-0.9	Phase 2.6 demo evidence summary 100 for segment 1.	reviewer1	2026-06-30 16:51:27.337834	Signed out	TRUE	

@@ -6,23 +6,23 @@ Table Counts
 individuals	410
 sample_accessions	422
 lab_protocols	7
-sample_tests	2741
+sample_tests	3119
 pipelines	7
-source_files	67
-sample_test_results	2741
-karyotypes	971
+source_files	78
+sample_test_results	3119
+karyotypes	1145
 genomic_events	0
 genomic_event_groups	0
-genomic_segments	10021
-segment_annotations	88287
+genomic_segments	10910
+segment_annotations	102187
 small_variants	115
-small_variant_sample_calls	190
-small_variant_annotations	226
-genomic_links	1511
-validation_issues	363
-variant_classifications	276
-signed_out_calls	276
-notes	276
+small_variant_sample_calls	205
+small_variant_annotations	247
+genomic_links	1572
+validation_issues	429
+variant_classifications	376
+signed_out_calls	376
+notes	376
 
 Import Results
 25-54321WGS_05Nov2025_SWGS111_SV_DEL_DUP_Classify_Result.txt	PASS	records=452	segments=452	issues=1
