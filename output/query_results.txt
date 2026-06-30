@@ -1,23 +1,196 @@
 
 Segments for sample SIM001
 segment_id	event_group_id	sample_test_result_id	karyotype_id	chromosome	start_pos	stop_pos	event_type	copy_number
-553		102	1	chr5	75000000	120000000	DEL	1
-554		103		chr7	55000000	61000000	DUP	3
+553		553	1	chr5	75000000	120000000	DEL	1
+554		554		chr7	55000000	61000000	DUP	3
+1333		910	129	chr5	75000000	120000000	DEL	1
+1334		911		chr7	55000000	61000000	DUP	3
+7031		1351	303	chr5	75000000	120000000	DEL	1
+7032		1352		chr7	55000000	61000000	DUP	3
+7920		1729	477	chr5	75000000	120000000	DEL	1
+7921		1730		chr7	55000000	61000000	DUP	3
+8809		2107	651	chr5	75000000	120000000	DEL	1
+8810		2108		chr7	55000000	61000000	DUP	3
+9698		2485	825	chr5	75000000	120000000	DEL	1
+9699		2486		chr7	55000000	61000000	DUP	3
 
 Segments overlapping chr5:70000000-150000000
 segment_id	event_group_id	sample_test_result_id	karyotype_id	chromosome	start_pos	stop_pos	event_type	copy_number
-79		1		chr5	141011866	141579477	DEL	1
-80		1		chr5	141011634	141579328	DUP	3
-100		1		chr5	140554179	140559292	DUP	3
-419		1		chr5	138787101	138837100	DEL	1
-473		22		chr5	102161158	111121407	DUP	3
-514		63		chr5	84008224	98486545	LOSS	1
-525		74		chr5	139332964	142836580	LOSS	1
-553		102	1	chr5	75000000	120000000	DEL	1
-630		179	76	chr5	71405173	85298742	DUP	3
-786	DERG001	326	123	chr5	70000000	70100000	DER	2
-800	TXG006	333	130	chr5	70000000	70003000	TRANS	2
-848	TXG030	357	154	chr5	141011866	141013200	TRANS	2
+79		79		chr5	141011866	141579477	DEL	1
+80		80		chr5	141011634	141579328	DUP	3
+100		100		chr5	140554179	140559292	DUP	3
+419		419		chr5	138787101	138837100	DEL	1
+473		473		chr5	102161158	111121407	DUP	3
+514		514		chr5	84008224	98486545	LOSS	1
+525		525		chr5	139332964	142836580	LOSS	1
+553		553	1	chr5	75000000	120000000	DEL	1
+630		630	76	chr5	71405173	85298742	DUP	3
+777	DERG001	807		chr5	70000000	70100000	DER	2
+859		809		chr5	141011866	141579477	DEL	1
+860		809		chr5	141011634	141579328	DUP	3
+880		809		chr5	140554179	140559292	DUP	3
+1199		809		chr5	138787101	138837100	DEL	1
+1253		830		chr5	102161158	111121407	DUP	3
+1294		871		chr5	84008224	98486545	LOSS	1
+1305		882		chr5	139332964	142836580	LOSS	1
+1333		910	129	chr5	75000000	120000000	DEL	1
+1410		987	204	chr5	71405173	85298742	DUP	3
+1566	DERG001	1134	251	chr5	70000000	70100000	DER	2
+1580	TXG006	1141	258	chr5	70000000	70003000	TRANS	2
+1628	TXG030	1165	282	chr5	141011866	141013200	TRANS	2
+1673	DEMO_LOSS_1	1189		chr5	95000000	122000000	LOSS	1
+1727	BULK_P001_A1_T1_TX_05	1190		chr5	75924938	75926938	TRANS	2
+1738	BULK_P001_A1_T1_TX_10	1190		chr5	94534079	94536079	TRANS	2
+1771	BULK_P001_A1_T2_GAIN_13	1191		chr5	95816970	99591970	GAIN	3
+1803	BULK_P001_A1_T2_TX_03	1191		chr5	119362154	119364154	TRANS	2
+1841	BULK_P001_A2_T1_GAIN_03	1192		chr5	79825199	81850199	AMP	5
+1914	BULK_P001_A2_T1_TX_18	1192		chr5	74102083	74104083	TRANS	2
+1943	BULK_P001_A2_T2_LOSS_05	1193		chr5	109333066	112458066	LOSS	1
+1974	BULK_P001_A2_T2_TX_08	1193		chr5	124286802	124288802	TRANS	2
+2024	BULK_P001_A3_T1_LOSS_06	1194		chr5	76960374	80310374	DEL	1
+2046	BULK_P001_A3_T1_TX_04	1194		chr5	117359785	117361785	TRANS	2
+2071	BULK_P001_A3_T1_TX_17	1194		chr5	128702827	128704827	TRANS	2
+2086	BULK_P001_A3_T2_GAIN_08	1195		chr5	117128659	120028659	DUP	3
+2097	BULK_P001_A3_T2_GAIN_19	1195		chr5	140534479	145359479	GAIN	3
+2150	BULK_P001_A3_T2_TX_16	1195		chr5	103854806	103856806	TRANS	2
+2221	BULK_P002_A1_T1_TX_12	1196		chr5	121188260	121190260	TRANS	2
+2264	BULK_P002_A1_T2_LOSS_06	1197		chr5	113113983	116463983	DEL	1
+2304	BULK_P002_A1_T2_TX_13	1197		chr5	139787428	139789428	TRANS	2
+2376	BULK_P002_A2_T1_TX_09	1198		chr5	132860411	132862411	TRANS	2
+2407	BULK_P002_A2_T2_GAIN_09	1199		chr5	149347835	152422835	AMP	5
+2469	BULK_P002_A2_T2_TX_16	1199		chr5	100746291	100748291	TRANS	2
+2552	BULK_P002_A3_T1_TX_17	1200		chr5	112428415	112430415	TRANS	2
+2579	BULK_P002_A3_T2_LOSS_01	1201		chr5	69253708	71478708	LOSS	1
+2590	BULK_P002_A3_T2_LOSS_12	1201		chr5	116865197	121565197	DEL	1
+2677	BULK_P003_A1_T1_LOSS_19	1202		chr5	129989366	136264366	LOSS	1
+2706	BULK_P003_A1_T1_TX_14	1202		chr5	148361037	148363037	TRANS	2
+2809	BULK_P003_A2_T1_GAIN_11	1204		chr5	99367801	102792801	DUP	3
+2900	BULK_P003_A2_T2_LOSS_02	1205		chr5	138061143	140511143	DEL	1
+2911	BULK_P003_A2_T2_LOSS_13	1205		chr5	107929819	112854819	LOSS	1
+2981	BULK_P003_A3_T1_LOSS_03	1206		chr5	122900192	125575192	LOSS	1
+3015	BULK_P003_A3_T1_TX_09	1206		chr5	102382910	102384910	TRANS	2
+3043	BULK_P003_A3_T2_GAIN_05	1207		chr5	135731736	138106736	DUP	3
+3054	BULK_P003_A3_T2_GAIN_16	1207		chr5	146741707	151041707	GAIN	3
+3091	BULK_P003_A3_T2_TX_07	1207		chr5	145820126	145822126	TRANS	2
+3165	BULK_P004_A1_T1_TX_04	1208		chr5	94868343	94870343	TRANS	2
+3232	BULK_P004_A1_T2_LOSS_14	1209		chr5	133756182	138906182	DEL	1
+3241	BULK_P004_A1_T2_TX_02	1209		chr5	138305559	138307559	TRANS	2
+3364	BULK_P004_A2_T2_GAIN_06	1211		chr5	103375912	105925912	AMP	5
+3375	BULK_P004_A2_T2_GAIN_17	1211		chr5	131994588	136469588	DUP	3
+3413	BULK_P004_A2_T2_TX_08	1211		chr5	74426374	74428374	TRANS	2
+3445	BULK_P004_A3_T1_GAIN_07	1212		chr5	98714961	101439961	GAIN	3
+3509	BULK_P004_A3_T1_TX_16	1212		chr5	147646232	147648232	TRANS	2
+3547	BULK_P004_A3_T2_LOSS_09	1213		chr5	93950461	97975461	LOSS	1
+3558	BULK_P004_A3_T2_LOSS_20	1213		chr5	131874806	138374806	DEL	1
+3659	BULK_P005_A1_T1_TX_11	1214		chr5	140131665	140133665	TRANS	2
+3696	BULK_P005_A1_T2_GAIN_18	1215		chr5	104459210	109109210	AMP	5
+3734	BULK_P005_A1_T2_TX_08	1215		chr5	71836455	71838455	TRANS	2
+3766	BULK_P005_A2_T1_GAIN_08	1216		chr5	139495878	142395878	DUP	3
+3777	BULK_P005_A2_T1_GAIN_19	1216		chr5	122185000	127010000	GAIN	3
+3831	BULK_P005_A2_T1_TX_17	1216		chr5	76252480	76254480	TRANS	2
+3907	BULK_P005_A2_T2_TX_15	1217		chr5	119689696	119691696	TRANS	2
+3949	BULK_P005_A3_T1_LOSS_11	1218		chr5	142640873	147115873	LOSS	1
+3959	BULK_P005_A3_T1_TX_01	1218		chr5	76062993	76064993	TRANS	2
+4011	BULK_P005_A3_T2_GAIN_13	1219		chr5	137278489	141053489	GAIN	3
+4042	BULK_P005_A3_T2_TX_02	1219		chr5	94662161	94664161	TRANS	2
+4136	BULK_P006_A1_T1_TX_09	1220		chr5	80410064	80412064	TRANS	2
+4189	BULK_P006_A1_T2_LOSS_11	1221		chr5	115229705	119704705	LOSS	1
+4372	BULK_P006_A2_T2_TX_07	1223		chr5	110162787	110164787	TRANS	2
+4413	BULK_P006_A3_T1_GAIN_15	1224		chr5	134832160	138957160	AMP	5
+4444	BULK_P006_A3_T1_TX_03	1224		chr5	103235770	103237770	TRANS	2
+4453	BULK_P006_A3_T1_TX_08	1224		chr5	121326315	121328315	TRANS	2
+4504	BULK_P006_A3_T2_LOSS_06	1225		chr5	110191797	113541797	DEL	1
+4548	BULK_P006_A3_T2_TX_15	1225		chr5	89730791	89732791	TRANS	2
+4591	BULK_P007_A1_T1_LOSS_13	1226		chr5	114867081	119792081	LOSS	1
+4603	BULK_P007_A1_T1_TX_03	1226		chr5	113811748	113813748	TRANS	2
+4642	BULK_P007_A1_T2_GAIN_04	1227		chr5	127152719	129352719	GAIN	3
+4653	BULK_P007_A1_T2_GAIN_15	1227		chr5	138234251	142359251	AMP	5
+4702	BULK_P007_A1_T2_TX_12	1227		chr5	125663413	125665413	TRANS	2
+4734	BULK_P007_A2_T1_GAIN_16	1228		chr5	131096782	135396782	GAIN	3
+4774	BULK_P007_A2_T1_TX_08	1228		chr5	118736396	118738396	TRANS	2
+4825	BULK_P007_A2_T2_LOSS_07	1229		chr5	105419678	108994678	LOSS	1
+4836	BULK_P007_A2_T2_LOSS_18	1229		chr5	106315584	112365584	DEL	1
+4851	BULK_P007_A2_T2_TX_07	1229		chr5	93369779	93371779	TRANS	2
+4878	BULK_P007_A2_T2_TX_20	1229		chr5	105231417	105233417	TRANS	2
+4906	BULK_P007_A3_T1_LOSS_08	1230		chr5	88343950	92143950	DEL	1
+4917	BULK_P007_A3_T1_LOSS_19	1230		chr5	67526597	73801597	LOSS	1
+4950	BULK_P007_A3_T1_TX_16	1230		chr5	98304400	98306400	TRANS	2
+4968	BULK_P007_A3_T2_GAIN_10	1231		chr5	121594825	124844825	GAIN	3
+5010	BULK_P007_A3_T2_TX_06	1231		chr5	148489119	148491119	TRANS	2
+5044	BULK_P008_A1_T1_GAIN_06	1232		chr5	142246167	144796167	AMP	5
+5055	BULK_P008_A1_T1_GAIN_17	1232		chr5	114748145	119223145	DUP	3
+5104	BULK_P008_A1_T1_TX_13	1232		chr5	134237022	134239022	TRANS	2
+5146	BULK_P008_A1_T2_LOSS_08	1233		chr5	133609300	137409300	DEL	1
+5157	BULK_P008_A1_T2_LOSS_19	1233		chr5	91862393	98137393	LOSS	1
+5269	BULK_P008_A2_T1_TX_16	1234		chr5	95195885	95197885	TRANS	2
+5345	BULK_P008_A2_T2_TX_14	1235		chr5	138633101	138635101	TRANS	2
+5516	BULK_P008_A3_T2_TX_19	1237		chr5	143557749	143559749	TRANS	2
+5517	BULK_P008_A3_T2_TX_20	1237		chr5	74753916	74755916	TRANS	2
+5691	BULK_P009_A2_T1_GAIN_13	1240		chr5	130638118	134413118	GAIN	3
+5782	BULK_P009_A2_T2_LOSS_04	1241		chr5	88592086	91492086	DEL	1
+5863	BULK_P009_A3_T1_LOSS_05	1242		chr5	84453099	87578099	LOSS	1
+5891	BULK_P009_A3_T1_TX_07	1242		chr5	140269720	140271720	TRANS	2
+5925	BULK_P009_A3_T2_GAIN_07	1243		chr5	109140715	111865715	GAIN	3
+5936	BULK_P009_A3_T2_GAIN_18	1243		chr5	126524880	131174880	AMP	5
+6001	BULK_P010_A1_T1_GAIN_03	1244		chr5	132658352	134683352	AMP	5
+6041	BULK_P010_A1_T1_TX_02	1244		chr5	132755153	132757153	TRANS	2
+6114	BULK_P010_A1_T2_LOSS_16	1245		chr5	130262434	135862434	DEL	1
+6184	BULK_P010_A2_T1_LOSS_06	1246		chr5	140767721	144117721	DEL	1
+6246	BULK_P010_A2_T2_GAIN_08	1247		chr5	69906855	72806855	DUP	3
+6257	BULK_P010_A2_T2_GAIN_19	1247		chr5	120299725	125124725	GAIN	3
+6289	BULK_P010_A2_T2_TX_06	1247		chr5	112313184	112315184	TRANS	2
+6327	BULK_P010_A3_T1_GAIN_09	1248		chr5	93381127	96456127	AMP	5
+6338	BULK_P010_A3_T1_GAIN_20	1248		chr5	87585738	92585738	DUP	3
+6429	BULK_P010_A3_T2_LOSS_11	1249		chr5	104421893	108896893	LOSS	1
+6440	BULK_P010_A3_T2_TX_01	1249		chr5	80538146	80540146	TRANS	2
+6557		1250		chr5	141011866	141579477	DEL	1
+6558		1250		chr5	141011634	141579328	DUP	3
+6578		1250		chr5	140554179	140559292	DUP	3
+6897		1250		chr5	138787101	138837100	DEL	1
+6951		1271		chr5	102161158	111121407	DUP	3
+6992		1312		chr5	84008224	98486545	LOSS	1
+7003		1323		chr5	139332964	142836580	LOSS	1
+7031		1351	303	chr5	75000000	120000000	DEL	1
+7108		1428	378	chr5	71405173	85298742	DUP	3
+7264	DERG001	1575	425	chr5	70000000	70100000	DER	2
+7278	TXG006	1582	432	chr5	70000000	70003000	TRANS	2
+7326	TXG030	1606	456	chr5	141011866	141013200	TRANS	2
+7446		1628		chr5	141011866	141579477	DEL	1
+7447		1628		chr5	141011634	141579328	DUP	3
+7467		1628		chr5	140554179	140559292	DUP	3
+7786		1628		chr5	138787101	138837100	DEL	1
+7840		1649		chr5	102161158	111121407	DUP	3
+7881		1690		chr5	84008224	98486545	LOSS	1
+7892		1701		chr5	139332964	142836580	LOSS	1
+7920		1729	477	chr5	75000000	120000000	DEL	1
+7997		1806	552	chr5	71405173	85298742	DUP	3
+8153	DERG001	1953	599	chr5	70000000	70100000	DER	2
+8167	TXG006	1960	606	chr5	70000000	70003000	TRANS	2
+8215	TXG030	1984	630	chr5	141011866	141013200	TRANS	2
+8335		2006		chr5	141011866	141579477	DEL	1
+8336		2006		chr5	141011634	141579328	DUP	3
+8356		2006		chr5	140554179	140559292	DUP	3
+8675		2006		chr5	138787101	138837100	DEL	1
+8729		2027		chr5	102161158	111121407	DUP	3
+8770		2068		chr5	84008224	98486545	LOSS	1
+8781		2079		chr5	139332964	142836580	LOSS	1
+8809		2107	651	chr5	75000000	120000000	DEL	1
+8886		2184	726	chr5	71405173	85298742	DUP	3
+9042	DERG001	2331	773	chr5	70000000	70100000	DER	2
+9056	TXG006	2338	780	chr5	70000000	70003000	TRANS	2
+9104	TXG030	2362	804	chr5	141011866	141013200	TRANS	2
+9224		2384		chr5	141011866	141579477	DEL	1
+9225		2384		chr5	141011634	141579328	DUP	3
+9245		2384		chr5	140554179	140559292	DUP	3
+9564		2384		chr5	138787101	138837100	DEL	1
+9618		2405		chr5	102161158	111121407	DUP	3
+9659		2446		chr5	84008224	98486545	LOSS	1
+9670		2457		chr5	139332964	142836580	LOSS	1
+9698		2485	825	chr5	75000000	120000000	DEL	1
+9775		2562	900	chr5	71405173	85298742	DUP	3
+9931	DERG001	2709	947	chr5	70000000	70100000	DER	2
+9945	TXG006	2716	954	chr5	70000000	70003000	TRANS	2
+9993	TXG030	2740	978	chr5	141011866	141013200	TRANS	2
 
 Validation Issues
 VALIDATION_ISSUE_ID	ISSUE_TYPE	ISSUE_MESSAGE	SEVERITY
@@ -30,288 +203,1636 @@ VALIDATION_ISSUE_ID	ISSUE_TYPE	ISSUE_MESSAGE	SEVERITY
 7	Uncertain Breakpoint	Uncertain Breakpoint detected in raw ISCN at line 70	WARNING
 8	Mosaic Karyotype	Mosaic Karyotype detected in raw ISCN at line 86	WARNING
 9	Uncertain Breakpoint	Uncertain Breakpoint detected in raw ISCN at line 93	WARNING
-10	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-4-2 has fewer than 2 segments	WARNING
-11	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-4-19 has fewer than 2 segments	WARNING
-12	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-4-10 has fewer than 2 segments	WARNING
-13	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-4-42 has fewer than 2 segments	WARNING
-14	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-4-27 has fewer than 2 segments	WARNING
-15	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-4-59 has fewer than 2 segments	WARNING
-16	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-4-97 has fewer than 2 segments	WARNING
-17	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-4-6 has fewer than 2 segments	WARNING
-18	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-4-54 has fewer than 2 segments	WARNING
-19	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-4-66 has fewer than 2 segments	WARNING
-20	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-4-37 has fewer than 2 segments	WARNING
-21	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-4-69 has fewer than 2 segments	WARNING
-22	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-4-53 has fewer than 2 segments	WARNING
-23	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-4-92 has fewer than 2 segments	WARNING
-24	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-4-8 has fewer than 2 segments	WARNING
-25	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-4-52 has fewer than 2 segments	WARNING
-26	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-4-25 has fewer than 2 segments	WARNING
-27	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-4-83 has fewer than 2 segments	WARNING
-28	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-4-88 has fewer than 2 segments	WARNING
-29	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-4-31 has fewer than 2 segments	WARNING
-30	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-4-94 has fewer than 2 segments	WARNING
-31	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 2	ERROR
-32	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 3	ERROR
-33	Unparseable Row	Unparseable row at line 4: one or more numeric fields could not be parsed	ERROR
-34	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 2	ERROR
-35	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 3	ERROR
-36	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 4	ERROR
-37	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 5	ERROR
-38	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 6	ERROR
-39	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 7	ERROR
-40	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 8	ERROR
-41	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 9	ERROR
-42	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 10	ERROR
-43	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 11	ERROR
-44	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 12	ERROR
-45	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 13	ERROR
-46	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 14	ERROR
-47	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 15	ERROR
-48	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 16	ERROR
-49	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 17	ERROR
-50	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 18	ERROR
-51	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 19	ERROR
-52	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 20	ERROR
-53	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 21	ERROR
-54	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 22	ERROR
-55	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 23	ERROR
-56	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 24	ERROR
+10	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 2	ERROR
+11	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 3	ERROR
+12	Unparseable Row	Unparseable row at line 4: one or more numeric fields could not be parsed	ERROR
+13	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 2	ERROR
+14	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 3	ERROR
+15	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 4	ERROR
+16	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 5	ERROR
+17	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 6	ERROR
+18	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 7	ERROR
+19	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 8	ERROR
+20	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 9	ERROR
+21	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 10	ERROR
+22	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 11	ERROR
+23	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 12	ERROR
+24	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 13	ERROR
+25	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 14	ERROR
+26	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 15	ERROR
+27	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 16	ERROR
+28	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 17	ERROR
+29	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 18	ERROR
+30	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 19	ERROR
+31	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 20	ERROR
+32	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 21	ERROR
+33	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 22	ERROR
+34	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 23	ERROR
+35	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 24	ERROR
+65	Duplicate Source File	This file path was imported before: /Users/aminsuliman/Downloads/MPG_database_H2/data/25-54321WGS_05Nov2025_SWGS111_SV_DEL_DUP_Classify_Result.txt	WARNING
+66	Duplicate Source File	This file path was imported before: /Users/aminsuliman/Downloads/MPG_database_H2/data/array_derived_100.cnv	WARNING
+67	Duplicate Source File	This file path was imported before: /Users/aminsuliman/Downloads/MPG_database_H2/data/example.cnv	WARNING
+68	Duplicate Source File	This file path was imported before: /Users/aminsuliman/Downloads/MPG_database_H2/data/iscn_derived_100.cnv	WARNING
+69	Mosaic Karyotype	Mosaic Karyotype detected in raw ISCN at line 18	WARNING
+70	Uncertain Breakpoint	Uncertain Breakpoint detected in raw ISCN at line 24	WARNING
+71	Mosaic Karyotype	Mosaic Karyotype detected in raw ISCN at line 35	WARNING
+72	Uncertain Breakpoint	Uncertain Breakpoint detected in raw ISCN at line 47	WARNING
+73	Mosaic Karyotype	Mosaic Karyotype detected in raw ISCN at line 52	WARNING
+74	Mosaic Karyotype	Mosaic Karyotype detected in raw ISCN at line 69	WARNING
+75	Uncertain Breakpoint	Uncertain Breakpoint detected in raw ISCN at line 70	WARNING
+76	Mosaic Karyotype	Mosaic Karyotype detected in raw ISCN at line 86	WARNING
+77	Uncertain Breakpoint	Uncertain Breakpoint detected in raw ISCN at line 93	WARNING
+78	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-37-2 has fewer than 2 segments	WARNING
+79	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-37-8 has fewer than 2 segments	WARNING
+80	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-37-69 has fewer than 2 segments	WARNING
+81	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-37-92 has fewer than 2 segments	WARNING
+82	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-37-53 has fewer than 2 segments	WARNING
+83	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-37-88 has fewer than 2 segments	WARNING
+84	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-37-25 has fewer than 2 segments	WARNING
+85	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-37-10 has fewer than 2 segments	WARNING
+86	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-37-52 has fewer than 2 segments	WARNING
+87	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-37-66 has fewer than 2 segments	WARNING
+88	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-37-54 has fewer than 2 segments	WARNING
+89	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-37-97 has fewer than 2 segments	WARNING
+90	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-37-42 has fewer than 2 segments	WARNING
+91	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-37-19 has fewer than 2 segments	WARNING
+92	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-37-83 has fewer than 2 segments	WARNING
+93	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-37-6 has fewer than 2 segments	WARNING
+94	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-37-27 has fewer than 2 segments	WARNING
+95	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-37-37 has fewer than 2 segments	WARNING
+96	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-37-31 has fewer than 2 segments	WARNING
+97	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-37-59 has fewer than 2 segments	WARNING
+98	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-37-94 has fewer than 2 segments	WARNING
+99	Duplicate Source File	This file path was imported before: /Users/aminsuliman/Downloads/MPG_database_H2/data/ngs_derived_100.txt	WARNING
+100	Duplicate Source File	This file path was imported before: /Users/aminsuliman/Downloads/MPG_database_H2/data/realistic_cnv_mixed_events_import.cnv	WARNING
+101	Duplicate Source File	This file path was imported before: /Users/aminsuliman/Downloads/MPG_database_H2/data/test.cnv	WARNING
+102	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 2	ERROR
+103	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 3	ERROR
+104	Unparseable Row	Unparseable row at line 4: one or more numeric fields could not be parsed	ERROR
+105	Duplicate Source File	This file path was imported before: /Users/aminsuliman/Downloads/MPG_database_H2/data/test_v2.cnv	WARNING
+106	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 2	ERROR
+107	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 3	ERROR
+108	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 4	ERROR
+109	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 5	ERROR
+110	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 6	ERROR
+111	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 7	ERROR
+112	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 8	ERROR
+113	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 9	ERROR
+114	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 10	ERROR
+115	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 11	ERROR
+116	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 12	ERROR
+117	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 13	ERROR
+118	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 14	ERROR
+119	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 15	ERROR
+120	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 16	ERROR
+121	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 17	ERROR
+122	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 18	ERROR
+123	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 19	ERROR
+124	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 20	ERROR
+125	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 21	ERROR
+126	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 22	ERROR
+127	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 23	ERROR
+128	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 24	ERROR
+129	Duplicate Source File	This file path was imported before: /Users/aminsuliman/Downloads/MPG_database_H2/data/25-54321WGS_05Nov2025_SWGS111_SV_DEL_DUP_Classify_Result.txt	WARNING
+130	Duplicate Source File	This file path was imported before: /Users/aminsuliman/Downloads/MPG_database_H2/data/array_derived_100.cnv	WARNING
+131	Duplicate Source File	This file path was imported before: /Users/aminsuliman/Downloads/MPG_database_H2/data/example.cnv	WARNING
+132	Duplicate Source File	This file path was imported before: /Users/aminsuliman/Downloads/MPG_database_H2/data/iscn_derived_100.cnv	WARNING
+133	Mosaic Karyotype	Mosaic Karyotype detected in raw ISCN at line 18	WARNING
+134	Uncertain Breakpoint	Uncertain Breakpoint detected in raw ISCN at line 24	WARNING
+135	Mosaic Karyotype	Mosaic Karyotype detected in raw ISCN at line 35	WARNING
+136	Uncertain Breakpoint	Uncertain Breakpoint detected in raw ISCN at line 47	WARNING
+137	Mosaic Karyotype	Mosaic Karyotype detected in raw ISCN at line 52	WARNING
+138	Mosaic Karyotype	Mosaic Karyotype detected in raw ISCN at line 69	WARNING
+139	Uncertain Breakpoint	Uncertain Breakpoint detected in raw ISCN at line 70	WARNING
+140	Mosaic Karyotype	Mosaic Karyotype detected in raw ISCN at line 86	WARNING
+141	Uncertain Breakpoint	Uncertain Breakpoint detected in raw ISCN at line 93	WARNING
+142	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-52-52 has fewer than 2 segments	WARNING
+143	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-52-54 has fewer than 2 segments	WARNING
+144	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-52-10 has fewer than 2 segments	WARNING
+145	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-52-8 has fewer than 2 segments	WARNING
+146	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-52-66 has fewer than 2 segments	WARNING
+147	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-52-83 has fewer than 2 segments	WARNING
+148	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-52-97 has fewer than 2 segments	WARNING
+149	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-52-42 has fewer than 2 segments	WARNING
+150	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-52-88 has fewer than 2 segments	WARNING
+151	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-52-25 has fewer than 2 segments	WARNING
+152	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-52-92 has fewer than 2 segments	WARNING
+153	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-52-2 has fewer than 2 segments	WARNING
+154	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-52-27 has fewer than 2 segments	WARNING
+155	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-52-53 has fewer than 2 segments	WARNING
+156	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-52-69 has fewer than 2 segments	WARNING
+157	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-52-37 has fewer than 2 segments	WARNING
+158	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-52-94 has fewer than 2 segments	WARNING
+159	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-52-59 has fewer than 2 segments	WARNING
+160	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-52-31 has fewer than 2 segments	WARNING
+161	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-52-6 has fewer than 2 segments	WARNING
+162	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-52-19 has fewer than 2 segments	WARNING
+163	Duplicate Source File	This file path was imported before: /Users/aminsuliman/Downloads/MPG_database_H2/data/ngs_derived_100.txt	WARNING
+164	Duplicate Source File	This file path was imported before: /Users/aminsuliman/Downloads/MPG_database_H2/data/phase27_finding_model.cnv	WARNING
+165	Duplicate Source File	This file path was imported before: /Users/aminsuliman/Downloads/MPG_database_H2/data/realistic_cnv_mixed_events_import.cnv	WARNING
+166	Duplicate Source File	This file path was imported before: /Users/aminsuliman/Downloads/MPG_database_H2/data/test.cnv	WARNING
+167	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 2	ERROR
+168	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 3	ERROR
+169	Unparseable Row	Unparseable row at line 4: one or more numeric fields could not be parsed	ERROR
+170	Duplicate Source File	This file path was imported before: /Users/aminsuliman/Downloads/MPG_database_H2/data/test_v2.cnv	WARNING
+171	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 2	ERROR
+172	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 3	ERROR
+173	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 4	ERROR
+174	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 5	ERROR
+175	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 6	ERROR
+176	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 7	ERROR
+177	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 8	ERROR
+178	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 9	ERROR
+179	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 10	ERROR
+180	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 11	ERROR
+181	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 12	ERROR
+182	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 13	ERROR
+183	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 14	ERROR
+184	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 15	ERROR
+185	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 16	ERROR
+186	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 17	ERROR
+187	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 18	ERROR
+188	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 19	ERROR
+189	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 20	ERROR
+190	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 21	ERROR
+191	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 22	ERROR
+192	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 23	ERROR
+193	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 24	ERROR
+194	Duplicate Source File	This file path was imported before: /Users/aminsuliman/Downloads/MPG_database_H2/data/translocation_pair.cnv	WARNING
+195	Duplicate Source File	This file path was imported before: /Users/aminsuliman/Downloads/MPG_database_H2/data/25-54321WGS_05Nov2025_SWGS111_SV_DEL_DUP_Classify_Result.txt	WARNING
+196	Duplicate Source File	This file path was imported before: /Users/aminsuliman/Downloads/MPG_database_H2/data/array_derived_100.cnv	WARNING
+197	Duplicate Source File	This file path was imported before: /Users/aminsuliman/Downloads/MPG_database_H2/data/example.cnv	WARNING
+198	Duplicate Source File	This file path was imported before: /Users/aminsuliman/Downloads/MPG_database_H2/data/iscn_derived_100.cnv	WARNING
+199	Mosaic Karyotype	Mosaic Karyotype detected in raw ISCN at line 18	WARNING
+200	Uncertain Breakpoint	Uncertain Breakpoint detected in raw ISCN at line 24	WARNING
+201	Mosaic Karyotype	Mosaic Karyotype detected in raw ISCN at line 35	WARNING
+202	Uncertain Breakpoint	Uncertain Breakpoint detected in raw ISCN at line 47	WARNING
+203	Mosaic Karyotype	Mosaic Karyotype detected in raw ISCN at line 52	WARNING
+204	Mosaic Karyotype	Mosaic Karyotype detected in raw ISCN at line 69	WARNING
+205	Uncertain Breakpoint	Uncertain Breakpoint detected in raw ISCN at line 70	WARNING
+206	Mosaic Karyotype	Mosaic Karyotype detected in raw ISCN at line 86	WARNING
+207	Uncertain Breakpoint	Uncertain Breakpoint detected in raw ISCN at line 93	WARNING
+208	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-63-83 has fewer than 2 segments	WARNING
+209	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-63-53 has fewer than 2 segments	WARNING
+210	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-63-97 has fewer than 2 segments	WARNING
+211	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-63-25 has fewer than 2 segments	WARNING
+212	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-63-10 has fewer than 2 segments	WARNING
+213	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-63-6 has fewer than 2 segments	WARNING
+214	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-63-19 has fewer than 2 segments	WARNING
+215	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-63-54 has fewer than 2 segments	WARNING
+216	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-63-8 has fewer than 2 segments	WARNING
+217	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-63-27 has fewer than 2 segments	WARNING
+218	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-63-94 has fewer than 2 segments	WARNING
+219	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-63-2 has fewer than 2 segments	WARNING
+220	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-63-66 has fewer than 2 segments	WARNING
+221	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-63-42 has fewer than 2 segments	WARNING
+222	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-63-52 has fewer than 2 segments	WARNING
+223	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-63-88 has fewer than 2 segments	WARNING
+224	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-63-37 has fewer than 2 segments	WARNING
+225	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-63-31 has fewer than 2 segments	WARNING
+226	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-63-92 has fewer than 2 segments	WARNING
+227	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-63-59 has fewer than 2 segments	WARNING
+228	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-63-69 has fewer than 2 segments	WARNING
+229	Duplicate Source File	This file path was imported before: /Users/aminsuliman/Downloads/MPG_database_H2/data/ngs_derived_100.txt	WARNING
+230	Duplicate Source File	This file path was imported before: /Users/aminsuliman/Downloads/MPG_database_H2/data/phase27_finding_model.cnv	WARNING
+231	Duplicate Source File	This file path was imported before: /Users/aminsuliman/Downloads/MPG_database_H2/data/realistic_cnv_mixed_events_import.cnv	WARNING
+232	Duplicate Source File	This file path was imported before: /Users/aminsuliman/Downloads/MPG_database_H2/data/test.cnv	WARNING
+233	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 2	ERROR
+234	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 3	ERROR
+235	Unparseable Row	Unparseable row at line 4: one or more numeric fields could not be parsed	ERROR
+236	Duplicate Source File	This file path was imported before: /Users/aminsuliman/Downloads/MPG_database_H2/data/test_v2.cnv	WARNING
+237	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 2	ERROR
+238	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 3	ERROR
+239	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 4	ERROR
+240	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 5	ERROR
+241	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 6	ERROR
+242	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 7	ERROR
+243	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 8	ERROR
+244	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 9	ERROR
+245	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 10	ERROR
+246	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 11	ERROR
+247	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 12	ERROR
+248	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 13	ERROR
+249	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 14	ERROR
+250	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 15	ERROR
+251	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 16	ERROR
+252	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 17	ERROR
+253	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 18	ERROR
+254	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 19	ERROR
+255	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 20	ERROR
+256	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 21	ERROR
+257	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 22	ERROR
+258	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 23	ERROR
+259	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 24	ERROR
+260	Duplicate Source File	This file path was imported before: /Users/aminsuliman/Downloads/MPG_database_H2/data/translocation_pair.cnv	WARNING
+261	Duplicate Source File	This file path was imported before: /Users/aminsuliman/Downloads/MPG_database_H2/data/25-54321WGS_05Nov2025_SWGS111_SV_DEL_DUP_Classify_Result.txt	WARNING
+262	Duplicate Source File	This file path was imported before: /Users/aminsuliman/Downloads/MPG_database_H2/data/array_derived_100.cnv	WARNING
+263	Duplicate Source File	This file path was imported before: /Users/aminsuliman/Downloads/MPG_database_H2/data/example.cnv	WARNING
+264	Duplicate Source File	This file path was imported before: /Users/aminsuliman/Downloads/MPG_database_H2/data/iscn_derived_100.cnv	WARNING
+265	Mosaic Karyotype	Mosaic Karyotype detected in raw ISCN at line 18	WARNING
+266	Uncertain Breakpoint	Uncertain Breakpoint detected in raw ISCN at line 24	WARNING
+267	Mosaic Karyotype	Mosaic Karyotype detected in raw ISCN at line 35	WARNING
+268	Uncertain Breakpoint	Uncertain Breakpoint detected in raw ISCN at line 47	WARNING
+269	Mosaic Karyotype	Mosaic Karyotype detected in raw ISCN at line 52	WARNING
+270	Mosaic Karyotype	Mosaic Karyotype detected in raw ISCN at line 69	WARNING
+271	Uncertain Breakpoint	Uncertain Breakpoint detected in raw ISCN at line 70	WARNING
+272	Mosaic Karyotype	Mosaic Karyotype detected in raw ISCN at line 86	WARNING
+273	Uncertain Breakpoint	Uncertain Breakpoint detected in raw ISCN at line 93	WARNING
+274	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-74-8 has fewer than 2 segments	WARNING
+275	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-74-88 has fewer than 2 segments	WARNING
+276	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-74-37 has fewer than 2 segments	WARNING
+277	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-74-92 has fewer than 2 segments	WARNING
+278	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-74-2 has fewer than 2 segments	WARNING
+279	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-74-59 has fewer than 2 segments	WARNING
+280	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-74-31 has fewer than 2 segments	WARNING
+281	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-74-52 has fewer than 2 segments	WARNING
+282	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-74-27 has fewer than 2 segments	WARNING
+283	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-74-6 has fewer than 2 segments	WARNING
+284	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-74-25 has fewer than 2 segments	WARNING
+285	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-74-42 has fewer than 2 segments	WARNING
+286	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-74-10 has fewer than 2 segments	WARNING
+287	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-74-83 has fewer than 2 segments	WARNING
+288	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-74-54 has fewer than 2 segments	WARNING
+289	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-74-69 has fewer than 2 segments	WARNING
+290	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-74-97 has fewer than 2 segments	WARNING
+291	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-74-19 has fewer than 2 segments	WARNING
+292	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-74-53 has fewer than 2 segments	WARNING
+293	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-74-94 has fewer than 2 segments	WARNING
+294	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-74-66 has fewer than 2 segments	WARNING
+295	Duplicate Source File	This file path was imported before: /Users/aminsuliman/Downloads/MPG_database_H2/data/ngs_derived_100.txt	WARNING
+296	Duplicate Source File	This file path was imported before: /Users/aminsuliman/Downloads/MPG_database_H2/data/phase27_finding_model.cnv	WARNING
+297	Duplicate Source File	This file path was imported before: /Users/aminsuliman/Downloads/MPG_database_H2/data/realistic_cnv_mixed_events_import.cnv	WARNING
+298	Duplicate Source File	This file path was imported before: /Users/aminsuliman/Downloads/MPG_database_H2/data/test.cnv	WARNING
+299	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 2	ERROR
+300	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 3	ERROR
+301	Unparseable Row	Unparseable row at line 4: one or more numeric fields could not be parsed	ERROR
+302	Duplicate Source File	This file path was imported before: /Users/aminsuliman/Downloads/MPG_database_H2/data/test_v2.cnv	WARNING
+303	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 2	ERROR
+304	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 3	ERROR
+305	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 4	ERROR
+306	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 5	ERROR
+307	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 6	ERROR
+308	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 7	ERROR
+309	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 8	ERROR
+310	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 9	ERROR
+311	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 10	ERROR
+312	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 11	ERROR
+313	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 12	ERROR
+314	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 13	ERROR
+315	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 14	ERROR
+316	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 15	ERROR
+317	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 16	ERROR
+318	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 17	ERROR
+319	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 18	ERROR
+320	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 19	ERROR
+321	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 20	ERROR
+322	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 21	ERROR
+323	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 22	ERROR
+324	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 23	ERROR
+325	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 24	ERROR
+326	Duplicate Source File	This file path was imported before: /Users/aminsuliman/Downloads/MPG_database_H2/data/translocation_pair.cnv	WARNING
+327	Duplicate Source File	This file path was imported before: /Users/aminsuliman/Downloads/MPG_database_H2/data/25-54321WGS_05Nov2025_SWGS111_SV_DEL_DUP_Classify_Result.txt	WARNING
+328	Duplicate Source File	This file path was imported before: /Users/aminsuliman/Downloads/MPG_database_H2/data/array_derived_100.cnv	WARNING
+329	Duplicate Source File	This file path was imported before: /Users/aminsuliman/Downloads/MPG_database_H2/data/example.cnv	WARNING
+330	Duplicate Source File	This file path was imported before: /Users/aminsuliman/Downloads/MPG_database_H2/data/iscn_derived_100.cnv	WARNING
+331	Mosaic Karyotype	Mosaic Karyotype detected in raw ISCN at line 18	WARNING
+332	Uncertain Breakpoint	Uncertain Breakpoint detected in raw ISCN at line 24	WARNING
+333	Mosaic Karyotype	Mosaic Karyotype detected in raw ISCN at line 35	WARNING
+334	Uncertain Breakpoint	Uncertain Breakpoint detected in raw ISCN at line 47	WARNING
+335	Mosaic Karyotype	Mosaic Karyotype detected in raw ISCN at line 52	WARNING
+336	Mosaic Karyotype	Mosaic Karyotype detected in raw ISCN at line 69	WARNING
+337	Uncertain Breakpoint	Uncertain Breakpoint detected in raw ISCN at line 70	WARNING
+338	Mosaic Karyotype	Mosaic Karyotype detected in raw ISCN at line 86	WARNING
+339	Uncertain Breakpoint	Uncertain Breakpoint detected in raw ISCN at line 93	WARNING
+340	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-85-8 has fewer than 2 segments	WARNING
+341	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-85-25 has fewer than 2 segments	WARNING
+342	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-85-27 has fewer than 2 segments	WARNING
+343	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-85-66 has fewer than 2 segments	WARNING
+344	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-85-19 has fewer than 2 segments	WARNING
+345	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-85-54 has fewer than 2 segments	WARNING
+346	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-85-83 has fewer than 2 segments	WARNING
+347	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-85-10 has fewer than 2 segments	WARNING
+348	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-85-42 has fewer than 2 segments	WARNING
+349	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-85-52 has fewer than 2 segments	WARNING
+350	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-85-88 has fewer than 2 segments	WARNING
+351	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-85-53 has fewer than 2 segments	WARNING
+352	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-85-92 has fewer than 2 segments	WARNING
+353	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-85-2 has fewer than 2 segments	WARNING
+354	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-85-59 has fewer than 2 segments	WARNING
+355	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-85-69 has fewer than 2 segments	WARNING
+356	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-85-97 has fewer than 2 segments	WARNING
+357	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-85-31 has fewer than 2 segments	WARNING
+358	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-85-94 has fewer than 2 segments	WARNING
+359	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-85-6 has fewer than 2 segments	WARNING
+360	Incomplete Breakpoint Event Group	DERIVATIVE group AUTO-BREAKPOINT-85-37 has fewer than 2 segments	WARNING
+361	Duplicate Source File	This file path was imported before: /Users/aminsuliman/Downloads/MPG_database_H2/data/ngs_derived_100.txt	WARNING
+362	Duplicate Source File	This file path was imported before: /Users/aminsuliman/Downloads/MPG_database_H2/data/phase27_finding_model.cnv	WARNING
+363	Duplicate Source File	This file path was imported before: /Users/aminsuliman/Downloads/MPG_database_H2/data/realistic_cnv_mixed_events_import.cnv	WARNING
+364	Duplicate Source File	This file path was imported before: /Users/aminsuliman/Downloads/MPG_database_H2/data/test.cnv	WARNING
+365	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 2	ERROR
+366	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 3	ERROR
+367	Unparseable Row	Unparseable row at line 4: one or more numeric fields could not be parsed	ERROR
+368	Duplicate Source File	This file path was imported before: /Users/aminsuliman/Downloads/MPG_database_H2/data/test_v2.cnv	WARNING
+369	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 2	ERROR
+370	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 3	ERROR
+371	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 4	ERROR
+372	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 5	ERROR
+373	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 6	ERROR
+374	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 7	ERROR
+375	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 8	ERROR
+376	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 9	ERROR
+377	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 10	ERROR
+378	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 11	ERROR
+379	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 12	ERROR
+380	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 13	ERROR
+381	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 14	ERROR
+382	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 15	ERROR
+383	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 16	ERROR
+384	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 17	ERROR
+385	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 18	ERROR
+386	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 19	ERROR
+387	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 20	ERROR
+388	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 21	ERROR
+389	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 22	ERROR
+390	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 23	ERROR
+391	Missing Genome Build	Genome build is required before inserting genomic coordinates for line 24	ERROR
+392	Duplicate Source File	This file path was imported before: /Users/aminsuliman/Downloads/MPG_database_H2/data/translocation_pair.cnv	WARNING
 
 ISCN-derived segments
 segment_id	event_group_id	sample_test_result_id	karyotype_id	chromosome	start_pos	stop_pos	event_type	copy_number
-553		102	1	chr5	75000000	120000000	DEL	1
-556	AUTO-BREAKPOINT-4-2	105	2	chr21	29985207	30429817	DER	2
-557		106	3	chr1	25251125	28944261	DUP	3
-558		107	4	chr9	217379832	231989271	DEL	1
-559		108	5	chr11	27536862	29117879	GAIN	3
-560	AUTO-BREAKPOINT-4-6	109	6	chr3	148287279	153230994	DER	2
-561		110	7	chr3	62589327	77151510	DEL	1
-562	AUTO-BREAKPOINT-4-8	111	8	chr22	71766312	83565902	DER	2
-563		112	9	chr21	184827068	194196134	DUP	3
-564	AUTO-BREAKPOINT-4-10	113	10	chr7	152351235	167079243	DER	2
-565		114	11	chrY	150791111	159858649	LOSS	1
-566		115	12	chr16	24503309	37208229	DEL	1
-567		116	13	chr13	160057580	167935154	ADD	2
-568		117	14	chr14	42555148	50192368	DEL	1
-569		118	15	chr12	204784934	207520277	ADD	2
-570		119	16	chr10	64377491	65374314	DUP	3
-571		120	17	chr22	127682641	136931814	DUP	3
-572		121	18	chr21	100339303	107714402	ADD	2
-573	AUTO-BREAKPOINT-4-19	122	19	chr8	2030277	3246343	DER	2
-574		123	20	chr22	130402462	134021759	ADD	2
-575		124	21	chr4	176994335	184251173	LOSS	1
-576		125	22	chr11	215007415	229488881	DEL	1
-577		126	23	chr15	67156907	81853346	DEL	1
-578		127	24	chr14	130463297	138564151	DUP	3
-579	AUTO-BREAKPOINT-4-25	128	25	chr10	113650206	125362072	DER	2
-580		129	26	chr19	197597944	206719470	DEL	1
-581	AUTO-BREAKPOINT-4-27	130	27	chr3	159828520	160993714	DER	2
-582		131	28	chr22	156778336	166286270	ADD	2
-583		132	29	chr22	173375298	178433413	GAIN	3
-584		133	30	chr9	35656038	41536434	DEL	1
-585	AUTO-BREAKPOINT-4-31	134	31	chr21	142086436	142242685	DER	2
-586		135	32	chrY	148604841	151237824	LOSS	1
-587		136	33	chr2	24876180	35542707	GAIN	3
-588		137	34	chr15	148190585	160054720	GAIN	3
-589		138	35	chr5	11328349	16525065	LOSS	1
-590		139	36	chr14	166707554	179306701	DUP	3
-591	AUTO-BREAKPOINT-4-37	140	37	chr11	210120274	217052674	DER	2
-592		141	38	chr8	53672423	67397472	GAIN	3
-593		142	39	chr3	207688289	212396229	LOSS	1
-594		143	40	chr19	71360584	72027433	DEL	1
-595		144	41	chr19	51123882	55422416	DEL	1
-596	AUTO-BREAKPOINT-4-42	145	42	chr11	167377006	172668636	DER	2
-597		146	43	chr10	148923967	151084501	DUP	3
-598		147	44	chr10	56520484	63757810	ADD	2
-599		148	45	chr6	176958901	178406534	LOSS	1
-600		149	46	chr5	6656640	7456977	DUP	3
-601		150	47	chrX	103173435	111492707	GAIN	3
-602		151	48	chr18	66993652	81251374	DEL	1
-603		152	49	chr15	42823624	55325091	GAIN	3
-604		153	50	chr3	191640741	196459463	DUP	3
-605		154	51	chrX	41118350	52995096	DUP	3
-606	AUTO-BREAKPOINT-4-52	155	52	chr13	206740479	216564705	DER	2
-607	AUTO-BREAKPOINT-4-53	156	53	chr14	144577482	157143713	DER	2
-608	AUTO-BREAKPOINT-4-54	157	54	chr1	104483060	110147377	DER	2
-609		158	55	chr19	151602819	162751109	DEL	1
-610		159	56	chr11	56917125	64570713	LOSS	1
-611		160	57	chrY	144899199	145798050	LOSS	1
-612		161	58	chr20	41004824	45031944	DUP	3
-613	AUTO-BREAKPOINT-4-59	162	59	chr20	163106756	175679866	DER	2
-614		163	60	chrX	53338744	54638753	ADD	2
-615		164	61	chr18	115091846	126215332	LOSS	1
-616		165	62	chr21	123510341	135402010	DUP	3
-617		166	63	chr8	23363394	28068033	GAIN	3
-618		167	64	chr6	130975689	134559469	LOSS	1
-619		168	65	chr8	193393571	200237303	GAIN	3
-620	AUTO-BREAKPOINT-4-66	169	66	chr10	59584331	66394056	DER	2
-621		170	67	chrX	121901317	126471540	LOSS	1
-622		171	68	chr7	198367676	206516180	LOSS	1
-623	AUTO-BREAKPOINT-4-69	172	69	chr6	81239339	81501709	DER	2
-624		173	70	chr1	154199191	158994613	GAIN	3
-625		174	71	chr13	132102213	133370105	ADD	2
-626		175	72	chr18	205303725	212310966	ADD	2
-627		176	73	chr14	82074884	91639903	ADD	2
-628		177	74	chr6	148274290	149558669	DUP	3
-629		178	75	chrX	75991635	87810809	GAIN	3
-630		179	76	chr5	71405173	85298742	DUP	3
-631		180	77	chr10	187933330	194711302	LOSS	1
-632		181	78	chr9	7043055	8600265	DUP	3
-633		182	79	chr21	118810050	123501742	DUP	3
-634		183	80	chr11	86283419	97551393	DEL	1
-635		184	81	chr3	84527556	88787106	LOSS	1
-636		185	82	chr17	97214407	107685469	GAIN	3
-637	AUTO-BREAKPOINT-4-83	186	83	chr16	32695067	33204415	DER	2
-638		187	84	chr14	25120655	28915506	DEL	1
-639		188	85	chr16	126860532	130974658	GAIN	3
-640		189	86	chr17	71818614	85610149	DEL	1
-641		190	87	chr11	148254203	161078082	ADD	2
-642	AUTO-BREAKPOINT-4-88	191	88	chr11	200005267	207965491	DER	2
-643		192	89	chr19	89219149	103835299	DEL	1
-644		193	90	chr5	20186555	28088300	LOSS	1
-645		194	91	chr21	193029239	207942989	GAIN	3
-646	AUTO-BREAKPOINT-4-92	195	92	chr3	116593328	118269929	DER	2
-647		196	93	chr2	78850313	84889329	LOSS	1
-648	AUTO-BREAKPOINT-4-94	197	94	chr20	102788453	113210467	DER	2
-649		198	95	chr22	2622603	16147105	GAIN	3
-650		199	96	chr14	185404622	189625573	GAIN	3
-651	AUTO-BREAKPOINT-4-97	200	97	chr12	154399903	159388817	DER	2
-652		201	98	chr8	163057768	176536953	LOSS	1
-653		202	99	chr15	9056222	18804856	LOSS	1
-654		203	100	chr18	98309133	107240357	ADD	2
-655		204	101	chr3	37884173	50561735	DUP	3
-756		305	102	chr1	1000	2000	DEL	1
-757		306	103	chr2	3000	4000	DUP	3
-758		307	104	chr3	5000	6000	GAIN	3
-759		308	105	chr4	7000	8000	LOSS	1
-760		309	106	chr5	9000	10000	AMP	5
-761		310	107	chr6	11000	12000	ROH	2
-762		311	108	chr7	13000	14000	TRISOMY	3
-763		312	109	chr8	15000	16000	MONOSOMY	1
-764	TX001	313	110	chr9	17000	18000	TRANS	2
-765	TX001	313	110	chr22	19000	20000	TRANS	2
-766	INV001	314	111	chr3	21000	22000	INV	2
-767	INV001	314	111	chr3	23000	24000	INV	2
-768	INS001	315	112	chr10	25000	26000	INS	2
-769	INS001	315	112	chr11	27000	28000	INS	2
-770	DER001	316	113	chr5	29000	30000	DER	2
-771	DER001	316	113	chr8	31000	32000	DER	2
-772	DIC001	317	114	chr15	33000	34000	DIC	2
-773	DIC001	317	114	chr21	35000	36000	DIC	2
-774	RING001	318	115	chr14	37000	38000	RING	2
-775	RING001	318	115	chr14	39000	40000	RING	2
-776	CX001	319	116	chr1	41000	42000	COMPLEX	2
-777	CX001	319	116	chr12	43000	44000	COMPLEX	2
-778		320	117	chr7	51109096	63573985	DEL	1
-779		321	118	chr17	36095248	42636838	DUP	3
-780		322	119	chr22	114775783	124126409	GAIN	3
-781		323	120	chr13	125258155	134236318	LOSS	1
-782	TXG001	324	121	chr9	133700000	133701000	TRANS	2
-783	TXG001	324	121	chr22	23200000	23201000	TRANS	2
-784	INVG001	325	122	chr3	178866000	178967000	INV	2
-785	INVG001	325	122	chr3	12100000	12201000	INV	2
-786	DERG001	326	123	chr5	70000000	70100000	DER	2
-787	DERG001	326	123	chr8	12000000	12100000	DER	2
-788	RING001	327	124	chr14	19000000	19001000	RING	2
-789	RING001	327	124	chr14	106000000	106001000	RING	2
-790	TXG001	328	125	chr9	133700000	133701000	TRANS	2
-791	TXG001	328	125	chr22	23200000	23201000	TRANS	2
-792	TXG002	329	126	chr1	12000000	12001500	TRANS	2
-793	TXG002	329	126	chr7	55000000	55002000	TRANS	2
-794	TXG003	330	127	chr2	89100000	89101800	TRANS	2
-795	TXG003	330	127	chr12	25300000	25301600	TRANS	2
-796	TXG004	331	128	chr3	45120000	45122500	TRANS	2
-797	TXG004	331	128	chr8	128700000	128702200	TRANS	2
-798	TXG005	332	129	chr4	99000000	99001750	TRANS	2
-799	TXG005	332	129	chr11	67400000	67401900	TRANS	2
-800	TXG006	333	130	chr5	70000000	70003000	TRANS	2
-801	TXG006	333	130	chr14	106200000	106202000	TRANS	2
-802	TXG007	334	131	chr6	32500000	32501800	TRANS	2
-803	TXG007	334	131	chr17	43000000	43001800	TRANS	2
-804	TXG008	335	132	chr7	140500000	140502100	TRANS	2
-805	TXG008	335	132	chr10	81100000	81102100	TRANS	2
-806	TXG009	336	133	chr8	118000000	118002500	TRANS	2
-807	TXG009	336	133	chr21	36000000	36001700	TRANS	2
-808	TXG010	337	134	chr9	21900000	21902000	TRANS	2
-809	TXG010	337	134	chr15	61000000	61001800	TRANS	2
-810	TXG011	338	135	chr10	33000000	33001400	TRANS	2
-811	TXG011	338	135	chr20	45800000	45801600	TRANS	2
-812	TXG012	339	136	chr11	118900000	118902400	TRANS	2
-813	TXG012	339	136	chr19	55600000	55601800	TRANS	2
-814	TXG013	340	137	chr12	69300000	69302000	TRANS	2
-815	TXG013	340	137	chr18	24000000	24001500	TRANS	2
-816	TXG014	341	138	chr13	48000000	48001600	TRANS	2
-817	TXG014	341	138	chr3	178000000	178002000	TRANS	2
-818	TXG015	342	139	chr14	75500000	75502200	TRANS	2
-819	TXG015	342	139	chr5	150400000	150402500	TRANS	2
-820	TXG016	343	140	chr15	42000000	42001800	TRANS	2
-821	TXG016	343	140	chr1	161000000	161002100	TRANS	2
-822	TXG017	344	141	chr16	66600000	66601800	TRANS	2
-823	TXG017	344	141	chr2	130900000	130902000	TRANS	2
-824	TXG018	345	142	chr17	7570000	7571800	TRANS	2
-825	TXG018	345	142	chr6	32700000	32701800	TRANS	2
-826	TXG019	346	143	chr18	78000000	78001900	TRANS	2
-827	TXG019	346	143	chr9	141000000	141002000	TRANS	2
-828	TXG020	347	144	chr19	13000000	13001700	TRANS	2
-829	TXG020	347	144	chr22	42000000	42001800	TRANS	2
-830	TXG021	348	145	chr20	20000000	20001500	TRANS	2
-831	TXG021	348	145	chr4	88000000	88002000	TRANS	2
-832	TXG022	349	146	chr21	19000000	19001800	TRANS	2
-833	TXG022	349	146	chr8	142000000	142002400	TRANS	2
-834	TXG023	350	147	chr22	23200000	23201800	TRANS	2
-835	TXG023	350	147	chr9	133700000	133702000	TRANS	2
-836	TXG024	351	148	chrX	50000000	50001800	TRANS	2
-837	TXG024	351	148	chr2	45000000	45001800	TRANS	2
-838	TXG025	352	149	chrY	12000000	12001500	TRANS	2
-839	TXG025	352	149	chr1	220000000	220002000	TRANS	2
-840	TXG026	353	150	chr1	248000000	248002000	TRANS	2
-841	TXG026	353	150	chr16	90000000	90001800	TRANS	2
-842	TXG027	354	151	chr2	240000000	240002100	TRANS	2
-843	TXG027	354	151	chr7	100000000	100002000	TRANS	2
-844	TXG028	355	152	chr3	10000000	10001600	TRANS	2
-845	TXG028	355	152	chr11	30000000	30001800	TRANS	2
-846	TXG029	356	153	chr4	5000000	5001800	TRANS	2
-847	TXG029	356	153	chr13	110000000	110002000	TRANS	2
-848	TXG030	357	154	chr5	141011866	141013200	TRANS	2
-849	TXG030	357	154	chr7	77900000	77902000	TRANS	2
-850	TXG031	358	155	chr6	32490000	32491800	TRANS	2
-851	TXG031	358	155	chr14	23000000	23001800	TRANS	2
-852	TXG032	359	156	chr7	55200000	55202200	TRANS	2
-853	TXG032	359	156	chr12	121000000	121002100	TRANS	2
-854	TXG033	360	157	chr8	38200000	38201800	TRANS	2
-855	TXG033	360	157	chr17	81000000	81002000	TRANS	2
-856	TXG034	361	158	chr9	90000000	90001900	TRANS	2
-857	TXG034	361	158	chr3	60000000	60001800	TRANS	2
-858	TXG035	362	159	chr10	123000000	123002000	TRANS	2
-859	TXG035	362	159	chr18	55000000	55001700	TRANS	2
-860	TXG036	363	160	chr11	65000000	65001800	TRANS	2
-861	TXG036	363	160	chr15	91500000	91502000	TRANS	2
-862	TXG037	364	161	chr12	112000000	112001900	TRANS	2
-863	TXG037	364	161	chr20	60000000	60001800	TRANS	2
-864	TXG038	365	162	chr13	35000000	35001800	TRANS	2
-865	TXG038	365	162	chr19	41000000	41001800	TRANS	2
-866	TXG039	366	163	chr14	95000000	95002100	TRANS	2
-867	TXG039	366	163	chr21	43000000	43001800	TRANS	2
-868	TXG040	367	164	chr15	27000000	27001800	TRANS	2
-869	TXG040	367	164	chr22	25000000	25001800	TRANS	2
-870	TXG041	368	165	chr16	10000000	10001500	TRANS	2
-871	TXG041	368	165	chr5	181000000	181002000	TRANS	2
-872	TXG042	369	166	chr17	43000000	43001800	TRANS	2
-873	TXG042	369	166	chr1	108700000	108702000	TRANS	2
-874	TXG043	370	167	chr18	15000000	15001700	TRANS	2
-875	TXG043	370	167	chr6	32550000	32551800	TRANS	2
-876	TXG044	371	168	chr19	56000000	56001800	TRANS	2
-877	TXG044	371	168	chr10	45000000	45001700	TRANS	2
-878	TXG045	372	169	chr20	50000000	50001800	TRANS	2
-879	TXG045	372	169	chr12	69000000	69002000	TRANS	2
-880	TXG046	373	170	chr21	35000000	35001800	TRANS	2
-881	TXG046	373	170	chr4	180000000	180002200	TRANS	2
-882	TXG047	374	171	chr22	48000000	48001800	TRANS	2
-883	TXG047	374	171	chr8	128500000	128502000	TRANS	2
-884	TXG048	375	172	chrX	75000000	75001800	TRANS	2
-885	TXG048	375	172	chr9	22000000	22001800	TRANS	2
-886	TXG049	376	173	chrY	20000000	20001500	TRANS	2
-887	TXG049	376	173	chr15	50000000	50001800	TRANS	2
-888	TXG050	377	174	chr5	150400000	150402000	TRANS	2
-889	TXG050	377	174	chr22	23200000	23201800	TRANS	2
+553		553	1	chr5	75000000	120000000	DEL	1
+556		556	2	chr21	29985207	30429817	DER	2
+557		557	3	chr1	25251125	28944261	DUP	3
+558		558	4	chr9	217379832	231989271	DEL	1
+559		559	5	chr11	27536862	29117879	GAIN	3
+560		560	6	chr3	148287279	153230994	DER	2
+561		561	7	chr3	62589327	77151510	DEL	1
+562		562	8	chr22	71766312	83565902	DER	2
+563		563	9	chr21	184827068	194196134	DUP	3
+564		564	10	chr7	152351235	167079243	DER	2
+565		565	11	chrY	150791111	159858649	LOSS	1
+566		566	12	chr16	24503309	37208229	DEL	1
+567		567	13	chr13	160057580	167935154	ADD	2
+568		568	14	chr14	42555148	50192368	DEL	1
+569		569	15	chr12	204784934	207520277	ADD	2
+570		570	16	chr10	64377491	65374314	DUP	3
+571		571	17	chr22	127682641	136931814	DUP	3
+572		572	18	chr21	100339303	107714402	ADD	2
+573		573	19	chr8	2030277	3246343	DER	2
+574		574	20	chr22	130402462	134021759	ADD	2
+575		575	21	chr4	176994335	184251173	LOSS	1
+576		576	22	chr11	215007415	229488881	DEL	1
+577		577	23	chr15	67156907	81853346	DEL	1
+578		578	24	chr14	130463297	138564151	DUP	3
+579		579	25	chr10	113650206	125362072	DER	2
+580		580	26	chr19	197597944	206719470	DEL	1
+581		581	27	chr3	159828520	160993714	DER	2
+582		582	28	chr22	156778336	166286270	ADD	2
+583		583	29	chr22	173375298	178433413	GAIN	3
+584		584	30	chr9	35656038	41536434	DEL	1
+585		585	31	chr21	142086436	142242685	DER	2
+586		586	32	chrY	148604841	151237824	LOSS	1
+587		587	33	chr2	24876180	35542707	GAIN	3
+588		588	34	chr15	148190585	160054720	GAIN	3
+589		589	35	chr5	11328349	16525065	LOSS	1
+590		590	36	chr14	166707554	179306701	DUP	3
+591		591	37	chr11	210120274	217052674	DER	2
+592		592	38	chr8	53672423	67397472	GAIN	3
+593		593	39	chr3	207688289	212396229	LOSS	1
+594		594	40	chr19	71360584	72027433	DEL	1
+595		595	41	chr19	51123882	55422416	DEL	1
+596		596	42	chr11	167377006	172668636	DER	2
+597		597	43	chr10	148923967	151084501	DUP	3
+598		598	44	chr10	56520484	63757810	ADD	2
+599		599	45	chr6	176958901	178406534	LOSS	1
+600		600	46	chr5	6656640	7456977	DUP	3
+601		601	47	chrX	103173435	111492707	GAIN	3
+602		602	48	chr18	66993652	81251374	DEL	1
+603		603	49	chr15	42823624	55325091	GAIN	3
+604		604	50	chr3	191640741	196459463	DUP	3
+605		605	51	chrX	41118350	52995096	DUP	3
+606		606	52	chr13	206740479	216564705	DER	2
+607		607	53	chr14	144577482	157143713	DER	2
+608		608	54	chr1	104483060	110147377	DER	2
+609		609	55	chr19	151602819	162751109	DEL	1
+610		610	56	chr11	56917125	64570713	LOSS	1
+611		611	57	chrY	144899199	145798050	LOSS	1
+612		612	58	chr20	41004824	45031944	DUP	3
+613		613	59	chr20	163106756	175679866	DER	2
+614		614	60	chrX	53338744	54638753	ADD	2
+615		615	61	chr18	115091846	126215332	LOSS	1
+616		616	62	chr21	123510341	135402010	DUP	3
+617		617	63	chr8	23363394	28068033	GAIN	3
+618		618	64	chr6	130975689	134559469	LOSS	1
+619		619	65	chr8	193393571	200237303	GAIN	3
+620		620	66	chr10	59584331	66394056	DER	2
+621		621	67	chrX	121901317	126471540	LOSS	1
+622		622	68	chr7	198367676	206516180	LOSS	1
+623		623	69	chr6	81239339	81501709	DER	2
+624		624	70	chr1	154199191	158994613	GAIN	3
+625		625	71	chr13	132102213	133370105	ADD	2
+626		626	72	chr18	205303725	212310966	ADD	2
+627		627	73	chr14	82074884	91639903	ADD	2
+628		628	74	chr6	148274290	149558669	DUP	3
+629		629	75	chrX	75991635	87810809	GAIN	3
+630		630	76	chr5	71405173	85298742	DUP	3
+631		631	77	chr10	187933330	194711302	LOSS	1
+632		632	78	chr9	7043055	8600265	DUP	3
+633		633	79	chr21	118810050	123501742	DUP	3
+634		634	80	chr11	86283419	97551393	DEL	1
+635		635	81	chr3	84527556	88787106	LOSS	1
+636		636	82	chr17	97214407	107685469	GAIN	3
+637		637	83	chr16	32695067	33204415	DER	2
+638		638	84	chr14	25120655	28915506	DEL	1
+639		639	85	chr16	126860532	130974658	GAIN	3
+640		640	86	chr17	71818614	85610149	DEL	1
+641		641	87	chr11	148254203	161078082	ADD	2
+642		642	88	chr11	200005267	207965491	DER	2
+643		643	89	chr19	89219149	103835299	DEL	1
+644		644	90	chr5	20186555	28088300	LOSS	1
+645		645	91	chr21	193029239	207942989	GAIN	3
+646		646	92	chr3	116593328	118269929	DER	2
+647		647	93	chr2	78850313	84889329	LOSS	1
+648		648	94	chr20	102788453	113210467	DER	2
+649		649	95	chr22	2622603	16147105	GAIN	3
+650		650	96	chr14	185404622	189625573	GAIN	3
+651		651	97	chr12	154399903	159388817	DER	2
+652		652	98	chr8	163057768	176536953	LOSS	1
+653		653	99	chr15	9056222	18804856	LOSS	1
+654		654	100	chr18	98309133	107240357	ADD	2
+655		655	101	chr3	37884173	50561735	DUP	3
+1333		910	129	chr5	75000000	120000000	DEL	1
+1336	AUTO-BREAKPOINT-37-2	913	130	chr21	29985207	30429817	DER	2
+1337		914	131	chr1	25251125	28944261	DUP	3
+1338		915	132	chr9	217379832	231989271	DEL	1
+1339		916	133	chr11	27536862	29117879	GAIN	3
+1340	AUTO-BREAKPOINT-37-6	917	134	chr3	148287279	153230994	DER	2
+1341		918	135	chr3	62589327	77151510	DEL	1
+1342	AUTO-BREAKPOINT-37-8	919	136	chr22	71766312	83565902	DER	2
+1343		920	137	chr21	184827068	194196134	DUP	3
+1344	AUTO-BREAKPOINT-37-10	921	138	chr7	152351235	167079243	DER	2
+1345		922	139	chrY	150791111	159858649	LOSS	1
+1346		923	140	chr16	24503309	37208229	DEL	1
+1347		924	141	chr13	160057580	167935154	ADD	2
+1348		925	142	chr14	42555148	50192368	DEL	1
+1349		926	143	chr12	204784934	207520277	ADD	2
+1350		927	144	chr10	64377491	65374314	DUP	3
+1351		928	145	chr22	127682641	136931814	DUP	3
+1352		929	146	chr21	100339303	107714402	ADD	2
+1353	AUTO-BREAKPOINT-37-19	930	147	chr8	2030277	3246343	DER	2
+1354		931	148	chr22	130402462	134021759	ADD	2
+1355		932	149	chr4	176994335	184251173	LOSS	1
+1356		933	150	chr11	215007415	229488881	DEL	1
+1357		934	151	chr15	67156907	81853346	DEL	1
+1358		935	152	chr14	130463297	138564151	DUP	3
+1359	AUTO-BREAKPOINT-37-25	936	153	chr10	113650206	125362072	DER	2
+1360		937	154	chr19	197597944	206719470	DEL	1
+1361	AUTO-BREAKPOINT-37-27	938	155	chr3	159828520	160993714	DER	2
+1362		939	156	chr22	156778336	166286270	ADD	2
+1363		940	157	chr22	173375298	178433413	GAIN	3
+1364		941	158	chr9	35656038	41536434	DEL	1
+1365	AUTO-BREAKPOINT-37-31	942	159	chr21	142086436	142242685	DER	2
+1366		943	160	chrY	148604841	151237824	LOSS	1
+1367		944	161	chr2	24876180	35542707	GAIN	3
+1368		945	162	chr15	148190585	160054720	GAIN	3
+1369		946	163	chr5	11328349	16525065	LOSS	1
+1370		947	164	chr14	166707554	179306701	DUP	3
+1371	AUTO-BREAKPOINT-37-37	948	165	chr11	210120274	217052674	DER	2
+1372		949	166	chr8	53672423	67397472	GAIN	3
+1373		950	167	chr3	207688289	212396229	LOSS	1
+1374		951	168	chr19	71360584	72027433	DEL	1
+1375		952	169	chr19	51123882	55422416	DEL	1
+1376	AUTO-BREAKPOINT-37-42	953	170	chr11	167377006	172668636	DER	2
+1377		954	171	chr10	148923967	151084501	DUP	3
+1378		955	172	chr10	56520484	63757810	ADD	2
+1379		956	173	chr6	176958901	178406534	LOSS	1
+1380		957	174	chr5	6656640	7456977	DUP	3
+1381		958	175	chrX	103173435	111492707	GAIN	3
+1382		959	176	chr18	66993652	81251374	DEL	1
+1383		960	177	chr15	42823624	55325091	GAIN	3
+1384		961	178	chr3	191640741	196459463	DUP	3
+1385		962	179	chrX	41118350	52995096	DUP	3
+1386	AUTO-BREAKPOINT-37-52	963	180	chr13	206740479	216564705	DER	2
+1387	AUTO-BREAKPOINT-37-53	964	181	chr14	144577482	157143713	DER	2
+1388	AUTO-BREAKPOINT-37-54	965	182	chr1	104483060	110147377	DER	2
+1389		966	183	chr19	151602819	162751109	DEL	1
+1390		967	184	chr11	56917125	64570713	LOSS	1
+1391		968	185	chrY	144899199	145798050	LOSS	1
+1392		969	186	chr20	41004824	45031944	DUP	3
+1393	AUTO-BREAKPOINT-37-59	970	187	chr20	163106756	175679866	DER	2
+1394		971	188	chrX	53338744	54638753	ADD	2
+1395		972	189	chr18	115091846	126215332	LOSS	1
+1396		973	190	chr21	123510341	135402010	DUP	3
+1397		974	191	chr8	23363394	28068033	GAIN	3
+1398		975	192	chr6	130975689	134559469	LOSS	1
+1399		976	193	chr8	193393571	200237303	GAIN	3
+1400	AUTO-BREAKPOINT-37-66	977	194	chr10	59584331	66394056	DER	2
+1401		978	195	chrX	121901317	126471540	LOSS	1
+1402		979	196	chr7	198367676	206516180	LOSS	1
+1403	AUTO-BREAKPOINT-37-69	980	197	chr6	81239339	81501709	DER	2
+1404		981	198	chr1	154199191	158994613	GAIN	3
+1405		982	199	chr13	132102213	133370105	ADD	2
+1406		983	200	chr18	205303725	212310966	ADD	2
+1407		984	201	chr14	82074884	91639903	ADD	2
+1408		985	202	chr6	148274290	149558669	DUP	3
+1409		986	203	chrX	75991635	87810809	GAIN	3
+1410		987	204	chr5	71405173	85298742	DUP	3
+1411		988	205	chr10	187933330	194711302	LOSS	1
+1412		989	206	chr9	7043055	8600265	DUP	3
+1413		990	207	chr21	118810050	123501742	DUP	3
+1414		991	208	chr11	86283419	97551393	DEL	1
+1415		992	209	chr3	84527556	88787106	LOSS	1
+1416		993	210	chr17	97214407	107685469	GAIN	3
+1417	AUTO-BREAKPOINT-37-83	994	211	chr16	32695067	33204415	DER	2
+1418		995	212	chr14	25120655	28915506	DEL	1
+1419		996	213	chr16	126860532	130974658	GAIN	3
+1420		997	214	chr17	71818614	85610149	DEL	1
+1421		998	215	chr11	148254203	161078082	ADD	2
+1422	AUTO-BREAKPOINT-37-88	999	216	chr11	200005267	207965491	DER	2
+1423		1000	217	chr19	89219149	103835299	DEL	1
+1424		1001	218	chr5	20186555	28088300	LOSS	1
+1425		1002	219	chr21	193029239	207942989	GAIN	3
+1426	AUTO-BREAKPOINT-37-92	1003	220	chr3	116593328	118269929	DER	2
+1427		1004	221	chr2	78850313	84889329	LOSS	1
+1428	AUTO-BREAKPOINT-37-94	1005	222	chr20	102788453	113210467	DER	2
+1429		1006	223	chr22	2622603	16147105	GAIN	3
+1430		1007	224	chr14	185404622	189625573	GAIN	3
+1431	AUTO-BREAKPOINT-37-97	1008	225	chr12	154399903	159388817	DER	2
+1432		1009	226	chr8	163057768	176536953	LOSS	1
+1433		1010	227	chr15	9056222	18804856	LOSS	1
+1434		1011	228	chr18	98309133	107240357	ADD	2
+1435		1012	229	chr3	37884173	50561735	DUP	3
+1536		1113	230	chr1	1000	2000	DEL	1
+1537		1114	231	chr2	3000	4000	DUP	3
+1538		1115	232	chr3	5000	6000	GAIN	3
+1539		1116	233	chr4	7000	8000	LOSS	1
+1540		1117	234	chr5	9000	10000	AMP	5
+1541		1118	235	chr6	11000	12000	ROH	2
+1542		1119	236	chr7	13000	14000	TRISOMY	3
+1543		1120	237	chr8	15000	16000	MONOSOMY	1
+1544	TX001	1121	238	chr9	17000	18000	TRANS	2
+1545	TX001	1121	238	chr22	19000	20000	TRANS	2
+1546	INV001	1122	239	chr3	21000	22000	INV	2
+1547	INV001	1122	239	chr3	23000	24000	INV	2
+1548	INS001	1123	240	chr10	25000	26000	INS	2
+1549	INS001	1123	240	chr11	27000	28000	INS	2
+1550	DER001	1124	241	chr5	29000	30000	DER	2
+1551	DER001	1124	241	chr8	31000	32000	DER	2
+1552	DIC001	1125	242	chr15	33000	34000	DIC	2
+1553	DIC001	1125	242	chr21	35000	36000	DIC	2
+1554	RING001	1126	243	chr14	37000	38000	RING	2
+1555	RING001	1126	243	chr14	39000	40000	RING	2
+1556	CX001	1127	244	chr1	41000	42000	COMPLEX	2
+1557	CX001	1127	244	chr12	43000	44000	COMPLEX	2
+1558		1128	245	chr7	51109096	63573985	DEL	1
+1559		1129	246	chr17	36095248	42636838	DUP	3
+1560		1130	247	chr22	114775783	124126409	GAIN	3
+1561		1131	248	chr13	125258155	134236318	LOSS	1
+1562	TXG001	1132	249	chr9	133700000	133701000	TRANS	2
+1563	TXG001	1132	249	chr22	23200000	23201000	TRANS	2
+1564	INVG001	1133	250	chr3	178866000	178967000	INV	2
+1565	INVG001	1133	250	chr3	12100000	12201000	INV	2
+1566	DERG001	1134	251	chr5	70000000	70100000	DER	2
+1567	DERG001	1134	251	chr8	12000000	12100000	DER	2
+1568	RING001	1135	252	chr14	19000000	19001000	RING	2
+1569	RING001	1135	252	chr14	106000000	106001000	RING	2
+1570	TXG001	1136	253	chr9	133700000	133701000	TRANS	2
+1571	TXG001	1136	253	chr22	23200000	23201000	TRANS	2
+1572	TXG002	1137	254	chr1	12000000	12001500	TRANS	2
+1573	TXG002	1137	254	chr7	55000000	55002000	TRANS	2
+1574	TXG003	1138	255	chr2	89100000	89101800	TRANS	2
+1575	TXG003	1138	255	chr12	25300000	25301600	TRANS	2
+1576	TXG004	1139	256	chr3	45120000	45122500	TRANS	2
+1577	TXG004	1139	256	chr8	128700000	128702200	TRANS	2
+1578	TXG005	1140	257	chr4	99000000	99001750	TRANS	2
+1579	TXG005	1140	257	chr11	67400000	67401900	TRANS	2
+1580	TXG006	1141	258	chr5	70000000	70003000	TRANS	2
+1581	TXG006	1141	258	chr14	106200000	106202000	TRANS	2
+1582	TXG007	1142	259	chr6	32500000	32501800	TRANS	2
+1583	TXG007	1142	259	chr17	43000000	43001800	TRANS	2
+1584	TXG008	1143	260	chr7	140500000	140502100	TRANS	2
+1585	TXG008	1143	260	chr10	81100000	81102100	TRANS	2
+1586	TXG009	1144	261	chr8	118000000	118002500	TRANS	2
+1587	TXG009	1144	261	chr21	36000000	36001700	TRANS	2
+1588	TXG010	1145	262	chr9	21900000	21902000	TRANS	2
+1589	TXG010	1145	262	chr15	61000000	61001800	TRANS	2
+1590	TXG011	1146	263	chr10	33000000	33001400	TRANS	2
+1591	TXG011	1146	263	chr20	45800000	45801600	TRANS	2
+1592	TXG012	1147	264	chr11	118900000	118902400	TRANS	2
+1593	TXG012	1147	264	chr19	55600000	55601800	TRANS	2
+1594	TXG013	1148	265	chr12	69300000	69302000	TRANS	2
+1595	TXG013	1148	265	chr18	24000000	24001500	TRANS	2
+1596	TXG014	1149	266	chr13	48000000	48001600	TRANS	2
+1597	TXG014	1149	266	chr3	178000000	178002000	TRANS	2
+1598	TXG015	1150	267	chr14	75500000	75502200	TRANS	2
+1599	TXG015	1150	267	chr5	150400000	150402500	TRANS	2
+1600	TXG016	1151	268	chr15	42000000	42001800	TRANS	2
+1601	TXG016	1151	268	chr1	161000000	161002100	TRANS	2
+1602	TXG017	1152	269	chr16	66600000	66601800	TRANS	2
+1603	TXG017	1152	269	chr2	130900000	130902000	TRANS	2
+1604	TXG018	1153	270	chr17	7570000	7571800	TRANS	2
+1605	TXG018	1153	270	chr6	32700000	32701800	TRANS	2
+1606	TXG019	1154	271	chr18	78000000	78001900	TRANS	2
+1607	TXG019	1154	271	chr9	141000000	141002000	TRANS	2
+1608	TXG020	1155	272	chr19	13000000	13001700	TRANS	2
+1609	TXG020	1155	272	chr22	42000000	42001800	TRANS	2
+1610	TXG021	1156	273	chr20	20000000	20001500	TRANS	2
+1611	TXG021	1156	273	chr4	88000000	88002000	TRANS	2
+1612	TXG022	1157	274	chr21	19000000	19001800	TRANS	2
+1613	TXG022	1157	274	chr8	142000000	142002400	TRANS	2
+1614	TXG023	1158	275	chr22	23200000	23201800	TRANS	2
+1615	TXG023	1158	275	chr9	133700000	133702000	TRANS	2
+1616	TXG024	1159	276	chrX	50000000	50001800	TRANS	2
+1617	TXG024	1159	276	chr2	45000000	45001800	TRANS	2
+1618	TXG025	1160	277	chrY	12000000	12001500	TRANS	2
+1619	TXG025	1160	277	chr1	220000000	220002000	TRANS	2
+1620	TXG026	1161	278	chr1	248000000	248002000	TRANS	2
+1621	TXG026	1161	278	chr16	90000000	90001800	TRANS	2
+1622	TXG027	1162	279	chr2	240000000	240002100	TRANS	2
+1623	TXG027	1162	279	chr7	100000000	100002000	TRANS	2
+1624	TXG028	1163	280	chr3	10000000	10001600	TRANS	2
+1625	TXG028	1163	280	chr11	30000000	30001800	TRANS	2
+1626	TXG029	1164	281	chr4	5000000	5001800	TRANS	2
+1627	TXG029	1164	281	chr13	110000000	110002000	TRANS	2
+1628	TXG030	1165	282	chr5	141011866	141013200	TRANS	2
+1629	TXG030	1165	282	chr7	77900000	77902000	TRANS	2
+1630	TXG031	1166	283	chr6	32490000	32491800	TRANS	2
+1631	TXG031	1166	283	chr14	23000000	23001800	TRANS	2
+1632	TXG032	1167	284	chr7	55200000	55202200	TRANS	2
+1633	TXG032	1167	284	chr12	121000000	121002100	TRANS	2
+1634	TXG033	1168	285	chr8	38200000	38201800	TRANS	2
+1635	TXG033	1168	285	chr17	81000000	81002000	TRANS	2
+1636	TXG034	1169	286	chr9	90000000	90001900	TRANS	2
+1637	TXG034	1169	286	chr3	60000000	60001800	TRANS	2
+1638	TXG035	1170	287	chr10	123000000	123002000	TRANS	2
+1639	TXG035	1170	287	chr18	55000000	55001700	TRANS	2
+1640	TXG036	1171	288	chr11	65000000	65001800	TRANS	2
+1641	TXG036	1171	288	chr15	91500000	91502000	TRANS	2
+1642	TXG037	1172	289	chr12	112000000	112001900	TRANS	2
+1643	TXG037	1172	289	chr20	60000000	60001800	TRANS	2
+1644	TXG038	1173	290	chr13	35000000	35001800	TRANS	2
+1645	TXG038	1173	290	chr19	41000000	41001800	TRANS	2
+1646	TXG039	1174	291	chr14	95000000	95002100	TRANS	2
+1647	TXG039	1174	291	chr21	43000000	43001800	TRANS	2
+1648	TXG040	1175	292	chr15	27000000	27001800	TRANS	2
+1649	TXG040	1175	292	chr22	25000000	25001800	TRANS	2
+1650	TXG041	1176	293	chr16	10000000	10001500	TRANS	2
+1651	TXG041	1176	293	chr5	181000000	181002000	TRANS	2
+1652	TXG042	1177	294	chr17	43000000	43001800	TRANS	2
+1653	TXG042	1177	294	chr1	108700000	108702000	TRANS	2
+1654	TXG043	1178	295	chr18	15000000	15001700	TRANS	2
+1655	TXG043	1178	295	chr6	32550000	32551800	TRANS	2
+1656	TXG044	1179	296	chr19	56000000	56001800	TRANS	2
+1657	TXG044	1179	296	chr10	45000000	45001700	TRANS	2
+1658	TXG045	1180	297	chr20	50000000	50001800	TRANS	2
+1659	TXG045	1180	297	chr12	69000000	69002000	TRANS	2
+1660	TXG046	1181	298	chr21	35000000	35001800	TRANS	2
+1661	TXG046	1181	298	chr4	180000000	180002200	TRANS	2
+1662	TXG047	1182	299	chr22	48000000	48001800	TRANS	2
+1663	TXG047	1182	299	chr8	128500000	128502000	TRANS	2
+1664	TXG048	1183	300	chrX	75000000	75001800	TRANS	2
+1665	TXG048	1183	300	chr9	22000000	22001800	TRANS	2
+1666	TXG049	1184	301	chrY	20000000	20001500	TRANS	2
+1667	TXG049	1184	301	chr15	50000000	50001800	TRANS	2
+1668	TXG050	1185	302	chr5	150400000	150402000	TRANS	2
+1669	TXG050	1185	302	chr22	23200000	23201800	TRANS	2
+7031		1351	303	chr5	75000000	120000000	DEL	1
+7034	AUTO-BREAKPOINT-52-2	1354	304	chr21	29985207	30429817	DER	2
+7035		1355	305	chr1	25251125	28944261	DUP	3
+7036		1356	306	chr9	217379832	231989271	DEL	1
+7037		1357	307	chr11	27536862	29117879	GAIN	3
+7038	AUTO-BREAKPOINT-52-6	1358	308	chr3	148287279	153230994	DER	2
+7039		1359	309	chr3	62589327	77151510	DEL	1
+7040	AUTO-BREAKPOINT-52-8	1360	310	chr22	71766312	83565902	DER	2
+7041		1361	311	chr21	184827068	194196134	DUP	3
+7042	AUTO-BREAKPOINT-52-10	1362	312	chr7	152351235	167079243	DER	2
+7043		1363	313	chrY	150791111	159858649	LOSS	1
+7044		1364	314	chr16	24503309	37208229	DEL	1
+7045		1365	315	chr13	160057580	167935154	ADD	2
+7046		1366	316	chr14	42555148	50192368	DEL	1
+7047		1367	317	chr12	204784934	207520277	ADD	2
+7048		1368	318	chr10	64377491	65374314	DUP	3
+7049		1369	319	chr22	127682641	136931814	DUP	3
+7050		1370	320	chr21	100339303	107714402	ADD	2
+7051	AUTO-BREAKPOINT-52-19	1371	321	chr8	2030277	3246343	DER	2
+7052		1372	322	chr22	130402462	134021759	ADD	2
+7053		1373	323	chr4	176994335	184251173	LOSS	1
+7054		1374	324	chr11	215007415	229488881	DEL	1
+7055		1375	325	chr15	67156907	81853346	DEL	1
+7056		1376	326	chr14	130463297	138564151	DUP	3
+7057	AUTO-BREAKPOINT-52-25	1377	327	chr10	113650206	125362072	DER	2
+7058		1378	328	chr19	197597944	206719470	DEL	1
+7059	AUTO-BREAKPOINT-52-27	1379	329	chr3	159828520	160993714	DER	2
+7060		1380	330	chr22	156778336	166286270	ADD	2
+7061		1381	331	chr22	173375298	178433413	GAIN	3
+7062		1382	332	chr9	35656038	41536434	DEL	1
+7063	AUTO-BREAKPOINT-52-31	1383	333	chr21	142086436	142242685	DER	2
+7064		1384	334	chrY	148604841	151237824	LOSS	1
+7065		1385	335	chr2	24876180	35542707	GAIN	3
+7066		1386	336	chr15	148190585	160054720	GAIN	3
+7067		1387	337	chr5	11328349	16525065	LOSS	1
+7068		1388	338	chr14	166707554	179306701	DUP	3
+7069	AUTO-BREAKPOINT-52-37	1389	339	chr11	210120274	217052674	DER	2
+7070		1390	340	chr8	53672423	67397472	GAIN	3
+7071		1391	341	chr3	207688289	212396229	LOSS	1
+7072		1392	342	chr19	71360584	72027433	DEL	1
+7073		1393	343	chr19	51123882	55422416	DEL	1
+7074	AUTO-BREAKPOINT-52-42	1394	344	chr11	167377006	172668636	DER	2
+7075		1395	345	chr10	148923967	151084501	DUP	3
+7076		1396	346	chr10	56520484	63757810	ADD	2
+7077		1397	347	chr6	176958901	178406534	LOSS	1
+7078		1398	348	chr5	6656640	7456977	DUP	3
+7079		1399	349	chrX	103173435	111492707	GAIN	3
+7080		1400	350	chr18	66993652	81251374	DEL	1
+7081		1401	351	chr15	42823624	55325091	GAIN	3
+7082		1402	352	chr3	191640741	196459463	DUP	3
+7083		1403	353	chrX	41118350	52995096	DUP	3
+7084	AUTO-BREAKPOINT-52-52	1404	354	chr13	206740479	216564705	DER	2
+7085	AUTO-BREAKPOINT-52-53	1405	355	chr14	144577482	157143713	DER	2
+7086	AUTO-BREAKPOINT-52-54	1406	356	chr1	104483060	110147377	DER	2
+7087		1407	357	chr19	151602819	162751109	DEL	1
+7088		1408	358	chr11	56917125	64570713	LOSS	1
+7089		1409	359	chrY	144899199	145798050	LOSS	1
+7090		1410	360	chr20	41004824	45031944	DUP	3
+7091	AUTO-BREAKPOINT-52-59	1411	361	chr20	163106756	175679866	DER	2
+7092		1412	362	chrX	53338744	54638753	ADD	2
+7093		1413	363	chr18	115091846	126215332	LOSS	1
+7094		1414	364	chr21	123510341	135402010	DUP	3
+7095		1415	365	chr8	23363394	28068033	GAIN	3
+7096		1416	366	chr6	130975689	134559469	LOSS	1
+7097		1417	367	chr8	193393571	200237303	GAIN	3
+7098	AUTO-BREAKPOINT-52-66	1418	368	chr10	59584331	66394056	DER	2
+7099		1419	369	chrX	121901317	126471540	LOSS	1
+7100		1420	370	chr7	198367676	206516180	LOSS	1
+7101	AUTO-BREAKPOINT-52-69	1421	371	chr6	81239339	81501709	DER	2
+7102		1422	372	chr1	154199191	158994613	GAIN	3
+7103		1423	373	chr13	132102213	133370105	ADD	2
+7104		1424	374	chr18	205303725	212310966	ADD	2
+7105		1425	375	chr14	82074884	91639903	ADD	2
+7106		1426	376	chr6	148274290	149558669	DUP	3
+7107		1427	377	chrX	75991635	87810809	GAIN	3
+7108		1428	378	chr5	71405173	85298742	DUP	3
+7109		1429	379	chr10	187933330	194711302	LOSS	1
+7110		1430	380	chr9	7043055	8600265	DUP	3
+7111		1431	381	chr21	118810050	123501742	DUP	3
+7112		1432	382	chr11	86283419	97551393	DEL	1
+7113		1433	383	chr3	84527556	88787106	LOSS	1
+7114		1434	384	chr17	97214407	107685469	GAIN	3
+7115	AUTO-BREAKPOINT-52-83	1435	385	chr16	32695067	33204415	DER	2
+7116		1436	386	chr14	25120655	28915506	DEL	1
+7117		1437	387	chr16	126860532	130974658	GAIN	3
+7118		1438	388	chr17	71818614	85610149	DEL	1
+7119		1439	389	chr11	148254203	161078082	ADD	2
+7120	AUTO-BREAKPOINT-52-88	1440	390	chr11	200005267	207965491	DER	2
+7121		1441	391	chr19	89219149	103835299	DEL	1
+7122		1442	392	chr5	20186555	28088300	LOSS	1
+7123		1443	393	chr21	193029239	207942989	GAIN	3
+7124	AUTO-BREAKPOINT-52-92	1444	394	chr3	116593328	118269929	DER	2
+7125		1445	395	chr2	78850313	84889329	LOSS	1
+7126	AUTO-BREAKPOINT-52-94	1446	396	chr20	102788453	113210467	DER	2
+7127		1447	397	chr22	2622603	16147105	GAIN	3
+7128		1448	398	chr14	185404622	189625573	GAIN	3
+7129	AUTO-BREAKPOINT-52-97	1449	399	chr12	154399903	159388817	DER	2
+7130		1450	400	chr8	163057768	176536953	LOSS	1
+7131		1451	401	chr15	9056222	18804856	LOSS	1
+7132		1452	402	chr18	98309133	107240357	ADD	2
+7133		1453	403	chr3	37884173	50561735	DUP	3
+7234		1554	404	chr1	1000	2000	DEL	1
+7235		1555	405	chr2	3000	4000	DUP	3
+7236		1556	406	chr3	5000	6000	GAIN	3
+7237		1557	407	chr4	7000	8000	LOSS	1
+7238		1558	408	chr5	9000	10000	AMP	5
+7239		1559	409	chr6	11000	12000	ROH	2
+7240		1560	410	chr7	13000	14000	TRISOMY	3
+7241		1561	411	chr8	15000	16000	MONOSOMY	1
+7242	TX001	1562	412	chr9	17000	18000	TRANS	2
+7243	TX001	1562	412	chr22	19000	20000	TRANS	2
+7244	INV001	1563	413	chr3	21000	22000	INV	2
+7245	INV001	1563	413	chr3	23000	24000	INV	2
+7246	INS001	1564	414	chr10	25000	26000	INS	2
+7247	INS001	1564	414	chr11	27000	28000	INS	2
+7248	DER001	1565	415	chr5	29000	30000	DER	2
+7249	DER001	1565	415	chr8	31000	32000	DER	2
+7250	DIC001	1566	416	chr15	33000	34000	DIC	2
+7251	DIC001	1566	416	chr21	35000	36000	DIC	2
+7252	RING001	1567	417	chr14	37000	38000	RING	2
+7253	RING001	1567	417	chr14	39000	40000	RING	2
+7254	CX001	1568	418	chr1	41000	42000	COMPLEX	2
+7255	CX001	1568	418	chr12	43000	44000	COMPLEX	2
+7256		1569	419	chr7	51109096	63573985	DEL	1
+7257		1570	420	chr17	36095248	42636838	DUP	3
+7258		1571	421	chr22	114775783	124126409	GAIN	3
+7259		1572	422	chr13	125258155	134236318	LOSS	1
+7260	TXG001	1573	423	chr9	133700000	133701000	TRANS	2
+7261	TXG001	1573	423	chr22	23200000	23201000	TRANS	2
+7262	INVG001	1574	424	chr3	178866000	178967000	INV	2
+7263	INVG001	1574	424	chr3	12100000	12201000	INV	2
+7264	DERG001	1575	425	chr5	70000000	70100000	DER	2
+7265	DERG001	1575	425	chr8	12000000	12100000	DER	2
+7266	RING001	1576	426	chr14	19000000	19001000	RING	2
+7267	RING001	1576	426	chr14	106000000	106001000	RING	2
+7268	TXG001	1577	427	chr9	133700000	133701000	TRANS	2
+7269	TXG001	1577	427	chr22	23200000	23201000	TRANS	2
+7270	TXG002	1578	428	chr1	12000000	12001500	TRANS	2
+7271	TXG002	1578	428	chr7	55000000	55002000	TRANS	2
+7272	TXG003	1579	429	chr2	89100000	89101800	TRANS	2
+7273	TXG003	1579	429	chr12	25300000	25301600	TRANS	2
+7274	TXG004	1580	430	chr3	45120000	45122500	TRANS	2
+7275	TXG004	1580	430	chr8	128700000	128702200	TRANS	2
+7276	TXG005	1581	431	chr4	99000000	99001750	TRANS	2
+7277	TXG005	1581	431	chr11	67400000	67401900	TRANS	2
+7278	TXG006	1582	432	chr5	70000000	70003000	TRANS	2
+7279	TXG006	1582	432	chr14	106200000	106202000	TRANS	2
+7280	TXG007	1583	433	chr6	32500000	32501800	TRANS	2
+7281	TXG007	1583	433	chr17	43000000	43001800	TRANS	2
+7282	TXG008	1584	434	chr7	140500000	140502100	TRANS	2
+7283	TXG008	1584	434	chr10	81100000	81102100	TRANS	2
+7284	TXG009	1585	435	chr8	118000000	118002500	TRANS	2
+7285	TXG009	1585	435	chr21	36000000	36001700	TRANS	2
+7286	TXG010	1586	436	chr9	21900000	21902000	TRANS	2
+7287	TXG010	1586	436	chr15	61000000	61001800	TRANS	2
+7288	TXG011	1587	437	chr10	33000000	33001400	TRANS	2
+7289	TXG011	1587	437	chr20	45800000	45801600	TRANS	2
+7290	TXG012	1588	438	chr11	118900000	118902400	TRANS	2
+7291	TXG012	1588	438	chr19	55600000	55601800	TRANS	2
+7292	TXG013	1589	439	chr12	69300000	69302000	TRANS	2
+7293	TXG013	1589	439	chr18	24000000	24001500	TRANS	2
+7294	TXG014	1590	440	chr13	48000000	48001600	TRANS	2
+7295	TXG014	1590	440	chr3	178000000	178002000	TRANS	2
+7296	TXG015	1591	441	chr14	75500000	75502200	TRANS	2
+7297	TXG015	1591	441	chr5	150400000	150402500	TRANS	2
+7298	TXG016	1592	442	chr15	42000000	42001800	TRANS	2
+7299	TXG016	1592	442	chr1	161000000	161002100	TRANS	2
+7300	TXG017	1593	443	chr16	66600000	66601800	TRANS	2
+7301	TXG017	1593	443	chr2	130900000	130902000	TRANS	2
+7302	TXG018	1594	444	chr17	7570000	7571800	TRANS	2
+7303	TXG018	1594	444	chr6	32700000	32701800	TRANS	2
+7304	TXG019	1595	445	chr18	78000000	78001900	TRANS	2
+7305	TXG019	1595	445	chr9	141000000	141002000	TRANS	2
+7306	TXG020	1596	446	chr19	13000000	13001700	TRANS	2
+7307	TXG020	1596	446	chr22	42000000	42001800	TRANS	2
+7308	TXG021	1597	447	chr20	20000000	20001500	TRANS	2
+7309	TXG021	1597	447	chr4	88000000	88002000	TRANS	2
+7310	TXG022	1598	448	chr21	19000000	19001800	TRANS	2
+7311	TXG022	1598	448	chr8	142000000	142002400	TRANS	2
+7312	TXG023	1599	449	chr22	23200000	23201800	TRANS	2
+7313	TXG023	1599	449	chr9	133700000	133702000	TRANS	2
+7314	TXG024	1600	450	chrX	50000000	50001800	TRANS	2
+7315	TXG024	1600	450	chr2	45000000	45001800	TRANS	2
+7316	TXG025	1601	451	chrY	12000000	12001500	TRANS	2
+7317	TXG025	1601	451	chr1	220000000	220002000	TRANS	2
+7318	TXG026	1602	452	chr1	248000000	248002000	TRANS	2
+7319	TXG026	1602	452	chr16	90000000	90001800	TRANS	2
+7320	TXG027	1603	453	chr2	240000000	240002100	TRANS	2
+7321	TXG027	1603	453	chr7	100000000	100002000	TRANS	2
+7322	TXG028	1604	454	chr3	10000000	10001600	TRANS	2
+7323	TXG028	1604	454	chr11	30000000	30001800	TRANS	2
+7324	TXG029	1605	455	chr4	5000000	5001800	TRANS	2
+7325	TXG029	1605	455	chr13	110000000	110002000	TRANS	2
+7326	TXG030	1606	456	chr5	141011866	141013200	TRANS	2
+7327	TXG030	1606	456	chr7	77900000	77902000	TRANS	2
+7328	TXG031	1607	457	chr6	32490000	32491800	TRANS	2
+7329	TXG031	1607	457	chr14	23000000	23001800	TRANS	2
+7330	TXG032	1608	458	chr7	55200000	55202200	TRANS	2
+7331	TXG032	1608	458	chr12	121000000	121002100	TRANS	2
+7332	TXG033	1609	459	chr8	38200000	38201800	TRANS	2
+7333	TXG033	1609	459	chr17	81000000	81002000	TRANS	2
+7334	TXG034	1610	460	chr9	90000000	90001900	TRANS	2
+7335	TXG034	1610	460	chr3	60000000	60001800	TRANS	2
+7336	TXG035	1611	461	chr10	123000000	123002000	TRANS	2
+7337	TXG035	1611	461	chr18	55000000	55001700	TRANS	2
+7338	TXG036	1612	462	chr11	65000000	65001800	TRANS	2
+7339	TXG036	1612	462	chr15	91500000	91502000	TRANS	2
+7340	TXG037	1613	463	chr12	112000000	112001900	TRANS	2
+7341	TXG037	1613	463	chr20	60000000	60001800	TRANS	2
+7342	TXG038	1614	464	chr13	35000000	35001800	TRANS	2
+7343	TXG038	1614	464	chr19	41000000	41001800	TRANS	2
+7344	TXG039	1615	465	chr14	95000000	95002100	TRANS	2
+7345	TXG039	1615	465	chr21	43000000	43001800	TRANS	2
+7346	TXG040	1616	466	chr15	27000000	27001800	TRANS	2
+7347	TXG040	1616	466	chr22	25000000	25001800	TRANS	2
+7348	TXG041	1617	467	chr16	10000000	10001500	TRANS	2
+7349	TXG041	1617	467	chr5	181000000	181002000	TRANS	2
+7350	TXG042	1618	468	chr17	43000000	43001800	TRANS	2
+7351	TXG042	1618	468	chr1	108700000	108702000	TRANS	2
+7352	TXG043	1619	469	chr18	15000000	15001700	TRANS	2
+7353	TXG043	1619	469	chr6	32550000	32551800	TRANS	2
+7354	TXG044	1620	470	chr19	56000000	56001800	TRANS	2
+7355	TXG044	1620	470	chr10	45000000	45001700	TRANS	2
+7356	TXG045	1621	471	chr20	50000000	50001800	TRANS	2
+7357	TXG045	1621	471	chr12	69000000	69002000	TRANS	2
+7358	TXG046	1622	472	chr21	35000000	35001800	TRANS	2
+7359	TXG046	1622	472	chr4	180000000	180002200	TRANS	2
+7360	TXG047	1623	473	chr22	48000000	48001800	TRANS	2
+7361	TXG047	1623	473	chr8	128500000	128502000	TRANS	2
+7362	TXG048	1624	474	chrX	75000000	75001800	TRANS	2
+7363	TXG048	1624	474	chr9	22000000	22001800	TRANS	2
+7364	TXG049	1625	475	chrY	20000000	20001500	TRANS	2
+7365	TXG049	1625	475	chr15	50000000	50001800	TRANS	2
+7366	TXG050	1626	476	chr5	150400000	150402000	TRANS	2
+7367	TXG050	1626	476	chr22	23200000	23201800	TRANS	2
+7920		1729	477	chr5	75000000	120000000	DEL	1
+7923	AUTO-BREAKPOINT-63-2	1732	478	chr21	29985207	30429817	DER	2
+7924		1733	479	chr1	25251125	28944261	DUP	3
+7925		1734	480	chr9	217379832	231989271	DEL	1
+7926		1735	481	chr11	27536862	29117879	GAIN	3
+7927	AUTO-BREAKPOINT-63-6	1736	482	chr3	148287279	153230994	DER	2
+7928		1737	483	chr3	62589327	77151510	DEL	1
+7929	AUTO-BREAKPOINT-63-8	1738	484	chr22	71766312	83565902	DER	2
+7930		1739	485	chr21	184827068	194196134	DUP	3
+7931	AUTO-BREAKPOINT-63-10	1740	486	chr7	152351235	167079243	DER	2
+7932		1741	487	chrY	150791111	159858649	LOSS	1
+7933		1742	488	chr16	24503309	37208229	DEL	1
+7934		1743	489	chr13	160057580	167935154	ADD	2
+7935		1744	490	chr14	42555148	50192368	DEL	1
+7936		1745	491	chr12	204784934	207520277	ADD	2
+7937		1746	492	chr10	64377491	65374314	DUP	3
+7938		1747	493	chr22	127682641	136931814	DUP	3
+7939		1748	494	chr21	100339303	107714402	ADD	2
+7940	AUTO-BREAKPOINT-63-19	1749	495	chr8	2030277	3246343	DER	2
+7941		1750	496	chr22	130402462	134021759	ADD	2
+7942		1751	497	chr4	176994335	184251173	LOSS	1
+7943		1752	498	chr11	215007415	229488881	DEL	1
+7944		1753	499	chr15	67156907	81853346	DEL	1
+7945		1754	500	chr14	130463297	138564151	DUP	3
+7946	AUTO-BREAKPOINT-63-25	1755	501	chr10	113650206	125362072	DER	2
+7947		1756	502	chr19	197597944	206719470	DEL	1
+7948	AUTO-BREAKPOINT-63-27	1757	503	chr3	159828520	160993714	DER	2
+7949		1758	504	chr22	156778336	166286270	ADD	2
+7950		1759	505	chr22	173375298	178433413	GAIN	3
+7951		1760	506	chr9	35656038	41536434	DEL	1
+7952	AUTO-BREAKPOINT-63-31	1761	507	chr21	142086436	142242685	DER	2
+7953		1762	508	chrY	148604841	151237824	LOSS	1
+7954		1763	509	chr2	24876180	35542707	GAIN	3
+7955		1764	510	chr15	148190585	160054720	GAIN	3
+7956		1765	511	chr5	11328349	16525065	LOSS	1
+7957		1766	512	chr14	166707554	179306701	DUP	3
+7958	AUTO-BREAKPOINT-63-37	1767	513	chr11	210120274	217052674	DER	2
+7959		1768	514	chr8	53672423	67397472	GAIN	3
+7960		1769	515	chr3	207688289	212396229	LOSS	1
+7961		1770	516	chr19	71360584	72027433	DEL	1
+7962		1771	517	chr19	51123882	55422416	DEL	1
+7963	AUTO-BREAKPOINT-63-42	1772	518	chr11	167377006	172668636	DER	2
+7964		1773	519	chr10	148923967	151084501	DUP	3
+7965		1774	520	chr10	56520484	63757810	ADD	2
+7966		1775	521	chr6	176958901	178406534	LOSS	1
+7967		1776	522	chr5	6656640	7456977	DUP	3
+7968		1777	523	chrX	103173435	111492707	GAIN	3
+7969		1778	524	chr18	66993652	81251374	DEL	1
+7970		1779	525	chr15	42823624	55325091	GAIN	3
+7971		1780	526	chr3	191640741	196459463	DUP	3
+7972		1781	527	chrX	41118350	52995096	DUP	3
+7973	AUTO-BREAKPOINT-63-52	1782	528	chr13	206740479	216564705	DER	2
+7974	AUTO-BREAKPOINT-63-53	1783	529	chr14	144577482	157143713	DER	2
+7975	AUTO-BREAKPOINT-63-54	1784	530	chr1	104483060	110147377	DER	2
+7976		1785	531	chr19	151602819	162751109	DEL	1
+7977		1786	532	chr11	56917125	64570713	LOSS	1
+7978		1787	533	chrY	144899199	145798050	LOSS	1
+7979		1788	534	chr20	41004824	45031944	DUP	3
+7980	AUTO-BREAKPOINT-63-59	1789	535	chr20	163106756	175679866	DER	2
+7981		1790	536	chrX	53338744	54638753	ADD	2
+7982		1791	537	chr18	115091846	126215332	LOSS	1
+7983		1792	538	chr21	123510341	135402010	DUP	3
+7984		1793	539	chr8	23363394	28068033	GAIN	3
+7985		1794	540	chr6	130975689	134559469	LOSS	1
+7986		1795	541	chr8	193393571	200237303	GAIN	3
+7987	AUTO-BREAKPOINT-63-66	1796	542	chr10	59584331	66394056	DER	2
+7988		1797	543	chrX	121901317	126471540	LOSS	1
+7989		1798	544	chr7	198367676	206516180	LOSS	1
+7990	AUTO-BREAKPOINT-63-69	1799	545	chr6	81239339	81501709	DER	2
+7991		1800	546	chr1	154199191	158994613	GAIN	3
+7992		1801	547	chr13	132102213	133370105	ADD	2
+7993		1802	548	chr18	205303725	212310966	ADD	2
+7994		1803	549	chr14	82074884	91639903	ADD	2
+7995		1804	550	chr6	148274290	149558669	DUP	3
+7996		1805	551	chrX	75991635	87810809	GAIN	3
+7997		1806	552	chr5	71405173	85298742	DUP	3
+7998		1807	553	chr10	187933330	194711302	LOSS	1
+7999		1808	554	chr9	7043055	8600265	DUP	3
+8000		1809	555	chr21	118810050	123501742	DUP	3
+8001		1810	556	chr11	86283419	97551393	DEL	1
+8002		1811	557	chr3	84527556	88787106	LOSS	1
+8003		1812	558	chr17	97214407	107685469	GAIN	3
+8004	AUTO-BREAKPOINT-63-83	1813	559	chr16	32695067	33204415	DER	2
+8005		1814	560	chr14	25120655	28915506	DEL	1
+8006		1815	561	chr16	126860532	130974658	GAIN	3
+8007		1816	562	chr17	71818614	85610149	DEL	1
+8008		1817	563	chr11	148254203	161078082	ADD	2
+8009	AUTO-BREAKPOINT-63-88	1818	564	chr11	200005267	207965491	DER	2
+8010		1819	565	chr19	89219149	103835299	DEL	1
+8011		1820	566	chr5	20186555	28088300	LOSS	1
+8012		1821	567	chr21	193029239	207942989	GAIN	3
+8013	AUTO-BREAKPOINT-63-92	1822	568	chr3	116593328	118269929	DER	2
+8014		1823	569	chr2	78850313	84889329	LOSS	1
+8015	AUTO-BREAKPOINT-63-94	1824	570	chr20	102788453	113210467	DER	2
+8016		1825	571	chr22	2622603	16147105	GAIN	3
+8017		1826	572	chr14	185404622	189625573	GAIN	3
+8018	AUTO-BREAKPOINT-63-97	1827	573	chr12	154399903	159388817	DER	2
+8019		1828	574	chr8	163057768	176536953	LOSS	1
+8020		1829	575	chr15	9056222	18804856	LOSS	1
+8021		1830	576	chr18	98309133	107240357	ADD	2
+8022		1831	577	chr3	37884173	50561735	DUP	3
+8123		1932	578	chr1	1000	2000	DEL	1
+8124		1933	579	chr2	3000	4000	DUP	3
+8125		1934	580	chr3	5000	6000	GAIN	3
+8126		1935	581	chr4	7000	8000	LOSS	1
+8127		1936	582	chr5	9000	10000	AMP	5
+8128		1937	583	chr6	11000	12000	ROH	2
+8129		1938	584	chr7	13000	14000	TRISOMY	3
+8130		1939	585	chr8	15000	16000	MONOSOMY	1
+8131	TX001	1940	586	chr9	17000	18000	TRANS	2
+8132	TX001	1940	586	chr22	19000	20000	TRANS	2
+8133	INV001	1941	587	chr3	21000	22000	INV	2
+8134	INV001	1941	587	chr3	23000	24000	INV	2
+8135	INS001	1942	588	chr10	25000	26000	INS	2
+8136	INS001	1942	588	chr11	27000	28000	INS	2
+8137	DER001	1943	589	chr5	29000	30000	DER	2
+8138	DER001	1943	589	chr8	31000	32000	DER	2
+8139	DIC001	1944	590	chr15	33000	34000	DIC	2
+8140	DIC001	1944	590	chr21	35000	36000	DIC	2
+8141	RING001	1945	591	chr14	37000	38000	RING	2
+8142	RING001	1945	591	chr14	39000	40000	RING	2
+8143	CX001	1946	592	chr1	41000	42000	COMPLEX	2
+8144	CX001	1946	592	chr12	43000	44000	COMPLEX	2
+8145		1947	593	chr7	51109096	63573985	DEL	1
+8146		1948	594	chr17	36095248	42636838	DUP	3
+8147		1949	595	chr22	114775783	124126409	GAIN	3
+8148		1950	596	chr13	125258155	134236318	LOSS	1
+8149	TXG001	1951	597	chr9	133700000	133701000	TRANS	2
+8150	TXG001	1951	597	chr22	23200000	23201000	TRANS	2
+8151	INVG001	1952	598	chr3	178866000	178967000	INV	2
+8152	INVG001	1952	598	chr3	12100000	12201000	INV	2
+8153	DERG001	1953	599	chr5	70000000	70100000	DER	2
+8154	DERG001	1953	599	chr8	12000000	12100000	DER	2
+8155	RING001	1954	600	chr14	19000000	19001000	RING	2
+8156	RING001	1954	600	chr14	106000000	106001000	RING	2
+8157	TXG001	1955	601	chr9	133700000	133701000	TRANS	2
+8158	TXG001	1955	601	chr22	23200000	23201000	TRANS	2
+8159	TXG002	1956	602	chr1	12000000	12001500	TRANS	2
+8160	TXG002	1956	602	chr7	55000000	55002000	TRANS	2
+8161	TXG003	1957	603	chr2	89100000	89101800	TRANS	2
+8162	TXG003	1957	603	chr12	25300000	25301600	TRANS	2
+8163	TXG004	1958	604	chr3	45120000	45122500	TRANS	2
+8164	TXG004	1958	604	chr8	128700000	128702200	TRANS	2
+8165	TXG005	1959	605	chr4	99000000	99001750	TRANS	2
+8166	TXG005	1959	605	chr11	67400000	67401900	TRANS	2
+8167	TXG006	1960	606	chr5	70000000	70003000	TRANS	2
+8168	TXG006	1960	606	chr14	106200000	106202000	TRANS	2
+8169	TXG007	1961	607	chr6	32500000	32501800	TRANS	2
+8170	TXG007	1961	607	chr17	43000000	43001800	TRANS	2
+8171	TXG008	1962	608	chr7	140500000	140502100	TRANS	2
+8172	TXG008	1962	608	chr10	81100000	81102100	TRANS	2
+8173	TXG009	1963	609	chr8	118000000	118002500	TRANS	2
+8174	TXG009	1963	609	chr21	36000000	36001700	TRANS	2
+8175	TXG010	1964	610	chr9	21900000	21902000	TRANS	2
+8176	TXG010	1964	610	chr15	61000000	61001800	TRANS	2
+8177	TXG011	1965	611	chr10	33000000	33001400	TRANS	2
+8178	TXG011	1965	611	chr20	45800000	45801600	TRANS	2
+8179	TXG012	1966	612	chr11	118900000	118902400	TRANS	2
+8180	TXG012	1966	612	chr19	55600000	55601800	TRANS	2
+8181	TXG013	1967	613	chr12	69300000	69302000	TRANS	2
+8182	TXG013	1967	613	chr18	24000000	24001500	TRANS	2
+8183	TXG014	1968	614	chr13	48000000	48001600	TRANS	2
+8184	TXG014	1968	614	chr3	178000000	178002000	TRANS	2
+8185	TXG015	1969	615	chr14	75500000	75502200	TRANS	2
+8186	TXG015	1969	615	chr5	150400000	150402500	TRANS	2
+8187	TXG016	1970	616	chr15	42000000	42001800	TRANS	2
+8188	TXG016	1970	616	chr1	161000000	161002100	TRANS	2
+8189	TXG017	1971	617	chr16	66600000	66601800	TRANS	2
+8190	TXG017	1971	617	chr2	130900000	130902000	TRANS	2
+8191	TXG018	1972	618	chr17	7570000	7571800	TRANS	2
+8192	TXG018	1972	618	chr6	32700000	32701800	TRANS	2
+8193	TXG019	1973	619	chr18	78000000	78001900	TRANS	2
+8194	TXG019	1973	619	chr9	141000000	141002000	TRANS	2
+8195	TXG020	1974	620	chr19	13000000	13001700	TRANS	2
+8196	TXG020	1974	620	chr22	42000000	42001800	TRANS	2
+8197	TXG021	1975	621	chr20	20000000	20001500	TRANS	2
+8198	TXG021	1975	621	chr4	88000000	88002000	TRANS	2
+8199	TXG022	1976	622	chr21	19000000	19001800	TRANS	2
+8200	TXG022	1976	622	chr8	142000000	142002400	TRANS	2
+8201	TXG023	1977	623	chr22	23200000	23201800	TRANS	2
+8202	TXG023	1977	623	chr9	133700000	133702000	TRANS	2
+8203	TXG024	1978	624	chrX	50000000	50001800	TRANS	2
+8204	TXG024	1978	624	chr2	45000000	45001800	TRANS	2
+8205	TXG025	1979	625	chrY	12000000	12001500	TRANS	2
+8206	TXG025	1979	625	chr1	220000000	220002000	TRANS	2
+8207	TXG026	1980	626	chr1	248000000	248002000	TRANS	2
+8208	TXG026	1980	626	chr16	90000000	90001800	TRANS	2
+8209	TXG027	1981	627	chr2	240000000	240002100	TRANS	2
+8210	TXG027	1981	627	chr7	100000000	100002000	TRANS	2
+8211	TXG028	1982	628	chr3	10000000	10001600	TRANS	2
+8212	TXG028	1982	628	chr11	30000000	30001800	TRANS	2
+8213	TXG029	1983	629	chr4	5000000	5001800	TRANS	2
+8214	TXG029	1983	629	chr13	110000000	110002000	TRANS	2
+8215	TXG030	1984	630	chr5	141011866	141013200	TRANS	2
+8216	TXG030	1984	630	chr7	77900000	77902000	TRANS	2
+8217	TXG031	1985	631	chr6	32490000	32491800	TRANS	2
+8218	TXG031	1985	631	chr14	23000000	23001800	TRANS	2
+8219	TXG032	1986	632	chr7	55200000	55202200	TRANS	2
+8220	TXG032	1986	632	chr12	121000000	121002100	TRANS	2
+8221	TXG033	1987	633	chr8	38200000	38201800	TRANS	2
+8222	TXG033	1987	633	chr17	81000000	81002000	TRANS	2
+8223	TXG034	1988	634	chr9	90000000	90001900	TRANS	2
+8224	TXG034	1988	634	chr3	60000000	60001800	TRANS	2
+8225	TXG035	1989	635	chr10	123000000	123002000	TRANS	2
+8226	TXG035	1989	635	chr18	55000000	55001700	TRANS	2
+8227	TXG036	1990	636	chr11	65000000	65001800	TRANS	2
+8228	TXG036	1990	636	chr15	91500000	91502000	TRANS	2
+8229	TXG037	1991	637	chr12	112000000	112001900	TRANS	2
+8230	TXG037	1991	637	chr20	60000000	60001800	TRANS	2
+8231	TXG038	1992	638	chr13	35000000	35001800	TRANS	2
+8232	TXG038	1992	638	chr19	41000000	41001800	TRANS	2
+8233	TXG039	1993	639	chr14	95000000	95002100	TRANS	2
+8234	TXG039	1993	639	chr21	43000000	43001800	TRANS	2
+8235	TXG040	1994	640	chr15	27000000	27001800	TRANS	2
+8236	TXG040	1994	640	chr22	25000000	25001800	TRANS	2
+8237	TXG041	1995	641	chr16	10000000	10001500	TRANS	2
+8238	TXG041	1995	641	chr5	181000000	181002000	TRANS	2
+8239	TXG042	1996	642	chr17	43000000	43001800	TRANS	2
+8240	TXG042	1996	642	chr1	108700000	108702000	TRANS	2
+8241	TXG043	1997	643	chr18	15000000	15001700	TRANS	2
+8242	TXG043	1997	643	chr6	32550000	32551800	TRANS	2
+8243	TXG044	1998	644	chr19	56000000	56001800	TRANS	2
+8244	TXG044	1998	644	chr10	45000000	45001700	TRANS	2
+8245	TXG045	1999	645	chr20	50000000	50001800	TRANS	2
+8246	TXG045	1999	645	chr12	69000000	69002000	TRANS	2
+8247	TXG046	2000	646	chr21	35000000	35001800	TRANS	2
+8248	TXG046	2000	646	chr4	180000000	180002200	TRANS	2
+8249	TXG047	2001	647	chr22	48000000	48001800	TRANS	2
+8250	TXG047	2001	647	chr8	128500000	128502000	TRANS	2
+8251	TXG048	2002	648	chrX	75000000	75001800	TRANS	2
+8252	TXG048	2002	648	chr9	22000000	22001800	TRANS	2
+8253	TXG049	2003	649	chrY	20000000	20001500	TRANS	2
+8254	TXG049	2003	649	chr15	50000000	50001800	TRANS	2
+8255	TXG050	2004	650	chr5	150400000	150402000	TRANS	2
+8256	TXG050	2004	650	chr22	23200000	23201800	TRANS	2
+8809		2107	651	chr5	75000000	120000000	DEL	1
+8812	AUTO-BREAKPOINT-74-2	2110	652	chr21	29985207	30429817	DER	2
+8813		2111	653	chr1	25251125	28944261	DUP	3
+8814		2112	654	chr9	217379832	231989271	DEL	1
+8815		2113	655	chr11	27536862	29117879	GAIN	3
+8816	AUTO-BREAKPOINT-74-6	2114	656	chr3	148287279	153230994	DER	2
+8817		2115	657	chr3	62589327	77151510	DEL	1
+8818	AUTO-BREAKPOINT-74-8	2116	658	chr22	71766312	83565902	DER	2
+8819		2117	659	chr21	184827068	194196134	DUP	3
+8820	AUTO-BREAKPOINT-74-10	2118	660	chr7	152351235	167079243	DER	2
+8821		2119	661	chrY	150791111	159858649	LOSS	1
+8822		2120	662	chr16	24503309	37208229	DEL	1
+8823		2121	663	chr13	160057580	167935154	ADD	2
+8824		2122	664	chr14	42555148	50192368	DEL	1
+8825		2123	665	chr12	204784934	207520277	ADD	2
+8826		2124	666	chr10	64377491	65374314	DUP	3
+8827		2125	667	chr22	127682641	136931814	DUP	3
+8828		2126	668	chr21	100339303	107714402	ADD	2
+8829	AUTO-BREAKPOINT-74-19	2127	669	chr8	2030277	3246343	DER	2
+8830		2128	670	chr22	130402462	134021759	ADD	2
+8831		2129	671	chr4	176994335	184251173	LOSS	1
+8832		2130	672	chr11	215007415	229488881	DEL	1
+8833		2131	673	chr15	67156907	81853346	DEL	1
+8834		2132	674	chr14	130463297	138564151	DUP	3
+8835	AUTO-BREAKPOINT-74-25	2133	675	chr10	113650206	125362072	DER	2
+8836		2134	676	chr19	197597944	206719470	DEL	1
+8837	AUTO-BREAKPOINT-74-27	2135	677	chr3	159828520	160993714	DER	2
+8838		2136	678	chr22	156778336	166286270	ADD	2
+8839		2137	679	chr22	173375298	178433413	GAIN	3
+8840		2138	680	chr9	35656038	41536434	DEL	1
+8841	AUTO-BREAKPOINT-74-31	2139	681	chr21	142086436	142242685	DER	2
+8842		2140	682	chrY	148604841	151237824	LOSS	1
+8843		2141	683	chr2	24876180	35542707	GAIN	3
+8844		2142	684	chr15	148190585	160054720	GAIN	3
+8845		2143	685	chr5	11328349	16525065	LOSS	1
+8846		2144	686	chr14	166707554	179306701	DUP	3
+8847	AUTO-BREAKPOINT-74-37	2145	687	chr11	210120274	217052674	DER	2
+8848		2146	688	chr8	53672423	67397472	GAIN	3
+8849		2147	689	chr3	207688289	212396229	LOSS	1
+8850		2148	690	chr19	71360584	72027433	DEL	1
+8851		2149	691	chr19	51123882	55422416	DEL	1
+8852	AUTO-BREAKPOINT-74-42	2150	692	chr11	167377006	172668636	DER	2
+8853		2151	693	chr10	148923967	151084501	DUP	3
+8854		2152	694	chr10	56520484	63757810	ADD	2
+8855		2153	695	chr6	176958901	178406534	LOSS	1
+8856		2154	696	chr5	6656640	7456977	DUP	3
+8857		2155	697	chrX	103173435	111492707	GAIN	3
+8858		2156	698	chr18	66993652	81251374	DEL	1
+8859		2157	699	chr15	42823624	55325091	GAIN	3
+8860		2158	700	chr3	191640741	196459463	DUP	3
+8861		2159	701	chrX	41118350	52995096	DUP	3
+8862	AUTO-BREAKPOINT-74-52	2160	702	chr13	206740479	216564705	DER	2
+8863	AUTO-BREAKPOINT-74-53	2161	703	chr14	144577482	157143713	DER	2
+8864	AUTO-BREAKPOINT-74-54	2162	704	chr1	104483060	110147377	DER	2
+8865		2163	705	chr19	151602819	162751109	DEL	1
+8866		2164	706	chr11	56917125	64570713	LOSS	1
+8867		2165	707	chrY	144899199	145798050	LOSS	1
+8868		2166	708	chr20	41004824	45031944	DUP	3
+8869	AUTO-BREAKPOINT-74-59	2167	709	chr20	163106756	175679866	DER	2
+8870		2168	710	chrX	53338744	54638753	ADD	2
+8871		2169	711	chr18	115091846	126215332	LOSS	1
+8872		2170	712	chr21	123510341	135402010	DUP	3
+8873		2171	713	chr8	23363394	28068033	GAIN	3
+8874		2172	714	chr6	130975689	134559469	LOSS	1
+8875		2173	715	chr8	193393571	200237303	GAIN	3
+8876	AUTO-BREAKPOINT-74-66	2174	716	chr10	59584331	66394056	DER	2
+8877		2175	717	chrX	121901317	126471540	LOSS	1
+8878		2176	718	chr7	198367676	206516180	LOSS	1
+8879	AUTO-BREAKPOINT-74-69	2177	719	chr6	81239339	81501709	DER	2
+8880		2178	720	chr1	154199191	158994613	GAIN	3
+8881		2179	721	chr13	132102213	133370105	ADD	2
+8882		2180	722	chr18	205303725	212310966	ADD	2
+8883		2181	723	chr14	82074884	91639903	ADD	2
+8884		2182	724	chr6	148274290	149558669	DUP	3
+8885		2183	725	chrX	75991635	87810809	GAIN	3
+8886		2184	726	chr5	71405173	85298742	DUP	3
+8887		2185	727	chr10	187933330	194711302	LOSS	1
+8888		2186	728	chr9	7043055	8600265	DUP	3
+8889		2187	729	chr21	118810050	123501742	DUP	3
+8890		2188	730	chr11	86283419	97551393	DEL	1
+8891		2189	731	chr3	84527556	88787106	LOSS	1
+8892		2190	732	chr17	97214407	107685469	GAIN	3
+8893	AUTO-BREAKPOINT-74-83	2191	733	chr16	32695067	33204415	DER	2
+8894		2192	734	chr14	25120655	28915506	DEL	1
+8895		2193	735	chr16	126860532	130974658	GAIN	3
+8896		2194	736	chr17	71818614	85610149	DEL	1
+8897		2195	737	chr11	148254203	161078082	ADD	2
+8898	AUTO-BREAKPOINT-74-88	2196	738	chr11	200005267	207965491	DER	2
+8899		2197	739	chr19	89219149	103835299	DEL	1
+8900		2198	740	chr5	20186555	28088300	LOSS	1
+8901		2199	741	chr21	193029239	207942989	GAIN	3
+8902	AUTO-BREAKPOINT-74-92	2200	742	chr3	116593328	118269929	DER	2
+8903		2201	743	chr2	78850313	84889329	LOSS	1
+8904	AUTO-BREAKPOINT-74-94	2202	744	chr20	102788453	113210467	DER	2
+8905		2203	745	chr22	2622603	16147105	GAIN	3
+8906		2204	746	chr14	185404622	189625573	GAIN	3
+8907	AUTO-BREAKPOINT-74-97	2205	747	chr12	154399903	159388817	DER	2
+8908		2206	748	chr8	163057768	176536953	LOSS	1
+8909		2207	749	chr15	9056222	18804856	LOSS	1
+8910		2208	750	chr18	98309133	107240357	ADD	2
+8911		2209	751	chr3	37884173	50561735	DUP	3
+9012		2310	752	chr1	1000	2000	DEL	1
+9013		2311	753	chr2	3000	4000	DUP	3
+9014		2312	754	chr3	5000	6000	GAIN	3
+9015		2313	755	chr4	7000	8000	LOSS	1
+9016		2314	756	chr5	9000	10000	AMP	5
+9017		2315	757	chr6	11000	12000	ROH	2
+9018		2316	758	chr7	13000	14000	TRISOMY	3
+9019		2317	759	chr8	15000	16000	MONOSOMY	1
+9020	TX001	2318	760	chr9	17000	18000	TRANS	2
+9021	TX001	2318	760	chr22	19000	20000	TRANS	2
+9022	INV001	2319	761	chr3	21000	22000	INV	2
+9023	INV001	2319	761	chr3	23000	24000	INV	2
+9024	INS001	2320	762	chr10	25000	26000	INS	2
+9025	INS001	2320	762	chr11	27000	28000	INS	2
+9026	DER001	2321	763	chr5	29000	30000	DER	2
+9027	DER001	2321	763	chr8	31000	32000	DER	2
+9028	DIC001	2322	764	chr15	33000	34000	DIC	2
+9029	DIC001	2322	764	chr21	35000	36000	DIC	2
+9030	RING001	2323	765	chr14	37000	38000	RING	2
+9031	RING001	2323	765	chr14	39000	40000	RING	2
+9032	CX001	2324	766	chr1	41000	42000	COMPLEX	2
+9033	CX001	2324	766	chr12	43000	44000	COMPLEX	2
+9034		2325	767	chr7	51109096	63573985	DEL	1
+9035		2326	768	chr17	36095248	42636838	DUP	3
+9036		2327	769	chr22	114775783	124126409	GAIN	3
+9037		2328	770	chr13	125258155	134236318	LOSS	1
+9038	TXG001	2329	771	chr9	133700000	133701000	TRANS	2
+9039	TXG001	2329	771	chr22	23200000	23201000	TRANS	2
+9040	INVG001	2330	772	chr3	178866000	178967000	INV	2
+9041	INVG001	2330	772	chr3	12100000	12201000	INV	2
+9042	DERG001	2331	773	chr5	70000000	70100000	DER	2
+9043	DERG001	2331	773	chr8	12000000	12100000	DER	2
+9044	RING001	2332	774	chr14	19000000	19001000	RING	2
+9045	RING001	2332	774	chr14	106000000	106001000	RING	2
+9046	TXG001	2333	775	chr9	133700000	133701000	TRANS	2
+9047	TXG001	2333	775	chr22	23200000	23201000	TRANS	2
+9048	TXG002	2334	776	chr1	12000000	12001500	TRANS	2
+9049	TXG002	2334	776	chr7	55000000	55002000	TRANS	2
+9050	TXG003	2335	777	chr2	89100000	89101800	TRANS	2
+9051	TXG003	2335	777	chr12	25300000	25301600	TRANS	2
+9052	TXG004	2336	778	chr3	45120000	45122500	TRANS	2
+9053	TXG004	2336	778	chr8	128700000	128702200	TRANS	2
+9054	TXG005	2337	779	chr4	99000000	99001750	TRANS	2
+9055	TXG005	2337	779	chr11	67400000	67401900	TRANS	2
+9056	TXG006	2338	780	chr5	70000000	70003000	TRANS	2
+9057	TXG006	2338	780	chr14	106200000	106202000	TRANS	2
+9058	TXG007	2339	781	chr6	32500000	32501800	TRANS	2
+9059	TXG007	2339	781	chr17	43000000	43001800	TRANS	2
+9060	TXG008	2340	782	chr7	140500000	140502100	TRANS	2
+9061	TXG008	2340	782	chr10	81100000	81102100	TRANS	2
+9062	TXG009	2341	783	chr8	118000000	118002500	TRANS	2
+9063	TXG009	2341	783	chr21	36000000	36001700	TRANS	2
+9064	TXG010	2342	784	chr9	21900000	21902000	TRANS	2
+9065	TXG010	2342	784	chr15	61000000	61001800	TRANS	2
+9066	TXG011	2343	785	chr10	33000000	33001400	TRANS	2
+9067	TXG011	2343	785	chr20	45800000	45801600	TRANS	2
+9068	TXG012	2344	786	chr11	118900000	118902400	TRANS	2
+9069	TXG012	2344	786	chr19	55600000	55601800	TRANS	2
+9070	TXG013	2345	787	chr12	69300000	69302000	TRANS	2
+9071	TXG013	2345	787	chr18	24000000	24001500	TRANS	2
+9072	TXG014	2346	788	chr13	48000000	48001600	TRANS	2
+9073	TXG014	2346	788	chr3	178000000	178002000	TRANS	2
+9074	TXG015	2347	789	chr14	75500000	75502200	TRANS	2
+9075	TXG015	2347	789	chr5	150400000	150402500	TRANS	2
+9076	TXG016	2348	790	chr15	42000000	42001800	TRANS	2
+9077	TXG016	2348	790	chr1	161000000	161002100	TRANS	2
+9078	TXG017	2349	791	chr16	66600000	66601800	TRANS	2
+9079	TXG017	2349	791	chr2	130900000	130902000	TRANS	2
+9080	TXG018	2350	792	chr17	7570000	7571800	TRANS	2
+9081	TXG018	2350	792	chr6	32700000	32701800	TRANS	2
+9082	TXG019	2351	793	chr18	78000000	78001900	TRANS	2
+9083	TXG019	2351	793	chr9	141000000	141002000	TRANS	2
+9084	TXG020	2352	794	chr19	13000000	13001700	TRANS	2
+9085	TXG020	2352	794	chr22	42000000	42001800	TRANS	2
+9086	TXG021	2353	795	chr20	20000000	20001500	TRANS	2
+9087	TXG021	2353	795	chr4	88000000	88002000	TRANS	2
+9088	TXG022	2354	796	chr21	19000000	19001800	TRANS	2
+9089	TXG022	2354	796	chr8	142000000	142002400	TRANS	2
+9090	TXG023	2355	797	chr22	23200000	23201800	TRANS	2
+9091	TXG023	2355	797	chr9	133700000	133702000	TRANS	2
+9092	TXG024	2356	798	chrX	50000000	50001800	TRANS	2
+9093	TXG024	2356	798	chr2	45000000	45001800	TRANS	2
+9094	TXG025	2357	799	chrY	12000000	12001500	TRANS	2
+9095	TXG025	2357	799	chr1	220000000	220002000	TRANS	2
+9096	TXG026	2358	800	chr1	248000000	248002000	TRANS	2
+9097	TXG026	2358	800	chr16	90000000	90001800	TRANS	2
+9098	TXG027	2359	801	chr2	240000000	240002100	TRANS	2
+9099	TXG027	2359	801	chr7	100000000	100002000	TRANS	2
+9100	TXG028	2360	802	chr3	10000000	10001600	TRANS	2
+9101	TXG028	2360	802	chr11	30000000	30001800	TRANS	2
+9102	TXG029	2361	803	chr4	5000000	5001800	TRANS	2
+9103	TXG029	2361	803	chr13	110000000	110002000	TRANS	2
+9104	TXG030	2362	804	chr5	141011866	141013200	TRANS	2
+9105	TXG030	2362	804	chr7	77900000	77902000	TRANS	2
+9106	TXG031	2363	805	chr6	32490000	32491800	TRANS	2
+9107	TXG031	2363	805	chr14	23000000	23001800	TRANS	2
+9108	TXG032	2364	806	chr7	55200000	55202200	TRANS	2
+9109	TXG032	2364	806	chr12	121000000	121002100	TRANS	2
+9110	TXG033	2365	807	chr8	38200000	38201800	TRANS	2
+9111	TXG033	2365	807	chr17	81000000	81002000	TRANS	2
+9112	TXG034	2366	808	chr9	90000000	90001900	TRANS	2
+9113	TXG034	2366	808	chr3	60000000	60001800	TRANS	2
+9114	TXG035	2367	809	chr10	123000000	123002000	TRANS	2
+9115	TXG035	2367	809	chr18	55000000	55001700	TRANS	2
+9116	TXG036	2368	810	chr11	65000000	65001800	TRANS	2
+9117	TXG036	2368	810	chr15	91500000	91502000	TRANS	2
+9118	TXG037	2369	811	chr12	112000000	112001900	TRANS	2
+9119	TXG037	2369	811	chr20	60000000	60001800	TRANS	2
+9120	TXG038	2370	812	chr13	35000000	35001800	TRANS	2
+9121	TXG038	2370	812	chr19	41000000	41001800	TRANS	2
+9122	TXG039	2371	813	chr14	95000000	95002100	TRANS	2
+9123	TXG039	2371	813	chr21	43000000	43001800	TRANS	2
+9124	TXG040	2372	814	chr15	27000000	27001800	TRANS	2
+9125	TXG040	2372	814	chr22	25000000	25001800	TRANS	2
+9126	TXG041	2373	815	chr16	10000000	10001500	TRANS	2
+9127	TXG041	2373	815	chr5	181000000	181002000	TRANS	2
+9128	TXG042	2374	816	chr17	43000000	43001800	TRANS	2
+9129	TXG042	2374	816	chr1	108700000	108702000	TRANS	2
+9130	TXG043	2375	817	chr18	15000000	15001700	TRANS	2
+9131	TXG043	2375	817	chr6	32550000	32551800	TRANS	2
+9132	TXG044	2376	818	chr19	56000000	56001800	TRANS	2
+9133	TXG044	2376	818	chr10	45000000	45001700	TRANS	2
+9134	TXG045	2377	819	chr20	50000000	50001800	TRANS	2
+9135	TXG045	2377	819	chr12	69000000	69002000	TRANS	2
+9136	TXG046	2378	820	chr21	35000000	35001800	TRANS	2
+9137	TXG046	2378	820	chr4	180000000	180002200	TRANS	2
+9138	TXG047	2379	821	chr22	48000000	48001800	TRANS	2
+9139	TXG047	2379	821	chr8	128500000	128502000	TRANS	2
+9140	TXG048	2380	822	chrX	75000000	75001800	TRANS	2
+9141	TXG048	2380	822	chr9	22000000	22001800	TRANS	2
+9142	TXG049	2381	823	chrY	20000000	20001500	TRANS	2
+9143	TXG049	2381	823	chr15	50000000	50001800	TRANS	2
+9144	TXG050	2382	824	chr5	150400000	150402000	TRANS	2
+9145	TXG050	2382	824	chr22	23200000	23201800	TRANS	2
+9698		2485	825	chr5	75000000	120000000	DEL	1
+9701	AUTO-BREAKPOINT-85-2	2488	826	chr21	29985207	30429817	DER	2
+9702		2489	827	chr1	25251125	28944261	DUP	3
+9703		2490	828	chr9	217379832	231989271	DEL	1
+9704		2491	829	chr11	27536862	29117879	GAIN	3
+9705	AUTO-BREAKPOINT-85-6	2492	830	chr3	148287279	153230994	DER	2
+9706		2493	831	chr3	62589327	77151510	DEL	1
+9707	AUTO-BREAKPOINT-85-8	2494	832	chr22	71766312	83565902	DER	2
+9708		2495	833	chr21	184827068	194196134	DUP	3
+9709	AUTO-BREAKPOINT-85-10	2496	834	chr7	152351235	167079243	DER	2
+9710		2497	835	chrY	150791111	159858649	LOSS	1
+9711		2498	836	chr16	24503309	37208229	DEL	1
+9712		2499	837	chr13	160057580	167935154	ADD	2
+9713		2500	838	chr14	42555148	50192368	DEL	1
+9714		2501	839	chr12	204784934	207520277	ADD	2
+9715		2502	840	chr10	64377491	65374314	DUP	3
+9716		2503	841	chr22	127682641	136931814	DUP	3
+9717		2504	842	chr21	100339303	107714402	ADD	2
+9718	AUTO-BREAKPOINT-85-19	2505	843	chr8	2030277	3246343	DER	2
+9719		2506	844	chr22	130402462	134021759	ADD	2
+9720		2507	845	chr4	176994335	184251173	LOSS	1
+9721		2508	846	chr11	215007415	229488881	DEL	1
+9722		2509	847	chr15	67156907	81853346	DEL	1
+9723		2510	848	chr14	130463297	138564151	DUP	3
+9724	AUTO-BREAKPOINT-85-25	2511	849	chr10	113650206	125362072	DER	2
+9725		2512	850	chr19	197597944	206719470	DEL	1
+9726	AUTO-BREAKPOINT-85-27	2513	851	chr3	159828520	160993714	DER	2
+9727		2514	852	chr22	156778336	166286270	ADD	2
+9728		2515	853	chr22	173375298	178433413	GAIN	3
+9729		2516	854	chr9	35656038	41536434	DEL	1
+9730	AUTO-BREAKPOINT-85-31	2517	855	chr21	142086436	142242685	DER	2
+9731		2518	856	chrY	148604841	151237824	LOSS	1
+9732		2519	857	chr2	24876180	35542707	GAIN	3
+9733		2520	858	chr15	148190585	160054720	GAIN	3
+9734		2521	859	chr5	11328349	16525065	LOSS	1
+9735		2522	860	chr14	166707554	179306701	DUP	3
+9736	AUTO-BREAKPOINT-85-37	2523	861	chr11	210120274	217052674	DER	2
+9737		2524	862	chr8	53672423	67397472	GAIN	3
+9738		2525	863	chr3	207688289	212396229	LOSS	1
+9739		2526	864	chr19	71360584	72027433	DEL	1
+9740		2527	865	chr19	51123882	55422416	DEL	1
+9741	AUTO-BREAKPOINT-85-42	2528	866	chr11	167377006	172668636	DER	2
+9742		2529	867	chr10	148923967	151084501	DUP	3
+9743		2530	868	chr10	56520484	63757810	ADD	2
+9744		2531	869	chr6	176958901	178406534	LOSS	1
+9745		2532	870	chr5	6656640	7456977	DUP	3
+9746		2533	871	chrX	103173435	111492707	GAIN	3
+9747		2534	872	chr18	66993652	81251374	DEL	1
+9748		2535	873	chr15	42823624	55325091	GAIN	3
+9749		2536	874	chr3	191640741	196459463	DUP	3
+9750		2537	875	chrX	41118350	52995096	DUP	3
+9751	AUTO-BREAKPOINT-85-52	2538	876	chr13	206740479	216564705	DER	2
+9752	AUTO-BREAKPOINT-85-53	2539	877	chr14	144577482	157143713	DER	2
+9753	AUTO-BREAKPOINT-85-54	2540	878	chr1	104483060	110147377	DER	2
+9754		2541	879	chr19	151602819	162751109	DEL	1
+9755		2542	880	chr11	56917125	64570713	LOSS	1
+9756		2543	881	chrY	144899199	145798050	LOSS	1
+9757		2544	882	chr20	41004824	45031944	DUP	3
+9758	AUTO-BREAKPOINT-85-59	2545	883	chr20	163106756	175679866	DER	2
+9759		2546	884	chrX	53338744	54638753	ADD	2
+9760		2547	885	chr18	115091846	126215332	LOSS	1
+9761		2548	886	chr21	123510341	135402010	DUP	3
+9762		2549	887	chr8	23363394	28068033	GAIN	3
+9763		2550	888	chr6	130975689	134559469	LOSS	1
+9764		2551	889	chr8	193393571	200237303	GAIN	3
+9765	AUTO-BREAKPOINT-85-66	2552	890	chr10	59584331	66394056	DER	2
+9766		2553	891	chrX	121901317	126471540	LOSS	1
+9767		2554	892	chr7	198367676	206516180	LOSS	1
+9768	AUTO-BREAKPOINT-85-69	2555	893	chr6	81239339	81501709	DER	2
+9769		2556	894	chr1	154199191	158994613	GAIN	3
+9770		2557	895	chr13	132102213	133370105	ADD	2
+9771		2558	896	chr18	205303725	212310966	ADD	2
+9772		2559	897	chr14	82074884	91639903	ADD	2
+9773		2560	898	chr6	148274290	149558669	DUP	3
+9774		2561	899	chrX	75991635	87810809	GAIN	3
+9775		2562	900	chr5	71405173	85298742	DUP	3
+9776		2563	901	chr10	187933330	194711302	LOSS	1
+9777		2564	902	chr9	7043055	8600265	DUP	3
+9778		2565	903	chr21	118810050	123501742	DUP	3
+9779		2566	904	chr11	86283419	97551393	DEL	1
+9780		2567	905	chr3	84527556	88787106	LOSS	1
+9781		2568	906	chr17	97214407	107685469	GAIN	3
+9782	AUTO-BREAKPOINT-85-83	2569	907	chr16	32695067	33204415	DER	2
+9783		2570	908	chr14	25120655	28915506	DEL	1
+9784		2571	909	chr16	126860532	130974658	GAIN	3
+9785		2572	910	chr17	71818614	85610149	DEL	1
+9786		2573	911	chr11	148254203	161078082	ADD	2
+9787	AUTO-BREAKPOINT-85-88	2574	912	chr11	200005267	207965491	DER	2
+9788		2575	913	chr19	89219149	103835299	DEL	1
+9789		2576	914	chr5	20186555	28088300	LOSS	1
+9790		2577	915	chr21	193029239	207942989	GAIN	3
+9791	AUTO-BREAKPOINT-85-92	2578	916	chr3	116593328	118269929	DER	2
+9792		2579	917	chr2	78850313	84889329	LOSS	1
+9793	AUTO-BREAKPOINT-85-94	2580	918	chr20	102788453	113210467	DER	2
+9794		2581	919	chr22	2622603	16147105	GAIN	3
+9795		2582	920	chr14	185404622	189625573	GAIN	3
+9796	AUTO-BREAKPOINT-85-97	2583	921	chr12	154399903	159388817	DER	2
+9797		2584	922	chr8	163057768	176536953	LOSS	1
+9798		2585	923	chr15	9056222	18804856	LOSS	1
+9799		2586	924	chr18	98309133	107240357	ADD	2
+9800		2587	925	chr3	37884173	50561735	DUP	3
+9901		2688	926	chr1	1000	2000	DEL	1
+9902		2689	927	chr2	3000	4000	DUP	3
+9903		2690	928	chr3	5000	6000	GAIN	3
+9904		2691	929	chr4	7000	8000	LOSS	1
+9905		2692	930	chr5	9000	10000	AMP	5
+9906		2693	931	chr6	11000	12000	ROH	2
+9907		2694	932	chr7	13000	14000	TRISOMY	3
+9908		2695	933	chr8	15000	16000	MONOSOMY	1
+9909	TX001	2696	934	chr9	17000	18000	TRANS	2
+9910	TX001	2696	934	chr22	19000	20000	TRANS	2
+9911	INV001	2697	935	chr3	21000	22000	INV	2
+9912	INV001	2697	935	chr3	23000	24000	INV	2
+9913	INS001	2698	936	chr10	25000	26000	INS	2
+9914	INS001	2698	936	chr11	27000	28000	INS	2
+9915	DER001	2699	937	chr5	29000	30000	DER	2
+9916	DER001	2699	937	chr8	31000	32000	DER	2
+9917	DIC001	2700	938	chr15	33000	34000	DIC	2
+9918	DIC001	2700	938	chr21	35000	36000	DIC	2
+9919	RING001	2701	939	chr14	37000	38000	RING	2
+9920	RING001	2701	939	chr14	39000	40000	RING	2
+9921	CX001	2702	940	chr1	41000	42000	COMPLEX	2
+9922	CX001	2702	940	chr12	43000	44000	COMPLEX	2
+9923		2703	941	chr7	51109096	63573985	DEL	1
+9924		2704	942	chr17	36095248	42636838	DUP	3
+9925		2705	943	chr22	114775783	124126409	GAIN	3
+9926		2706	944	chr13	125258155	134236318	LOSS	1
+9927	TXG001	2707	945	chr9	133700000	133701000	TRANS	2
+9928	TXG001	2707	945	chr22	23200000	23201000	TRANS	2
+9929	INVG001	2708	946	chr3	178866000	178967000	INV	2
+9930	INVG001	2708	946	chr3	12100000	12201000	INV	2
+9931	DERG001	2709	947	chr5	70000000	70100000	DER	2
+9932	DERG001	2709	947	chr8	12000000	12100000	DER	2
+9933	RING001	2710	948	chr14	19000000	19001000	RING	2
+9934	RING001	2710	948	chr14	106000000	106001000	RING	2
+9935	TXG001	2711	949	chr9	133700000	133701000	TRANS	2
+9936	TXG001	2711	949	chr22	23200000	23201000	TRANS	2
+9937	TXG002	2712	950	chr1	12000000	12001500	TRANS	2
+9938	TXG002	2712	950	chr7	55000000	55002000	TRANS	2
+9939	TXG003	2713	951	chr2	89100000	89101800	TRANS	2
+9940	TXG003	2713	951	chr12	25300000	25301600	TRANS	2
+9941	TXG004	2714	952	chr3	45120000	45122500	TRANS	2
+9942	TXG004	2714	952	chr8	128700000	128702200	TRANS	2
+9943	TXG005	2715	953	chr4	99000000	99001750	TRANS	2
+9944	TXG005	2715	953	chr11	67400000	67401900	TRANS	2
+9945	TXG006	2716	954	chr5	70000000	70003000	TRANS	2
+9946	TXG006	2716	954	chr14	106200000	106202000	TRANS	2
+9947	TXG007	2717	955	chr6	32500000	32501800	TRANS	2
+9948	TXG007	2717	955	chr17	43000000	43001800	TRANS	2
+9949	TXG008	2718	956	chr7	140500000	140502100	TRANS	2
+9950	TXG008	2718	956	chr10	81100000	81102100	TRANS	2
+9951	TXG009	2719	957	chr8	118000000	118002500	TRANS	2
+9952	TXG009	2719	957	chr21	36000000	36001700	TRANS	2
+9953	TXG010	2720	958	chr9	21900000	21902000	TRANS	2
+9954	TXG010	2720	958	chr15	61000000	61001800	TRANS	2
+9955	TXG011	2721	959	chr10	33000000	33001400	TRANS	2
+9956	TXG011	2721	959	chr20	45800000	45801600	TRANS	2
+9957	TXG012	2722	960	chr11	118900000	118902400	TRANS	2
+9958	TXG012	2722	960	chr19	55600000	55601800	TRANS	2
+9959	TXG013	2723	961	chr12	69300000	69302000	TRANS	2
+9960	TXG013	2723	961	chr18	24000000	24001500	TRANS	2
+9961	TXG014	2724	962	chr13	48000000	48001600	TRANS	2
+9962	TXG014	2724	962	chr3	178000000	178002000	TRANS	2
+9963	TXG015	2725	963	chr14	75500000	75502200	TRANS	2
+9964	TXG015	2725	963	chr5	150400000	150402500	TRANS	2
+9965	TXG016	2726	964	chr15	42000000	42001800	TRANS	2
+9966	TXG016	2726	964	chr1	161000000	161002100	TRANS	2
+9967	TXG017	2727	965	chr16	66600000	66601800	TRANS	2
+9968	TXG017	2727	965	chr2	130900000	130902000	TRANS	2
+9969	TXG018	2728	966	chr17	7570000	7571800	TRANS	2
+9970	TXG018	2728	966	chr6	32700000	32701800	TRANS	2
+9971	TXG019	2729	967	chr18	78000000	78001900	TRANS	2
+9972	TXG019	2729	967	chr9	141000000	141002000	TRANS	2
+9973	TXG020	2730	968	chr19	13000000	13001700	TRANS	2
+9974	TXG020	2730	968	chr22	42000000	42001800	TRANS	2
+9975	TXG021	2731	969	chr20	20000000	20001500	TRANS	2
+9976	TXG021	2731	969	chr4	88000000	88002000	TRANS	2
+9977	TXG022	2732	970	chr21	19000000	19001800	TRANS	2
+9978	TXG022	2732	970	chr8	142000000	142002400	TRANS	2
+9979	TXG023	2733	971	chr22	23200000	23201800	TRANS	2
+9980	TXG023	2733	971	chr9	133700000	133702000	TRANS	2
+9981	TXG024	2734	972	chrX	50000000	50001800	TRANS	2
+9982	TXG024	2734	972	chr2	45000000	45001800	TRANS	2
+9983	TXG025	2735	973	chrY	12000000	12001500	TRANS	2
+9984	TXG025	2735	973	chr1	220000000	220002000	TRANS	2
+9985	TXG026	2736	974	chr1	248000000	248002000	TRANS	2
+9986	TXG026	2736	974	chr16	90000000	90001800	TRANS	2
+9987	TXG027	2737	975	chr2	240000000	240002100	TRANS	2
+9988	TXG027	2737	975	chr7	100000000	100002000	TRANS	2
+9989	TXG028	2738	976	chr3	10000000	10001600	TRANS	2
+9990	TXG028	2738	976	chr11	30000000	30001800	TRANS	2
+9991	TXG029	2739	977	chr4	5000000	5001800	TRANS	2
+9992	TXG029	2739	977	chr13	110000000	110002000	TRANS	2
+9993	TXG030	2740	978	chr5	141011866	141013200	TRANS	2
+9994	TXG030	2740	978	chr7	77900000	77902000	TRANS	2
+9995	TXG031	2741	979	chr6	32490000	32491800	TRANS	2
+9996	TXG031	2741	979	chr14	23000000	23001800	TRANS	2
+9997	TXG032	2742	980	chr7	55200000	55202200	TRANS	2
+9998	TXG032	2742	980	chr12	121000000	121002100	TRANS	2
+9999	TXG033	2743	981	chr8	38200000	38201800	TRANS	2
+10000	TXG033	2743	981	chr17	81000000	81002000	TRANS	2
+10001	TXG034	2744	982	chr9	90000000	90001900	TRANS	2
+10002	TXG034	2744	982	chr3	60000000	60001800	TRANS	2
+10003	TXG035	2745	983	chr10	123000000	123002000	TRANS	2
+10004	TXG035	2745	983	chr18	55000000	55001700	TRANS	2
+10005	TXG036	2746	984	chr11	65000000	65001800	TRANS	2
+10006	TXG036	2746	984	chr15	91500000	91502000	TRANS	2
+10007	TXG037	2747	985	chr12	112000000	112001900	TRANS	2
+10008	TXG037	2747	985	chr20	60000000	60001800	TRANS	2
+10009	TXG038	2748	986	chr13	35000000	35001800	TRANS	2
+10010	TXG038	2748	986	chr19	41000000	41001800	TRANS	2
+10011	TXG039	2749	987	chr14	95000000	95002100	TRANS	2
+10012	TXG039	2749	987	chr21	43000000	43001800	TRANS	2
+10013	TXG040	2750	988	chr15	27000000	27001800	TRANS	2
+10014	TXG040	2750	988	chr22	25000000	25001800	TRANS	2
+10015	TXG041	2751	989	chr16	10000000	10001500	TRANS	2
+10016	TXG041	2751	989	chr5	181000000	181002000	TRANS	2
+10017	TXG042	2752	990	chr17	43000000	43001800	TRANS	2
+10018	TXG042	2752	990	chr1	108700000	108702000	TRANS	2
+10019	TXG043	2753	991	chr18	15000000	15001700	TRANS	2
+10020	TXG043	2753	991	chr6	32550000	32551800	TRANS	2
+10021	TXG044	2754	992	chr19	56000000	56001800	TRANS	2
+10022	TXG044	2754	992	chr10	45000000	45001700	TRANS	2
+10023	TXG045	2755	993	chr20	50000000	50001800	TRANS	2
+10024	TXG045	2755	993	chr12	69000000	69002000	TRANS	2
+10025	TXG046	2756	994	chr21	35000000	35001800	TRANS	2
+10026	TXG046	2756	994	chr4	180000000	180002200	TRANS	2
+10027	TXG047	2757	995	chr22	48000000	48001800	TRANS	2
+10028	TXG047	2757	995	chr8	128500000	128502000	TRANS	2
+10029	TXG048	2758	996	chrX	75000000	75001800	TRANS	2
+10030	TXG048	2758	996	chr9	22000000	22001800	TRANS	2
+10031	TXG049	2759	997	chrY	20000000	20001500	TRANS	2
+10032	TXG049	2759	997	chr15	50000000	50001800	TRANS	2
+10033	TXG050	2760	998	chr5	150400000	150402000	TRANS	2
+10034	TXG050	2760	998	chr22	23200000	23201800	TRANS	2
