@@ -7,7 +7,10 @@ public final class Models {
     public record Individual(long id, String mrn, String externalIdentifier) {
     }
 
-    public record SampleAccession(long id, String accessionIdentifier, long individualId, String dnaSource) {
+    public record Sample(long id, long individualId, String sampleIdentifier, String dnaSource) {
+    }
+
+    public record SampleAccession(long id, String accessionIdentifier, long sampleId, String accessionDnaSource) {
     }
 
     public record LabProtocol(long id, String technology, String manufacturer, String miscellaneous) {
@@ -24,10 +27,8 @@ public final class Models {
             long sampleTestId,
             long pipelineId,
             Long sourceFileId,
-            String genomeBuild,
             String callingMethod,
-            String rawIscn,
-            String annotationNames
+            String rawIscn
     ) {
     }
 
@@ -49,13 +50,16 @@ public final class Models {
             String chromosome,
             long startPos,
             long stopPos,
+            Long eventSizeBp,
+            String cytobandStart,
+            String cytobandEnd,
             String eventType,
             int copyNumber,
             String genomeBuild,
             String confidence,
-            String rawIscn,
+            Integer numberOfSites,
             String rawSegmentText,
-            String annotations
+            boolean ambiguityFlag
     ) {
     }
 
@@ -130,8 +134,9 @@ public final class Models {
 
     public record VariantClassification(
             long id,
-            long segmentId,
+            long interpretedCallId,
             String classificationLabel,
+            String classificationSource,
             String guidelineSystem,
             String guidelineVersion,
             Double evidenceScore,
@@ -145,11 +150,12 @@ public final class Models {
 
     public record SignedOutCall(
             long id,
-            long segmentId,
+            long interpretedCallId,
             long classificationId,
             long individualId,
             long sampleTestResultId,
             String clinicalSignificance,
+            String reportabilityStatus,
             String relevanceToIndication,
             String interpretationText,
             String signedOutStatus,
@@ -166,7 +172,16 @@ public final class Models {
             long targetId,
             String noteType,
             String noteText,
-            String author
+            String createdBy
+    ) {
+    }
+
+    public record InterpretedCall(
+            long id,
+            String findingType,
+            long findingId,
+            long sampleTestResultId,
+            long individualId
     ) {
     }
 }

@@ -82,6 +82,7 @@ public class CoreDao {
 
     public long findOrCreateSampleAccession(String accessionIdentifier, long individualId, String dnaSource)
             throws SQLException {
+        long sampleId = findOrCreateSample(individualId, accessionIdentifier, dnaSource);
         Long existing = findId(
                 "SELECT sample_accession_id FROM sample_accessions WHERE accession_identifier = ?",
                 accessionIdentifier);
@@ -89,11 +90,30 @@ public class CoreDao {
             return existing;
         }
         try (PreparedStatement ps = connection.prepareStatement("""
-                INSERT INTO sample_accessions (accession_identifier, individual_id, dna_source)
+                INSERT INTO sample_accessions (accession_identifier, sample_id, accession_dna_source)
                 VALUES (?, ?, ?)
                 """, DaoSupport.returnGeneratedKeys())) {
             ps.setString(1, accessionIdentifier);
-            ps.setLong(2, individualId);
+            ps.setLong(2, sampleId);
+            ps.setString(3, dnaSource);
+            ps.executeUpdate();
+            return DaoSupport.generatedId(ps);
+        }
+    }
+
+    public long findOrCreateSample(long individualId, String sampleIdentifier, String dnaSource) throws SQLException {
+        Long existing = findId(
+                "SELECT sample_id FROM samples WHERE sample_identifier = ?",
+                sampleIdentifier);
+        if (existing != null) {
+            return existing;
+        }
+        try (PreparedStatement ps = connection.prepareStatement("""
+                INSERT INTO samples (individual_id, sample_identifier, dna_source)
+                VALUES (?, ?, ?)
+                """, DaoSupport.returnGeneratedKeys())) {
+            ps.setLong(1, individualId);
+            ps.setString(2, sampleIdentifier);
             ps.setString(3, dnaSource);
             ps.executeUpdate();
             return DaoSupport.generatedId(ps);
@@ -167,8 +187,8 @@ public class CoreDao {
     ) throws SQLException {
         try (PreparedStatement ps = connection.prepareStatement("""
                 INSERT INTO sample_test_results
-                    (sample_test_id, pipeline_id, source_file_id, genome_build, calling_method, raw_iscn, annotation_names, line_number)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                    (sample_test_id, pipeline_id, source_file_id, calling_method, raw_iscn)
+                VALUES (?, ?, ?, ?, ?)
                 """, DaoSupport.returnGeneratedKeys())) {
             ps.setLong(1, sampleTestId);
             ps.setLong(2, pipelineId);
@@ -177,15 +197,8 @@ public class CoreDao {
             } else {
                 ps.setLong(3, sourceFileId);
             }
-            ps.setString(4, genomeBuild);
-            ps.setString(5, callingMethod);
-            ps.setString(6, rawIscn);
-            ps.setString(7, annotationNames);
-            if (lineNumber == null) {
-                ps.setNull(8, java.sql.Types.INTEGER);
-            } else {
-                ps.setInt(8, lineNumber);
-            }
+            ps.setString(4, callingMethod);
+            ps.setString(5, rawIscn);
             ps.executeUpdate();
             return DaoSupport.generatedId(ps);
         }

@@ -201,21 +201,20 @@ public class CircosDemoDataSeeder {
         try (PreparedStatement ps = connection.prepareStatement("""
                 INSERT INTO genomic_segments
                     (event_group_id, sample_test_result_id, karyotype_id, chromosome, start_pos, stop_pos,
-                     event_type, copy_number, genome_build, confidence, raw_iscn, raw_segment_text, annotations)
-                VALUES (?, ?, NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                     event_size_bp, event_type, copy_number, genome_build, confidence, raw_segment_text, ambiguity_flag)
+                VALUES (?, ?, NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, FALSE)
                 """, Statement.RETURN_GENERATED_KEYS)) {
             ps.setString(1, eventGroupId);
             ps.setLong(2, resultId);
             ps.setString(3, chromosome);
             ps.setLong(4, start);
             ps.setLong(5, stop);
-            ps.setString(6, eventType);
-            ps.setInt(7, copyNumber);
-            ps.setString(8, GENOME_BUILD);
-            ps.setString(9, confidence);
-            ps.setString(10, rawIscn);
-            ps.setString(11, rawSegmentText);
-            ps.setString(12, annotations);
+            ps.setLong(6, stop >= start ? stop - start + 1 : 0);
+            ps.setString(7, eventType);
+            ps.setInt(8, copyNumber);
+            ps.setString(9, GENOME_BUILD);
+            ps.setString(10, confidence);
+            ps.setString(11, rawSegmentText != null ? rawSegmentText : rawIscn);
             ps.executeUpdate();
             try (ResultSet keys = ps.getGeneratedKeys()) {
                 if (!keys.next()) {
@@ -247,12 +246,30 @@ public class CircosDemoDataSeeder {
         if (existing != null) {
             return existing;
         }
+        long sampleId = ensureSample(accession, individualId, dnaSource);
         try (PreparedStatement ps = connection.prepareStatement("""
-                INSERT INTO sample_accessions (accession_identifier, individual_id, dna_source)
+                INSERT INTO sample_accessions (accession_identifier, sample_id, accession_dna_source)
                 VALUES (?, ?, ?)
                 """, Statement.RETURN_GENERATED_KEYS)) {
             ps.setString(1, accession);
-            ps.setLong(2, individualId);
+            ps.setLong(2, sampleId);
+            ps.setString(3, dnaSource);
+            ps.executeUpdate();
+            return generatedId(ps);
+        }
+    }
+
+    private long ensureSample(String accession, long individualId, String dnaSource) throws SQLException {
+        Long existing = findId("SELECT sample_id FROM samples WHERE sample_identifier = ?", accession);
+        if (existing != null) {
+            return existing;
+        }
+        try (PreparedStatement ps = connection.prepareStatement("""
+                INSERT INTO samples (individual_id, sample_identifier, dna_source)
+                VALUES (?, ?, ?)
+                """, Statement.RETURN_GENERATED_KEYS)) {
+            ps.setLong(1, individualId);
+            ps.setString(2, accession);
             ps.setString(3, dnaSource);
             ps.executeUpdate();
             return generatedId(ps);
@@ -360,15 +377,13 @@ public class CircosDemoDataSeeder {
         }
         try (PreparedStatement ps = connection.prepareStatement("""
                 INSERT INTO sample_test_results
-                    (sample_test_id, pipeline_id, source_file_id, genome_build, calling_method,
-                     raw_iscn, annotation_names, line_number)
-                VALUES (?, ?, ?, ?, ?, NULL, 'demo_label', 1)
+                    (sample_test_id, pipeline_id, source_file_id, calling_method)
+                VALUES (?, ?, ?, ?)
                 """, Statement.RETURN_GENERATED_KEYS)) {
             ps.setLong(1, sampleTestId);
             ps.setLong(2, pipelineId);
             ps.setLong(3, sourceFileId);
-            ps.setString(4, GENOME_BUILD);
-            ps.setString(5, callingMethod);
+            ps.setString(4, callingMethod);
             ps.executeUpdate();
             return generatedId(ps);
         }

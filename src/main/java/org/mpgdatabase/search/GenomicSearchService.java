@@ -80,14 +80,15 @@ public class GenomicSearchService {
                 FROM sample_test_results str
                 JOIN sample_tests st ON st.sample_test_id = str.sample_test_id
                 JOIN sample_accessions sa ON sa.sample_accession_id = st.sample_accession_id
-                JOIN individuals i ON i.individual_id = sa.individual_id
+                JOIN samples s ON s.sample_id = sa.sample_id
+                JOIN individuals i ON i.individual_id = s.individual_id
                 LEFT JOIN lab_protocols lp ON lp.lab_protocol_id = st.lab_protocol_id
                 LEFT JOIN source_files sf ON sf.source_file_id = str.source_file_id
                 JOIN genomic_segments gs ON gs.sample_test_result_id = str.sample_test_result_id
                 WHERE 1 = 1
                 """);
         List<Object> params = new ArrayList<>();
-        addCommonFilters(sql, params, filters, "gs.chromosome", "gs.start_pos", "gs.stop_pos", "str.genome_build");
+        addCommonFilters(sql, params, filters, "gs.chromosome", "gs.start_pos", "gs.stop_pos", "gs.genome_build");
         addLike(sql, params, filters, "gene", """
                 EXISTS (
                     SELECT 1 FROM segment_annotations san
@@ -111,7 +112,8 @@ public class GenomicSearchService {
                 FROM sample_test_results str
                 JOIN sample_tests st ON st.sample_test_id = str.sample_test_id
                 JOIN sample_accessions sa ON sa.sample_accession_id = st.sample_accession_id
-                JOIN individuals i ON i.individual_id = sa.individual_id
+                JOIN samples s ON s.sample_id = sa.sample_id
+                JOIN individuals i ON i.individual_id = s.individual_id
                 LEFT JOIN lab_protocols lp ON lp.lab_protocol_id = st.lab_protocol_id
                 LEFT JOIN source_files sf ON sf.source_file_id = str.source_file_id
                 JOIN small_variant_sample_calls svc ON svc.sample_test_result_id = str.sample_test_result_id
@@ -152,7 +154,7 @@ public class GenomicSearchService {
     ) {
         addEquals(sql, params, filters, "mrn", "i.mrn");
         addEquals(sql, params, filters, "accession_number", "sa.accession_identifier");
-        addLike(sql, params, filters, "specimen_type", "sa.dna_source LIKE ?");
+        addLike(sql, params, filters, "specimen_type", "s.dna_source LIKE ?");
         String method = value(filters, "test_source_method");
         if (method != null) {
             sql.append(" AND (LOWER(str.calling_method) LIKE LOWER(?) OR LOWER(st.test_type) LIKE LOWER(?) OR LOWER(lp.technology) LIKE LOWER(?))\n");
@@ -182,10 +184,10 @@ public class GenomicSearchService {
                     str.sample_test_result_id,
                     i.mrn,
                     sa.accession_identifier,
-                    sa.dna_source,
+                    s.dna_source,
                     st.test_type,
                     str.calling_method,
-                    str.genome_build,
+                    COALESCE(MAX(gs.genome_build), MAX(sv.genome_build)) AS genome_build,
                     sf.file_name,
                     COUNT(DISTINCT CASE WHEN UPPER(gs.event_type) IN ('GAIN','DUP','DUPLICATION','AMP','AMPLIFICATION') THEN gs.segment_id END) AS gain_count,
                     COUNT(DISTINCT CASE WHEN UPPER(gs.event_type) IN ('LOSS','DEL','DELETION') THEN gs.segment_id END) AS loss_count,
@@ -194,7 +196,8 @@ public class GenomicSearchService {
                 FROM sample_test_results str
                 JOIN sample_tests st ON st.sample_test_id = str.sample_test_id
                 JOIN sample_accessions sa ON sa.sample_accession_id = st.sample_accession_id
-                JOIN individuals i ON i.individual_id = sa.individual_id
+                JOIN samples s ON s.sample_id = sa.sample_id
+                JOIN individuals i ON i.individual_id = s.individual_id
                 LEFT JOIN source_files sf ON sf.source_file_id = str.source_file_id
                 LEFT JOIN genomic_segments gs ON gs.sample_test_result_id = str.sample_test_result_id
                 LEFT JOIN genomic_links gl
@@ -206,15 +209,15 @@ public class GenomicSearchService {
                         SELECT segment_id FROM genomic_segments WHERE sample_test_result_id = str.sample_test_result_id
                    )
                 LEFT JOIN small_variant_sample_calls svc ON svc.sample_test_result_id = str.sample_test_result_id
+                LEFT JOIN small_variants sv ON sv.small_variant_id = svc.small_variant_id
                 WHERE str.sample_test_result_id IN (%s)
                 GROUP BY
                     str.sample_test_result_id,
                     i.mrn,
                     sa.accession_identifier,
-                    sa.dna_source,
+                    s.dna_source,
                     st.test_type,
                     str.calling_method,
-                    str.genome_build,
                     sf.file_name
                 ORDER BY str.sample_test_result_id
                 """.formatted(placeholders);

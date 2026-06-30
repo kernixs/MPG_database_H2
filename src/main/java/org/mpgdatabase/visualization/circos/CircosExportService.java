@@ -204,7 +204,8 @@ public class CircosExportService {
                 JOIN sample_test_results str ON str.sample_test_result_id = src.sample_test_result_id
                 JOIN sample_tests st ON st.sample_test_id = str.sample_test_id
                 JOIN sample_accessions sa ON sa.sample_accession_id = st.sample_accession_id
-                JOIN individuals i ON i.individual_id = sa.individual_id
+                JOIN samples s ON s.sample_id = sa.sample_id
+                JOIN individuals i ON i.individual_id = s.individual_id
                 WHERE src.sample_test_result_id IN (%s)
                   AND tgt.sample_test_result_id IN (%s)
                   AND UPPER(gl.link_type) = 'TRANSLOCATION'
