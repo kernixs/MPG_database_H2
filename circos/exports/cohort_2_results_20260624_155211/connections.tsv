@@ -1,0 +1,2 @@
+chr1	pos1	chr2	pos2	link_type	confidence	event_group_id	link_id	sample_test_result_id	patient_count	sample_count	event_count
+chr9	66858500	chr22	11609500	TRANSLOCATION	COHORT	COHORT_chr9_chr22	5	0	1	1	2

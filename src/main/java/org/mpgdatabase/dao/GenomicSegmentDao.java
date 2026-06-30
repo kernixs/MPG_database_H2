@@ -20,8 +20,9 @@ public class GenomicSegmentDao {
         try (PreparedStatement ps = connection.prepareStatement("""
                 INSERT INTO genomic_segments
                     (event_group_id, sample_test_result_id, karyotype_id, chromosome, start_pos, stop_pos,
-                     event_type, copy_number, genome_build, confidence, raw_iscn, raw_segment_text, annotations)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                     event_size_bp, cytoband_start, cytoband_end, event_type, copy_number, genome_build,
+                     confidence, number_of_sites, raw_segment_text, ambiguity_flag)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """, DaoSupport.returnGeneratedKeys())) {
             ps.setString(1, segment.eventGroupId());
             ps.setLong(2, segment.sampleTestResultId());
@@ -33,13 +34,24 @@ public class GenomicSegmentDao {
             ps.setString(4, segment.chromosome());
             ps.setLong(5, segment.startPos());
             ps.setLong(6, segment.stopPos());
-            ps.setString(7, segment.eventType());
-            ps.setInt(8, segment.copyNumber());
-            ps.setString(9, segment.genomeBuild());
-            ps.setString(10, segment.confidence());
-            ps.setString(11, segment.rawIscn());
-            ps.setString(12, segment.rawSegmentText());
-            ps.setString(13, segment.annotations());
+            if (segment.eventSizeBp() == null) {
+                ps.setNull(7, Types.BIGINT);
+            } else {
+                ps.setLong(7, segment.eventSizeBp());
+            }
+            ps.setString(8, segment.cytobandStart());
+            ps.setString(9, segment.cytobandEnd());
+            ps.setString(10, segment.eventType());
+            ps.setInt(11, segment.copyNumber());
+            ps.setString(12, segment.genomeBuild());
+            ps.setString(13, segment.confidence());
+            if (segment.numberOfSites() == null) {
+                ps.setNull(14, Types.INTEGER);
+            } else {
+                ps.setInt(14, segment.numberOfSites());
+            }
+            ps.setString(15, segment.rawSegmentText());
+            ps.setBoolean(16, segment.ambiguityFlag());
             ps.executeUpdate();
             return DaoSupport.generatedId(ps);
         }
@@ -105,13 +117,16 @@ public class GenomicSegmentDao {
                         rs.getString("chromosome"),
                         rs.getLong("start_pos"),
                         rs.getLong("stop_pos"),
+                        DaoSupport.nullableLong(rs, "event_size_bp"),
+                        rs.getString("cytoband_start"),
+                        rs.getString("cytoband_end"),
                         rs.getString("event_type"),
                         rs.getInt("copy_number"),
                         rs.getString("genome_build"),
                         rs.getString("confidence"),
-                        rs.getString("raw_iscn"),
+                        DaoSupport.nullableInt(rs, "number_of_sites"),
                         rs.getString("raw_segment_text"),
-                        rs.getString("annotations")
+                        rs.getBoolean("ambiguity_flag")
                 ));
             }
         }

@@ -131,13 +131,16 @@ public class CnvImportService {
                         record.chromosome(),
                         record.startPos(),
                         record.stopPos(),
+                        eventSize(record.startPos(), record.stopPos()),
+                        null,
+                        null,
                         record.eventType(),
                         record.copyNumber(),
                         genomeBuild,
                         record.confidence(),
-                        record.rawIscn(),
+                        numberOfSites(record),
                         rawSegmentText(record),
-                        record.annotations()
+                        false
                 ));
                 segmentAnnotationDao.createFromDelimited(
                         segmentId,
@@ -369,6 +372,25 @@ public class CnvImportService {
 
     private String rawSegmentText(CnvRecord record) {
         return rawEventText(record);
+    }
+
+    private Long eventSize(long startPos, long stopPos) {
+        return stopPos >= startPos ? stopPos - startPos + 1 : null;
+    }
+
+    private Integer numberOfSites(CnvRecord record) {
+        String value = record.sourceFields().get("number_of_sites");
+        if (value == null || value.isBlank()) {
+            value = record.sourceFields().get("probe_count");
+        }
+        if (value == null || value.isBlank()) {
+            return null;
+        }
+        try {
+            return Integer.parseInt(value.trim());
+        } catch (NumberFormatException e) {
+            return null;
+        }
     }
 
     private String resolveGenomeBuild(CnvRecord record, ParsedCnvFile parsed, String defaultGenomeBuild) {

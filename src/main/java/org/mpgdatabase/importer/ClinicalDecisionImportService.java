@@ -4,6 +4,7 @@ import org.mpgdatabase.dao.ClinicalDecisionDao;
 import org.mpgdatabase.model.Models.Note;
 import org.mpgdatabase.model.Models.SignedOutCall;
 import org.mpgdatabase.model.Models.VariantClassification;
+import org.mpgdatabase.model.Models.InterpretedCall;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -45,10 +46,17 @@ public class ClinicalDecisionImportService {
             String[] values = line.split("\t", -1);
             long segmentId = Long.parseLong(required(header, values, "segment_id"));
             SegmentContext context = segmentContext(segmentId);
+            long interpretedCallId = dao.createInterpretedCall(new InterpretedCall(
+                    0,
+                    "genomic_segments",
+                    segmentId,
+                    context.sampleTestResultId(),
+                    context.individualId()));
             long classificationId = dao.createVariantClassification(new VariantClassification(
                     0,
-                    segmentId,
+                    interpretedCallId,
                     required(header, values, "classification_label"),
+                    optional(header, values, "classification_source"),
                     optional(header, values, "guideline_system"),
                     optional(header, values, "guideline_version"),
                     optionalDouble(header, values, "evidence_score"),
@@ -61,11 +69,12 @@ public class ClinicalDecisionImportService {
 
             long signedOutCallId = dao.createSignedOutCall(new SignedOutCall(
                     0,
-                    segmentId,
+                    interpretedCallId,
                     classificationId,
                     context.individualId(),
                     context.sampleTestResultId(),
                     required(header, values, "clinical_significance"),
+                    optional(header, values, "reportability_status"),
                     optional(header, values, "relevance_to_indication"),
                     optional(header, values, "interpretation_text"),
                     required(header, values, "signed_out_status"),
@@ -144,11 +153,12 @@ public class ClinicalDecisionImportService {
 
     private SegmentContext segmentContext(long segmentId) throws SQLException {
         try (PreparedStatement ps = connection.prepareStatement("""
-                SELECT gs.sample_test_result_id, sa.individual_id
+                SELECT gs.sample_test_result_id, s.individual_id
                 FROM genomic_segments gs
                 JOIN sample_test_results str ON str.sample_test_result_id = gs.sample_test_result_id
                 JOIN sample_tests st ON st.sample_test_id = str.sample_test_id
                 JOIN sample_accessions sa ON sa.sample_accession_id = st.sample_accession_id
+                JOIN samples s ON s.sample_id = sa.sample_id
                 WHERE gs.segment_id = ?
                 """)) {
             ps.setLong(1, segmentId);

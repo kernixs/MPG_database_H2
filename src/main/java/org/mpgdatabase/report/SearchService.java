@@ -30,11 +30,9 @@ public class SearchService {
                     gs.copy_number,
                     gs.genome_build,
                     gs.confidence,
-                    gs.raw_iscn,
+                    gs.raw_segment_text,
                     str.calling_method,
-                    sf.file_name AS source_file,
-                    str.annotation_names,
-                    gs.annotations
+                    sf.file_name AS source_file
                 FROM genomic_segments gs
                 JOIN sample_test_results str ON str.sample_test_result_id = gs.sample_test_result_id
                 JOIN sample_tests st ON st.sample_test_id = str.sample_test_id
@@ -221,11 +219,9 @@ public class SearchService {
                         rs.getInt("copy_number"),
                         rs.getString("genome_build"),
                         rs.getString("confidence"),
-                        rs.getString("raw_iscn"),
+                        rs.getString("raw_segment_text"),
                         rs.getString("calling_method"),
-                        rs.getString("source_file"),
-                        rs.getString("annotation_names"),
-                        rs.getString("annotations")
+                        rs.getString("source_file")
                 ));
             }
         }
@@ -234,7 +230,7 @@ public class SearchService {
 
     private String table(List<SearchRow> rows) throws SQLException {
         StringBuilder sb = new StringBuilder();
-        sb.append("EVENT_GROUP_ID\tSEGMENT_ID\tSAMPLE_ACCESSION_ID\tCHROMOSOME\tSTART_POS\tSTOP_POS\tCNV_SIZE\tEVENT_TYPE\tCOPY_NUMBER\tGENOME_BUILD\tCONFIDENCE\tRAW_ISCN\tCALLING_METHOD\tSOURCE_FILE\tANNOTATION_NAMES\tANNOTATIONS\tMATCHED_ANNOTATIONS\n");
+        sb.append("EVENT_GROUP_ID\tSEGMENT_ID\tSAMPLE_ACCESSION_ID\tCHROMOSOME\tSTART_POS\tSTOP_POS\tCNV_SIZE\tEVENT_TYPE\tCOPY_NUMBER\tGENOME_BUILD\tCONFIDENCE\tRAW_SEGMENT_TEXT\tCALLING_METHOD\tSOURCE_FILE\tMATCHED_ANNOTATIONS\n");
         for (SearchRow row : rows) {
             sb.append(nullToEmpty(row.eventGroupId())).append('\t')
                     .append(row.segmentId()).append('\t')
@@ -247,11 +243,9 @@ public class SearchService {
                     .append(row.copyNumber()).append('\t')
                     .append(nullToEmpty(row.genomeBuild())).append('\t')
                     .append(nullToEmpty(row.confidence())).append('\t')
-                    .append(nullToEmpty(row.rawIscn())).append('\t')
+                    .append(nullToEmpty(row.rawSegmentText())).append('\t')
                     .append(nullToEmpty(row.callingMethod())).append('\t')
                     .append(nullToEmpty(row.sourceFile())).append('\t')
-                    .append(nullToEmpty(row.annotationNames())).append('\t')
-                    .append(nullToEmpty(row.annotations())).append('\t')
                     .append(readableAnnotations(row.segmentId()))
                     .append('\n');
         }
@@ -348,11 +342,9 @@ public class SearchService {
             int copyNumber,
             String genomeBuild,
             String confidence,
-            String rawIscn,
+            String rawSegmentText,
             String callingMethod,
-            String sourceFile,
-            String annotationNames,
-            String annotations
+            String sourceFile
     ) {
     }
 }

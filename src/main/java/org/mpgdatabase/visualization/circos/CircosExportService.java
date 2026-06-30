@@ -94,15 +94,25 @@ public class CircosExportService {
     }
 
     private String genomeBuild(List<Long> sampleTestResultIds) throws SQLException {
+        String idPlaceholders = placeholders(sampleTestResultIds.size());
         String sql = """
                 SELECT DISTINCT genome_build
-                FROM sample_test_results
-                WHERE sample_test_result_id IN (%s)
+                FROM (
+                    SELECT gs.genome_build
+                    FROM genomic_segments gs
+                    WHERE gs.sample_test_result_id IN (%s)
+                    UNION
+                    SELECT sv.genome_build
+                    FROM small_variant_sample_calls svc
+                    JOIN small_variants sv ON sv.small_variant_id = svc.small_variant_id
+                    WHERE svc.sample_test_result_id IN (%s)
+                )
                 ORDER BY genome_build
-                """.formatted(placeholders(sampleTestResultIds.size()));
+                """.formatted(idPlaceholders, idPlaceholders);
         List<String> builds = new ArrayList<>();
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            bindIds(ps, sampleTestResultIds);
+            int index = bindIds(ps, sampleTestResultIds);
+            bindIds(ps, sampleTestResultIds, index);
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                     String build = rs.getString("genome_build");
@@ -204,7 +214,8 @@ public class CircosExportService {
                 JOIN sample_test_results str ON str.sample_test_result_id = src.sample_test_result_id
                 JOIN sample_tests st ON st.sample_test_id = str.sample_test_id
                 JOIN sample_accessions sa ON sa.sample_accession_id = st.sample_accession_id
-                JOIN individuals i ON i.individual_id = sa.individual_id
+                JOIN samples s ON s.sample_id = sa.sample_id
+                JOIN individuals i ON i.individual_id = s.individual_id
                 WHERE src.sample_test_result_id IN (%s)
                   AND tgt.sample_test_result_id IN (%s)
                   AND UPPER(gl.link_type) = 'TRANSLOCATION'

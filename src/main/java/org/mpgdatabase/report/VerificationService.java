@@ -73,7 +73,8 @@ public class VerificationService {
         VerificationResult schema = verifySchema();
         VerificationResult relationship = verifyRows("Relationship Verification", """
                 SELECT COUNT(*) FROM individuals i
-                JOIN sample_accessions sa ON sa.individual_id = i.individual_id
+                JOIN samples s ON s.individual_id = i.individual_id
+                JOIN sample_accessions sa ON sa.sample_id = s.sample_id
                 JOIN sample_tests st ON st.sample_accession_id = sa.sample_accession_id
                 JOIN sample_test_results str ON str.sample_test_id = st.sample_test_id
                 JOIN genomic_segments gs ON gs.sample_test_result_id = str.sample_test_result_id
@@ -249,13 +250,13 @@ public class VerificationService {
                 """);
         checkZero(result, "Orphan variant_classifications", """
                 SELECT COUNT(*) FROM variant_classifications vc
-                LEFT JOIN genomic_segments gs ON gs.segment_id = vc.segment_id
-                WHERE gs.segment_id IS NULL
+                LEFT JOIN interpreted_calls ic ON ic.interpreted_call_id = vc.interpreted_call_id
+                WHERE ic.interpreted_call_id IS NULL
                 """);
-        checkZero(result, "Orphan signed_out_calls segments", """
+        checkZero(result, "Orphan signed_out_calls interpreted calls", """
                 SELECT COUNT(*) FROM signed_out_calls soc
-                LEFT JOIN genomic_segments gs ON gs.segment_id = soc.segment_id
-                WHERE gs.segment_id IS NULL
+                LEFT JOIN interpreted_calls ic ON ic.interpreted_call_id = soc.interpreted_call_id
+                WHERE ic.interpreted_call_id IS NULL
                 """);
         checkZero(result, "Orphan signed_out_calls classifications", """
                 SELECT COUNT(*) FROM signed_out_calls soc
@@ -346,7 +347,8 @@ public class VerificationService {
                 runLogText(tableCounts, importResults, vcfImportResults, clinicalImportResults));
         Files.writeString(outputDir.resolve("segments.tsv"), queryText("""
                 SELECT segment_id, event_group_id, sample_test_result_id, karyotype_id, chromosome, start_pos, stop_pos,
-                       event_type, copy_number, genome_build, confidence, raw_iscn, raw_segment_text, annotations
+                       event_size_bp, cytoband_start, cytoband_end, event_type, copy_number, genome_build,
+                       confidence, number_of_sites, raw_segment_text, ambiguity_flag
                 FROM genomic_segments ORDER BY segment_id
                 """));
         Files.writeString(outputDir.resolve("segment_annotations.tsv"), queryText("""
@@ -459,6 +461,8 @@ public class VerificationService {
                     sf.imported_at,
                     sf.import_status,
                     sf.row_count,
+                    sf.num_rows_with_errors,
+                    sf.file_checksum,
                     sf.notes
                 FROM source_files sf
                 LEFT JOIN pipelines p ON p.pipeline_id = sf.pipeline_id
@@ -471,11 +475,8 @@ public class VerificationService {
                     str.pipeline_id,
                     str.source_file_id,
                     sf.file_name AS source_file,
-                    str.genome_build,
                     str.calling_method,
-                    str.raw_iscn,
-                    str.annotation_names,
-                    str.line_number
+                    str.raw_iscn
                 FROM sample_test_results str
                 LEFT JOIN source_files sf ON sf.source_file_id = str.source_file_id
                 ORDER BY str.sample_test_result_id
@@ -618,8 +619,9 @@ public class VerificationService {
         Files.writeString(outputDir.resolve("variant_classifications.tsv"), queryText("""
                 SELECT
                     classification_id,
-                    segment_id,
+                    interpreted_call_id,
                     classification_label,
+                    classification_source,
                     guideline_system,
                     guideline_version,
                     evidence_score,
@@ -635,11 +637,12 @@ public class VerificationService {
         Files.writeString(outputDir.resolve("signed_out_calls.tsv"), queryText("""
                 SELECT
                     signed_out_call_id,
-                    segment_id,
+                    interpreted_call_id,
                     classification_id,
                     individual_id,
                     sample_test_result_id,
                     clinical_significance,
+                    reportability_status,
                     relevance_to_indication,
                     interpretation_text,
                     signed_out_status,
@@ -658,7 +661,7 @@ public class VerificationService {
                     target_id,
                     note_type,
                     note_text,
-                    author,
+                    created_by,
                     created_at
                 FROM notes
                 ORDER BY note_id
@@ -675,11 +678,8 @@ public class VerificationService {
                     str.source_file_id,
                     sf.file_name AS source_file,
                     sf.import_status,
-                    str.line_number AS source_row_number,
-                    str.genome_build,
                     str.calling_method,
                     str.raw_iscn,
-                    str.annotation_names,
                     gs.event_group_id,
                     gs.segment_id,
                     gs.chromosome,
@@ -688,14 +688,15 @@ public class VerificationService {
                     gs.event_type,
                     gs.copy_number,
                     gs.raw_segment_text,
-                    gs.annotations,
+                    gs.genome_build,
                     COALESCE(vi.validation_issue_count, 0) AS validation_issue_count,
                     COALESCE(vi.validation_summary, '') AS validation_summary
                 FROM genomic_segments gs
                 JOIN sample_test_results str ON str.sample_test_result_id = gs.sample_test_result_id
                 JOIN sample_tests st ON st.sample_test_id = str.sample_test_id
                 JOIN sample_accessions sa ON sa.sample_accession_id = st.sample_accession_id
-                JOIN individuals i ON i.individual_id = sa.individual_id
+                JOIN samples s ON s.sample_id = sa.sample_id
+                JOIN individuals i ON i.individual_id = s.individual_id
                 JOIN lab_protocols lp ON lp.lab_protocol_id = st.lab_protocol_id
                 JOIN pipelines p ON p.pipeline_id = str.pipeline_id
                 LEFT JOIN source_files sf ON sf.source_file_id = str.source_file_id
