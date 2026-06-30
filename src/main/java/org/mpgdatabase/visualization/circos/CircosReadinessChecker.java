@@ -95,11 +95,27 @@ public class CircosReadinessChecker {
     }
 
     private List<String> genomeBuilds(List<Long> ids) throws SQLException {
-        String sql = "SELECT DISTINCT genome_build FROM sample_test_results WHERE sample_test_result_id IN (%s) ORDER BY genome_build"
-                .formatted(placeholders(ids.size()));
+        String idPlaceholders = placeholders(ids.size());
+        String sql = """
+                SELECT DISTINCT genome_build
+                FROM (
+                    SELECT gs.genome_build
+                    FROM genomic_segments gs
+                    WHERE gs.sample_test_result_id IN (%s)
+                    UNION
+                    SELECT sv.genome_build
+                    FROM small_variant_sample_calls svc
+                    JOIN small_variants sv ON sv.small_variant_id = svc.small_variant_id
+                    WHERE svc.sample_test_result_id IN (%s)
+                )
+                ORDER BY genome_build
+                """.formatted(idPlaceholders, idPlaceholders);
         Set<String> builds = new LinkedHashSet<>();
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             bindIds(ps, ids);
+            for (int i = 0; i < ids.size(); i++) {
+                ps.setLong(ids.size() + i + 1, ids.get(i));
+            }
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                     String build = rs.getString("genome_build");

@@ -27,6 +27,7 @@ public final class Database {
             if (!trimmed.isEmpty()) {
                 String normalized = trimmed.toLowerCase();
                 if (normalized.contains("idx_segments_event_group_label")
+                        || normalized.contains("idx_segments_genome_build")
                         || normalized.contains("idx_links_event_group_label")) {
                     continue;
                 }
@@ -55,9 +56,86 @@ public final class Database {
         addColumnIfMissing(connection, "VALIDATION_ISSUES", "SOURCE_FILE_ID", "BIGINT");
         addColumnIfMissing(connection, "VALIDATION_ISSUES", "LINE_NUMBER", "INTEGER");
         addColumnIfMissing(connection, "VALIDATION_ISSUES", "SAMPLE_ACCESSION_ID", "VARCHAR(128)");
+        migrateLegacySampleAccessions(connection);
+        migrateLegacySampleTestResultColumns(connection);
         backfillDirectEventGroupIds(connection);
         backfillIndividualMrns(connection);
         createDirectEventGroupIndexes(connection);
+    }
+
+    private static void migrateLegacySampleAccessions(Connection connection) throws SQLException {
+        addColumnIfMissing(connection, "SAMPLE_ACCESSIONS", "SAMPLE_ID", "BIGINT");
+        addColumnIfMissing(connection, "SAMPLE_ACCESSIONS", "ACCESSION_DNA_SOURCE", "VARCHAR(128)");
+
+        boolean hasLegacyIndividualId = columnExists(connection, "SAMPLE_ACCESSIONS", "INDIVIDUAL_ID");
+        boolean hasLegacyDnaSource = columnExists(connection, "SAMPLE_ACCESSIONS", "DNA_SOURCE");
+        if (!hasLegacyIndividualId) {
+            return;
+        }
+
+        String dnaSourceExpression = hasLegacyDnaSource ? "sa.dna_source" : "CAST(NULL AS VARCHAR(128))";
+        try (Statement stmt = connection.createStatement()) {
+            stmt.execute("""
+                    INSERT INTO samples (individual_id, sample_identifier, dna_source)
+                    SELECT sa.individual_id, sa.accession_identifier, %s
+                    FROM sample_accessions sa
+                    WHERE sa.sample_id IS NULL
+                      AND sa.individual_id IS NOT NULL
+                      AND NOT EXISTS (
+                          SELECT 1
+                          FROM samples s
+                          WHERE s.sample_identifier = sa.accession_identifier
+                      )
+                    """.formatted(dnaSourceExpression));
+            stmt.execute("""
+                    UPDATE sample_accessions sa
+                    SET sample_id = (
+                        SELECT s.sample_id
+                        FROM samples s
+                        WHERE s.sample_identifier = sa.accession_identifier
+                    )
+                    WHERE sa.sample_id IS NULL
+                      AND EXISTS (
+                          SELECT 1
+                          FROM samples s
+                          WHERE s.sample_identifier = sa.accession_identifier
+                      )
+                    """);
+            if (hasLegacyDnaSource) {
+                stmt.execute("""
+                        UPDATE sample_accessions
+                        SET accession_dna_source = dna_source
+                        WHERE accession_dna_source IS NULL
+                          AND dna_source IS NOT NULL
+                        """);
+            }
+        }
+    }
+
+    private static void migrateLegacySampleTestResultColumns(Connection connection) throws SQLException {
+        if (columnExists(connection, "SAMPLE_TEST_RESULTS", "GENOME_BUILD")) {
+            try (Statement stmt = connection.createStatement()) {
+                stmt.execute("""
+                        UPDATE genomic_segments gs
+                        SET genome_build = (
+                            SELECT str.genome_build
+                            FROM sample_test_results str
+                            WHERE str.sample_test_result_id = gs.sample_test_result_id
+                        )
+                        WHERE (gs.genome_build IS NULL OR gs.genome_build = '')
+                          AND EXISTS (
+                              SELECT 1
+                              FROM sample_test_results str
+                              WHERE str.sample_test_result_id = gs.sample_test_result_id
+                                AND str.genome_build IS NOT NULL
+                                AND str.genome_build <> ''
+                          )
+                        """);
+            }
+            dropColumnIfExists(connection, "SAMPLE_TEST_RESULTS", "GENOME_BUILD");
+        }
+        dropColumnIfExists(connection, "SAMPLE_TEST_RESULTS", "ANNOTATION_NAMES");
+        dropColumnIfExists(connection, "SAMPLE_TEST_RESULTS", "LINE_NUMBER");
     }
 
     private static void backfillIndividualMrns(Connection connection) throws SQLException {
@@ -130,6 +208,10 @@ public final class Database {
 
     private static void createDirectEventGroupIndexes(Connection connection) throws SQLException {
         try (Statement stmt = connection.createStatement()) {
+            stmt.execute("""
+                    CREATE INDEX IF NOT EXISTS idx_segments_genome_build
+                        ON genomic_segments(genome_build)
+                    """);
             stmt.execute("""
                     CREATE INDEX IF NOT EXISTS idx_segments_event_group_label
                         ON genomic_segments(event_group_id)
@@ -234,6 +316,15 @@ public final class Database {
         }
         try (Statement stmt = connection.createStatement()) {
             stmt.execute("ALTER TABLE " + table + " ADD COLUMN " + column + " " + type);
+        }
+    }
+
+    private static void dropColumnIfExists(Connection connection, String table, String column) throws SQLException {
+        if (!columnExists(connection, table, column)) {
+            return;
+        }
+        try (Statement stmt = connection.createStatement()) {
+            stmt.execute("ALTER TABLE " + table + " DROP COLUMN " + column);
         }
     }
 

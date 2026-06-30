@@ -94,15 +94,25 @@ public class CircosExportService {
     }
 
     private String genomeBuild(List<Long> sampleTestResultIds) throws SQLException {
+        String idPlaceholders = placeholders(sampleTestResultIds.size());
         String sql = """
                 SELECT DISTINCT genome_build
-                FROM sample_test_results
-                WHERE sample_test_result_id IN (%s)
+                FROM (
+                    SELECT gs.genome_build
+                    FROM genomic_segments gs
+                    WHERE gs.sample_test_result_id IN (%s)
+                    UNION
+                    SELECT sv.genome_build
+                    FROM small_variant_sample_calls svc
+                    JOIN small_variants sv ON sv.small_variant_id = svc.small_variant_id
+                    WHERE svc.sample_test_result_id IN (%s)
+                )
                 ORDER BY genome_build
-                """.formatted(placeholders(sampleTestResultIds.size()));
+                """.formatted(idPlaceholders, idPlaceholders);
         List<String> builds = new ArrayList<>();
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            bindIds(ps, sampleTestResultIds);
+            int index = bindIds(ps, sampleTestResultIds);
+            bindIds(ps, sampleTestResultIds, index);
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                     String build = rs.getString("genome_build");

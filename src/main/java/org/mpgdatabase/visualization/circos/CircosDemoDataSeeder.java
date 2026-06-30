@@ -214,7 +214,7 @@ public class CircosDemoDataSeeder {
             ps.setInt(8, copyNumber);
             ps.setString(9, GENOME_BUILD);
             ps.setString(10, confidence);
-            ps.setString(11, rawSegmentText != null ? rawSegmentText : rawIscn);
+            ps.setString(11, segmentText(rawIscn, rawSegmentText, annotations));
             ps.executeUpdate();
             try (ResultSet keys = ps.getGeneratedKeys()) {
                 if (!keys.next()) {
@@ -394,9 +394,20 @@ public class CircosDemoDataSeeder {
                 SELECT COUNT(*)
                 FROM genomic_segments
                 WHERE sample_test_result_id = ?
-                  AND annotations = 'synthetic_circos_bulk_demo'
+                  AND raw_segment_text LIKE '%synthetic_circos_bulk_demo%'
                 """, resultId);
         return count != null && count > 0;
+    }
+
+    private String segmentText(String rawIscn, String rawSegmentText, String marker) {
+        String base = rawSegmentText != null ? rawSegmentText : rawIscn;
+        if (marker == null || marker.isBlank()) {
+            return base;
+        }
+        if (base == null || base.isBlank()) {
+            return marker;
+        }
+        return base + " | " + marker;
     }
 
     private Long findId(String sql, Object... params) throws SQLException {
