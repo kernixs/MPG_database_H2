@@ -162,9 +162,29 @@ public final class Database {
                             """);
                 }
             }
+            refreshNotesTargetConstraint(connection);
         }
         backfillInterpretedCallsFromSegments(connection);
         relaxLegacyClinicalSegmentColumns(connection);
+    }
+
+    private static void refreshNotesTargetConstraint(Connection connection) throws SQLException {
+        try (Statement stmt = connection.createStatement()) {
+            stmt.execute("ALTER TABLE notes DROP CONSTRAINT IF EXISTS ck_notes_target_table");
+            stmt.execute("""
+                    ALTER TABLE notes ADD CONSTRAINT ck_notes_target_table CHECK (
+                        target_table IN (
+                            'genomic_segments',
+                            'interpreted_calls',
+                            'variant_classifications',
+                            'signed_out_calls',
+                            'cases',
+                            'samples',
+                            'individuals'
+                        )
+                    )
+                    """);
+        }
     }
 
     private static void backfillInterpretedCallsFromSegments(Connection connection) throws SQLException {
