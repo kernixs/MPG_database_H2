@@ -7,6 +7,7 @@ import org.mpgdatabase.importer.ClinicalDecisionImportService;
 import org.mpgdatabase.importer.CnvImportService;
 import org.mpgdatabase.importer.CnvParserFactory;
 import org.mpgdatabase.importer.VcfImportService;
+import org.mpgdatabase.model.Models.InterpretedCall;
 import org.mpgdatabase.model.Models.Note;
 import org.mpgdatabase.model.Models.SignedOutCall;
 import org.mpgdatabase.model.Models.VariantClassification;
@@ -202,8 +203,7 @@ class Phase2WorkflowTest {
                     """));
             assertEquals(0, count(connection, """
                     SELECT COUNT(*) FROM genomic_segments gs
-                    JOIN sample_test_results str ON str.sample_test_result_id = gs.sample_test_result_id
-                    WHERE str.genome_build = 'unknown'
+                    WHERE gs.genome_build = 'unknown'
                     """));
             assertEquals(0, count(connection, """
                     SELECT COUNT(*) FROM sample_test_results str
@@ -233,13 +233,11 @@ class Phase2WorkflowTest {
             assertTrue(resultTrace.contains("SOURCE_FILE"), resultTrace);
             assertTrue(resultTrace.contains("INDIVIDUAL_ID"), resultTrace);
             assertTrue(resultTrace.contains("IMPORT_STATUS"), resultTrace);
-            assertTrue(resultTrace.contains("SOURCE_ROW_NUMBER"), resultTrace);
             assertTrue(resultTrace.contains("VALIDATION_ISSUE_COUNT"), resultTrace);
             assertTrue(resultTrace.contains("VALIDATION_SUMMARY"), resultTrace);
             assertEquals(0, count(connection, """
-                    SELECT COUNT(*) FROM sample_test_results str
-                    JOIN genomic_segments gs ON gs.sample_test_result_id = str.sample_test_result_id
-                    WHERE str.line_number IS NULL
+                    SELECT COUNT(*) FROM genomic_segments gs
+                    WHERE gs.sample_test_result_id IS NULL
                     """));
             assertFalse(columnExists(connection, "GENOMIC_SEGMENTS", "EVENT_ID"));
             assertFalse(columnExists(connection, "GENOMIC_SEGMENTS", "GENOMIC_EVENT_GROUP_ID"));
@@ -266,13 +264,18 @@ class Phase2WorkflowTest {
                     WHERE import_status = 'SUCCESS'
                     """));
             assertEquals(1, count(connection, """
-                    SELECT COUNT(*) FROM sample_test_results
-                    WHERE calling_method = 'NGS-derived' AND genome_build = 'GRCh37'
+                    SELECT COUNT(DISTINCT str.sample_test_result_id)
+                    FROM sample_test_results str
+                    JOIN genomic_segments gs ON gs.sample_test_result_id = str.sample_test_result_id
+                    WHERE str.calling_method = 'NGS-derived' AND gs.genome_build = 'GRCh37'
                     """));
             assertEquals(0, count(connection, """
                     SELECT COUNT(*) FROM genomic_segments gs
-                    JOIN sample_test_results str ON str.sample_test_result_id = gs.sample_test_result_id
-                    WHERE COALESCE(str.annotation_names, '') = '' OR COALESCE(gs.annotations, '') = ''
+                    WHERE NOT EXISTS (
+                        SELECT 1
+                        FROM segment_annotations sa
+                        WHERE sa.segment_id = gs.segment_id
+                    )
                     """));
 
             String geneSearch = new SearchService(connection).search(Map.of("annotation", "Gene=FCGR3A"));
@@ -337,13 +340,6 @@ class Phase2WorkflowTest {
             String unknownSearch = new SearchService(connection).search(Map.of("event-type", "NOT_A_REAL_EVENT"));
             assertTrue(unknownSearch.contains("Rows: 0"), unknownSearch);
 
-            try (PreparedStatement ps = connection.prepareStatement("""
-                    UPDATE genomic_segments
-                    SET annotations = annotations || '|extra'
-                    WHERE segment_id = 1
-                    """)) {
-                ps.executeUpdate();
-            }
             String mismatchSearch = new SearchService(connection).search(Map.of("annotation", "Gene=FCGR3A"));
             assertFalse(mismatchSearch.isBlank());
             assertTrue(mismatchSearch.contains("FCGR3A"), mismatchSearch);
@@ -417,11 +413,32 @@ class Phase2WorkflowTest {
                       AND gs.stop_pos = 71000000
                       AND gs.event_type = 'LOSS'
                       AND gs.copy_number = 1
-                      AND str.genome_build = 'GRCh38'
                       AND gs.genome_build = 'GRCh38'
                       AND str.calling_method = 'Array-derived'
-                      AND str.annotation_names = 'ProbeCount|MeanLogRatio|Gene|Classification'
-                      AND gs.annotations = '42|-0.58|MEF2C|Pathogenic'
+                      AND EXISTS (
+                          SELECT 1 FROM segment_annotations sa
+                          WHERE sa.segment_id = gs.segment_id
+                            AND sa.annotation_name = 'probe_count'
+                            AND sa.numeric_value = 42
+                      )
+                      AND EXISTS (
+                          SELECT 1 FROM segment_annotations sa
+                          WHERE sa.segment_id = gs.segment_id
+                            AND sa.annotation_name = 'MeanLogRatio'
+                            AND sa.numeric_value = -0.58
+                      )
+                      AND EXISTS (
+                          SELECT 1 FROM segment_annotations sa
+                          WHERE sa.segment_id = gs.segment_id
+                            AND sa.annotation_name = 'Gene'
+                            AND sa.text_value = 'MEF2C'
+                      )
+                      AND EXISTS (
+                          SELECT 1 FROM segment_annotations sa
+                          WHERE sa.segment_id = gs.segment_id
+                            AND sa.annotation_name = 'Classification'
+                            AND sa.text_value = 'Pathogenic'
+                      )
                     """));
         }
     }
@@ -450,11 +467,26 @@ class Phase2WorkflowTest {
                       AND gs.event_type = 'DUP'
                       AND gs.copy_number = 3
                       AND gs.confidence = 'HIGH'
-                      AND str.genome_build = 'GRCh37'
                       AND gs.genome_build = 'GRCh37'
                       AND str.calling_method = 'SNP-array-derived'
-                      AND str.annotation_names = 'NumProbes|MeanBAF|MeanLRR|LOHScore|Gene'
-                      AND gs.annotations = '88|0.61|0.35|0.02|SHH'
+                      AND EXISTS (
+                          SELECT 1 FROM segment_annotations sa
+                          WHERE sa.segment_id = gs.segment_id
+                            AND sa.annotation_name = 'probe_count'
+                            AND sa.numeric_value = 88
+                      )
+                      AND EXISTS (
+                          SELECT 1 FROM segment_annotations sa
+                          WHERE sa.segment_id = gs.segment_id
+                            AND sa.annotation_name = 'BAF'
+                            AND sa.numeric_value = 0.61
+                      )
+                      AND EXISTS (
+                          SELECT 1 FROM segment_annotations sa
+                          WHERE sa.segment_id = gs.segment_id
+                            AND sa.annotation_name = 'Gene'
+                            AND sa.text_value = 'SHH'
+                      )
                     """));
         }
     }
@@ -474,16 +506,31 @@ class Phase2WorkflowTest {
 
             assertTrue(result.success());
             assertEquals(2, result.segmentsInserted());
-            assertEquals(2, count(connection, """
-                    SELECT COUNT(*)
+            assertEquals(1, count(connection, """
+                    SELECT COUNT(DISTINCT gs.segment_id)
                     FROM genomic_segments gs
-                    JOIN sample_test_results str ON str.sample_test_result_id = gs.sample_test_result_id
-                    WHERE str.annotation_names = 'Gene|Clinical|Lumpy|CNVNATOR'
+                    JOIN segment_annotations gene ON gene.segment_id = gs.segment_id AND gene.annotation_name = 'Gene'
+                    JOIN segment_annotations clinical ON clinical.segment_id = gs.segment_id AND clinical.annotation_name = 'Clinical'
+                    JOIN segment_annotations lumpy ON lumpy.segment_id = gs.segment_id AND lumpy.annotation_name = 'Lumpy'
+                    JOIN segment_annotations cnvnator ON cnvnator.segment_id = gs.segment_id AND cnvnator.annotation_name = 'CNVNATOR'
                     """));
             assertEquals(1, count(connection, """
                     SELECT COUNT(*)
-                    FROM genomic_segments
-                    WHERE annotations = 'SHH||1|'
+                    FROM genomic_segments gs
+                    JOIN segment_annotations gene ON gene.segment_id = gs.segment_id
+                    JOIN segment_annotations lumpy ON lumpy.segment_id = gs.segment_id
+                    WHERE gene.annotation_name = 'Gene' AND gene.text_value = 'SHH'
+                      AND lumpy.annotation_name = 'Lumpy' AND lumpy.numeric_value = 1
+                      AND NOT EXISTS (
+                          SELECT 1 FROM segment_annotations clinical
+                          WHERE clinical.segment_id = gs.segment_id
+                            AND clinical.annotation_name = 'Clinical'
+                      )
+                      AND NOT EXISTS (
+                          SELECT 1 FROM segment_annotations cnvnator
+                          WHERE cnvnator.segment_id = gs.segment_id
+                            AND cnvnator.annotation_name = 'CNVNATOR'
+                      )
                     """));
             assertAnnotationAlignment(connection);
         }
@@ -513,14 +560,13 @@ class Phase2WorkflowTest {
                       AND str.calling_method = 'NGS-derived'
                     """));
             assertEquals(452, count(connection, """
-                    SELECT COUNT(*)
+                    SELECT COUNT(DISTINCT gs.segment_id)
                     FROM genomic_segments gs
-                    JOIN sample_test_results str ON str.sample_test_result_id = gs.sample_test_result_id
-                    WHERE str.annotation_names LIKE '%Gene%'
-                      AND str.annotation_names LIKE '%Clinical%'
-                      AND str.annotation_names LIKE '%Lumpy%'
-                      AND str.annotation_names LIKE '%CNVNATOR%'
-                      AND str.annotation_names LIKE '%gnomAD_version%'
+                    JOIN segment_annotations gene ON gene.segment_id = gs.segment_id AND gene.annotation_name = 'Gene'
+                    JOIN segment_annotations clinical ON clinical.segment_id = gs.segment_id AND clinical.annotation_name = 'Clinical'
+                    JOIN segment_annotations lumpy ON lumpy.segment_id = gs.segment_id AND lumpy.annotation_name = 'Lumpy'
+                    JOIN segment_annotations cnvnator ON cnvnator.segment_id = gs.segment_id AND cnvnator.annotation_name = 'CNVNATOR'
+                    JOIN segment_annotations gnomad ON gnomad.segment_id = gs.segment_id AND gnomad.annotation_name = 'gnomAD_version'
                     """));
             assertNoDedicatedAnnotationNames(connection);
             assertAnnotationAlignment(connection);
@@ -541,11 +587,10 @@ class Phase2WorkflowTest {
                     FROM genomic_segments gs
                     JOIN sample_test_results str ON str.sample_test_result_id = gs.sample_test_result_id
                     WHERE gs.genome_build IN ('GRCh37', 'GRCh38')
-                      AND gs.raw_iscn IS NULL
                       AND str.calling_method = 'Array-derived'
                     """));
             assertFalse(columnExists(connection, "GENOMIC_SEGMENTS", "ARRAY_SCORE"));
-            assertFalse(columnExists(connection, "GENOMIC_SEGMENTS", "NUMBER_OF_SITES"));
+            assertTrue(columnExists(connection, "GENOMIC_SEGMENTS", "NUMBER_OF_SITES"));
             assertTrue(columnExists(connection, "GENOMIC_SEGMENTS", "CONFIDENCE"));
             assertNoDedicatedAnnotationNames(connection);
             assertAnnotationAlignment(connection);
@@ -704,10 +749,17 @@ class Phase2WorkflowTest {
 
             SegmentContext context = firstSegmentContext(connection);
             ClinicalDecisionDao dao = new ClinicalDecisionDao(connection);
+            long interpretedCallId = dao.createInterpretedCall(new InterpretedCall(
+                    0,
+                    "genomic_segments",
+                    context.segmentId(),
+                    context.sampleTestResultId(),
+                    context.individualId()));
             long classificationId = dao.createVariantClassification(new VariantClassification(
                     0,
-                    context.segmentId(),
+                    interpretedCallId,
                     "Likely Pathogenic",
+                    "Manual review",
                     "ACMG/ClinGen CNV",
                     "2020",
                     0.95,
@@ -718,11 +770,12 @@ class Phase2WorkflowTest {
                     null));
             long signedOutCallId = dao.createSignedOutCall(new SignedOutCall(
                     0,
-                    context.segmentId(),
+                    interpretedCallId,
                     classificationId,
                     context.individualId(),
                     context.sampleTestResultId(),
                     "Diagnostic",
+                    "Reportable",
                     "Explains the congenital indication for testing.",
                     "The copy-number loss is interpreted as clinically relevant for this individual.",
                     "Signed out",
@@ -775,11 +828,12 @@ class Phase2WorkflowTest {
 
             assertThrows(SQLException.class, () -> dao.createSignedOutCall(new SignedOutCall(
                     0,
-                    context.segmentId(),
+                    interpretedCallId,
                     classificationId,
                     context.individualId(),
                     context.sampleTestResultId(),
                     "Maybe important",
+                    "Reportable",
                     "Invalid significance should be rejected.",
                     "Invalid significance should be rejected.",
                     "Signed out",
@@ -787,6 +841,43 @@ class Phase2WorkflowTest {
                     "Invalid significance should be rejected.",
                     "1",
                     null)));
+        }
+    }
+
+    @Test
+    void widensLegacyNotesTargetConstraintDuringMigration() throws Exception {
+        try (Connection connection = Database.connect("jdbc:h2:mem:legacy_notes_constraint;DB_CLOSE_DELAY=-1")) {
+            try (PreparedStatement ps = connection.prepareStatement("""
+                    CREATE TABLE notes (
+                        note_id BIGINT GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY,
+                        target_table VARCHAR(128) NOT NULL,
+                        target_id BIGINT NOT NULL,
+                        note_type VARCHAR(64) NOT NULL,
+                        note_text VARCHAR(4096) NOT NULL,
+                        author VARCHAR(128),
+                        created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                        CONSTRAINT ck_notes_target_table CHECK (
+                            target_table IN ('genomic_segments', 'variant_classifications', 'signed_out_calls')
+                        )
+                    )
+                    """)) {
+                ps.executeUpdate();
+            }
+
+            Database.initialize(connection);
+
+            try (PreparedStatement ps = connection.prepareStatement("""
+                    INSERT INTO notes (target_table, target_id, note_type, note_text, created_by)
+                    VALUES ('samples', 1, 'Import note', 'Migrated sample note target.', 'tester')
+                    """)) {
+                ps.executeUpdate();
+            }
+            assertEquals(1, count(connection, """
+                    SELECT COUNT(*)
+                    FROM notes
+                    WHERE target_table = 'samples'
+                      AND created_by = 'tester'
+                    """));
         }
     }
 
@@ -1060,12 +1151,12 @@ class Phase2WorkflowTest {
             assertEquals(19, result.recordsSeen());
             assertEquals(13, result.segmentsInserted());
             assertEquals(13, count(connection, "SELECT COUNT(*) FROM genomic_segments"));
-            assertEquals(4, count(connection, "SELECT COUNT(*) FROM sample_test_results WHERE genome_build = 'GRCh37'"));
-            assertEquals(4, count(connection, "SELECT COUNT(*) FROM sample_test_results WHERE genome_build = 'GRCh38'"));
-            assertEquals(5, count(connection, "SELECT COUNT(*) FROM sample_test_results WHERE genome_build = 'T2T-CHM13'"));
+            assertEquals(4, count(connection, "SELECT COUNT(*) FROM genomic_segments WHERE genome_build = 'GRCh37'"));
+            assertEquals(4, count(connection, "SELECT COUNT(*) FROM genomic_segments WHERE genome_build = 'GRCh38'"));
+            assertEquals(5, count(connection, "SELECT COUNT(*) FROM genomic_segments WHERE genome_build = 'T2T-CHM13'"));
             assertEquals(0, count(connection, """
                     SELECT COUNT(*)
-                    FROM sample_test_results
+                    FROM genomic_segments
                     WHERE genome_build NOT IN ('GRCh37', 'GRCh38', 'T2T-CHM13', 'NCBI36')
                     """));
             assertEquals(5, issueCount(connection, "Invalid Genome Build", "ERROR"));
@@ -1073,8 +1164,7 @@ class Phase2WorkflowTest {
             assertEquals(0, count(connection, """
                     SELECT COUNT(*)
                     FROM genomic_segments gs
-                    JOIN sample_test_results str ON str.sample_test_result_id = gs.sample_test_result_id
-                    WHERE str.genome_build IN ('hg19', 'hg38', 'Build 37', 'Build 38', 'T2T', 'CHM13', 'unknown')
+                    WHERE gs.genome_build IN ('hg19', 'hg38', 'Build 37', 'Build 38', 'T2T', 'CHM13', 'unknown')
                     """));
         }
     }
@@ -1202,55 +1292,40 @@ class Phase2WorkflowTest {
     private void assertNoDedicatedAnnotationNames(Connection connection) throws Exception {
         assertEquals(0, count(connection, """
                 SELECT COUNT(*)
-                FROM sample_test_results
-                WHERE annotation_names LIKE '%chromosome%'
-                   OR annotation_names LIKE '%Chr%'
-                   OR annotation_names LIKE '%Start%'
-                   OR annotation_names LIKE '%End%'
-                   OR annotation_names LIKE '%SV_Type%'
-                   OR annotation_names LIKE '%copy_number%'
-                   OR annotation_names LIKE '%CopyNumber%'
-                   OR annotation_names LIKE '%GenomeBuild%'
-                   OR annotation_names LIKE '%hg_version%'
-                   OR annotation_names LIKE '%Confidence%'
+                FROM segment_annotations
+                WHERE LOWER(annotation_name) IN (
+                    'chromosome',
+                    'chr',
+                    'start',
+                    'end',
+                    'sv_type',
+                    'copy_number',
+                    'copynumber',
+                    'genomebuild',
+                    'hg_version',
+                    'confidence'
+                )
                 """));
     }
 
     private void assertAnnotationAlignment(Connection connection) throws Exception {
-        try (PreparedStatement ps = connection.prepareStatement("""
-                SELECT str.annotation_names, gs.annotations
-                FROM genomic_segments gs
-                JOIN sample_test_results str ON str.sample_test_result_id = gs.sample_test_result_id
-                WHERE COALESCE(str.annotation_names, '') <> ''
-                   OR COALESCE(gs.annotations, '') <> ''
-                """)) {
-            try (var rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    String names = rs.getString("annotation_names");
-                    String values = rs.getString("annotations");
-                    int nameCount = splitAnnotationParts(names).length;
-                    int valueCount = splitAnnotationParts(values).length;
-                    assertEquals(nameCount, valueCount, "annotation_names and annotations must align");
-                }
-            }
-        }
-    }
-
-    private String[] splitAnnotationParts(String value) {
-        if (value == null || value.isEmpty()) {
-            return new String[0];
-        }
-        String delimiter = value.contains("|") ? "\\|" : ";";
-        return value.split(delimiter, -1);
+        assertEquals(0, count(connection, """
+                SELECT COUNT(*)
+                FROM segment_annotations
+                WHERE annotation_name IS NULL
+                   OR annotation_name = ''
+                   OR value_type NOT IN ('TEXT', 'NUMBER', 'BOOLEAN')
+                """));
     }
 
     private SegmentContext firstSegmentContext(Connection connection) throws Exception {
         try (PreparedStatement ps = connection.prepareStatement("""
-                SELECT gs.segment_id, gs.sample_test_result_id, sa.individual_id
+                SELECT gs.segment_id, gs.sample_test_result_id, s.individual_id
                 FROM genomic_segments gs
                 JOIN sample_test_results str ON str.sample_test_result_id = gs.sample_test_result_id
                 JOIN sample_tests st ON st.sample_test_id = str.sample_test_id
                 JOIN sample_accessions sa ON sa.sample_accession_id = st.sample_accession_id
+                JOIN samples s ON s.sample_id = sa.sample_id
                 ORDER BY gs.segment_id
                 LIMIT 1
                 """)) {
